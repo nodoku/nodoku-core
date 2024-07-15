@@ -1,0 +1,20 @@
+{
+  "name": "nodoku-core",
+  "version": "0.1.0",
+  "description": "basic foundation for nodoku static site generator",
+  "types": "./types/index.d.ts",
+  "main": "./out/index.js",
+  "files": [
+    "/dist/out"
+  ],
+  "type": "module",
+  "peerDependencies": {
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "18.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "bin": {
+    "gen-component-resolver": "out/bin/generate-component-resolver.js"
+  }
+}

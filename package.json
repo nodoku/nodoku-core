@@ -1,0 +1,42 @@
+{
+  "name": "nodoku-core",
+  "version": "0.1.0",
+  "description": "basic foundation for nodoku static site generator",
+  "types": "dist/types/index.d.ts",
+  "main": "./src/index.js",
+  "files": [
+    "/dist/out"
+  ],
+  "bin": {
+    "gen-all": "src/bin/cross-env.js",
+    "gen-component-resolver": "src/bin/generate-component-resolver.ts",
+    "gen-visual-schema": "src/bin/generate-visual-schema.ts"
+  },
+  "type": "module",
+  "dependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/mustache": "^4.2.5",
+    "js-yaml": "^4.1.0",
+    "mustache": "^4.2.0"
+  },
+  "peerDependencies": {
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "18.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.11",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.5.3",
+    "shx": "^0.3.4"
+  },
+  "scripts": {
+    "dist": "shx mkdir -p dist && shx cp package-dist.json dist/package.json && shx cp src/bin/mustache/default-component-resolver.mtl dist/out/bin/mustache && tsc"
+  }
+}

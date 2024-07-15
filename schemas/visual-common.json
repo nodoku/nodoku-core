@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "VisualRow": {
+      "type": "object",
+      "properties": {
+        "row": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VisualRowBlock"
+          }
+        }
+      },
+      "additionalItems": false,
+      "additionalProperties": false
+    },
+    "VisualRowBlock": {
+      "$ref": "{generatedVisualRowBlockSchema}"
+    },
+    "additionalItems": false,
+    "additionalProperties": false
+  },
+  "type": "object",
+  "properties": {
+    "rows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VisualRow"
+      }
+    },
+    "additionalItems": false,
+    "additionalProperties": false
+  }
+}

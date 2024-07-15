@@ -1,0 +1,16 @@
+import {AsyncFunctionComponent, DummyComp} from "nodoku-core";
+
+{{#modules}}
+import { {{comps}} } from "{{module}}";
+{{/modules}}
+
+const components: Map<string, AsyncFunctionComponent> = new Map<string, AsyncFunctionComponent>();
+
+{{#names}}
+components.set("{{{n}}}", {{c}})
+{{/names}}
+
+export function defaultComponentProvider(componentName: string): Promise<AsyncFunctionComponent> {
+    const f = components.get(componentName);
+    return Promise.resolve(f ? f : DummyComp);
+}
