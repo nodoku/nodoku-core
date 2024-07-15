@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 import { register } from 'node:module';
 
-import {Manifest} from "../content/manifest.js";
+import {ComponentDef, Manifest} from "../content/manifest.js";
 import fs from "node:fs";
 import path from "path";
 import Mustache from "mustache"
-
-console.log("this is my log")
 
 register('./import-load-hooks.js', import.meta.url);
 
@@ -32,7 +30,10 @@ function loadComponents(dir: string): Map<string, Manifest> {
         const stat: fs.Stats = fs.statSync(`${dir}/${f}`);
         if (stat.isDirectory()) {
 
-            loadComponentsByManifest(`${dir}/${f}`, f, comps);
+            const m: Manifest | undefined = loadComponentsByManifest(`${dir}/${f}`, f);
+            if (m) {
+                comps.set(f, m);
+            }
 
         }
 
@@ -42,7 +43,7 @@ function loadComponents(dir: string): Map<string, Manifest> {
 
 }
 
-function loadComponentsByManifest(dir: string, moduleName: string, comps: Map<string, Manifest>): void {
+function loadComponentsByManifest(dir: string, moduleName: string): Manifest | undefined {
 
     const files: string[] = fs.readdirSync(dir);
 
@@ -53,6 +54,7 @@ function loadComponentsByManifest(dir: string, moduleName: string, comps: Map<st
 
             if (f == "nodoku.manifest.json") {
 
+                const manifest: Manifest = new Manifest(moduleName);
                 console.log("found manifest ", `${dir}/${f}`, "reading...");
 
                 let json: any;
@@ -63,10 +65,7 @@ function loadComponentsByManifest(dir: string, moduleName: string, comps: Map<st
                 }
                 console.log("loaded manifest ", `${dir}/${f}`);
 
-
-
                 console.log("found manifest json ", json);
-
 
                 Object.keys(json).forEach((k: string) => {
 
@@ -74,11 +73,17 @@ function loadComponentsByManifest(dir: string, moduleName: string, comps: Map<st
 
                     console.log("adding ", k, v);
 
-                    comps.set(k, Manifest.from(k, moduleName, v));
+                    // comps.set(k, Manifest.from(k, moduleName, v));
+                    manifest.components.set(k, new ComponentDef(v.implementation, v.schema))
                 })
+
+                return manifest;
+
             }
         }
     }
+
+    return undefined;
 }
 
 
@@ -96,15 +101,19 @@ function calculateTemplateView(dir: string | undefined = undefined): TemplateVie
     const components: Map<string, Manifest> = loadComponents(`${dir}/node_modules`);
 
     const tv: TemplateView = new TemplateView();
-    components.forEach((m: Manifest): void  => {
+    components.forEach((m: Manifest, k: string): void  => {
 
         if (!tv.modules.get(m.moduleName)) {
             console.log("adding ", m.moduleName)
             tv.modules.set(m.moduleName, []);
         }
-        tv.modules.get(m.moduleName)!.push(m.componentImplementation);
 
-        tv.names.set(m.componentName, m.componentImplementation)
+        m.components.forEach((cd: ComponentDef, cn: string) => {
+
+            tv.modules.get(m.moduleName)!.push(cd.componentImplementation);
+
+            tv.names.set(cn, cd.componentImplementation)
+        })
 
     });
 

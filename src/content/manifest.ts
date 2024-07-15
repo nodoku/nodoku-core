@@ -1,17 +1,19 @@
-export class Manifest {
-    moduleName: string
-    componentName: string;
+export class ComponentDef {
     componentImplementation: string;
     componentSchema: string;
 
-    constructor(componentName: string, moduleName: string, componentImplementation: string, componentSchema: string) {
-        this.componentName = componentName;
-        this.moduleName = moduleName;
+    constructor(componentImplementation: string, componentSchema: string) {
         this.componentImplementation = componentImplementation;
         this.componentSchema = componentSchema;
     }
 
-    public static from(name: string, moduleName: string, json: any) {
-        return new Manifest(name, moduleName, json.implementation, json.schema)
+}
+
+export class Manifest {
+    moduleName: string
+    components: Map<string, ComponentDef> = new Map<string, ComponentDef>();
+
+    constructor(moduleName: string) {
+        this.moduleName = moduleName;
     }
 }

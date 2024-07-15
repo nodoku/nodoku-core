@@ -1,4 +1,5 @@
 {
+  "description": "Landing buddy visual page schema",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
     "VisualRow": {
@@ -15,7 +16,16 @@
       "additionalProperties": false
     },
     "VisualRowBlock": {
-      "$ref": "{generatedVisualRowBlockSchema}"
+      "type": "object",
+      "properties": {
+      {{#components}}
+        "{{{name}}}": {
+          "$ref": "{{{schema}}}"
+        },
+      {{/components}}
+      },
+      "additionalItems": false,
+      "additionalProperties": false
     },
     "additionalItems": false,
     "additionalProperties": false

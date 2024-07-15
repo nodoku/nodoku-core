@@ -5,7 +5,7 @@
   "types": "./types/index.d.ts",
   "main": "./out/index.js",
   "files": [
-    "/dist/out"
+    "./dist/out"
   ],
   "type": "module",
   "peerDependencies": {
@@ -15,6 +15,7 @@
     "react-dom": "^18.3.1"
   },
   "bin": {
-    "gen-component-resolver": "out/bin/generate-component-resolver.js"
+    "nodoku-gen-component-resolver": "out/bin/generate-component-resolver.js",
+    "nodoku-gen-yaml-visual-schema": "out/bin/generate-visual-schema.js"
   }
 }

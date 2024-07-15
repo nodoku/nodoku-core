@@ -37,6 +37,6 @@
     "shx": "^0.3.4"
   },
   "scripts": {
-    "dist": "shx mkdir -p dist && shx cp package-dist.json dist/package.json && shx cp src/bin/mustache/default-component-resolver.mtl dist/out/bin/mustache && tsc"
+    "dist": "shx mkdir -p dist && shx cp package-dist.json dist/package.json && shx cp -r src/bin/mustache dist/out/bin && shx cp -r schemas ./dist && tsc"
   }
 }
