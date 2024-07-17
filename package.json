@@ -8,9 +8,9 @@
     "/dist/out"
   ],
   "bin": {
-    "gen-all": "src/bin/cross-env.js",
-    "gen-component-resolver": "src/bin/generate-component-resolver.ts",
-    "gen-visual-schema": "src/bin/generate-visual-schema.ts"
+    "nodoku-gen-component-resolver": "src/bin/generate-component-resolver.ts",
+    "nodoku-gen-content-schema": "src/bin/generate-content-schema.ts",
+    "nodoku-gen-visual-schema": "src/bin/generate-visual-schema.ts"
   },
   "type": "module",
   "dependencies": {
@@ -37,6 +37,6 @@
     "shx": "^0.3.4"
   },
   "scripts": {
-    "dist": "shx mkdir -p dist && shx cp package-dist.json dist/package.json && shx cp -r src/bin/mustache dist/out/bin && shx cp -r schemas ./dist && tsc"
+    "dist": "shx rm -rf ./dist && shx mkdir -p dist && shx mkdir -p dist/out && shx mkdir -p dist/out/bin && shx mkdir -p dist/schemas && shx cp package-dist.json dist/package.json && shx cp -r src/bin/mustache dist/out/bin/ && shx cp -r schemas ./dist && tsc"
   }
 }

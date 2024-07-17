@@ -77,11 +77,9 @@
               "$ref": "#/definitions/Link"
             }
           },
-          "additionalItems": false,
           "additionalProperties": false
         }
       },
-      "additionalItems": false,
       "additionalProperties": false
     }
   },

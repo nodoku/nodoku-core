@@ -16,6 +16,7 @@
   },
   "bin": {
     "nodoku-gen-component-resolver": "out/bin/generate-component-resolver.js",
-    "nodoku-gen-yaml-visual-schema": "out/bin/generate-visual-schema.js"
+    "nodoku-gen-content-schema": "out/bin/generate-content-schema.js",
+    "nodoku-gen-visual-schema": "out/bin/generate-visual-schema.js"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "description": "Landing buddy visual page schema",
+  "description": "Nodoku visual page schema",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
     "VisualRow": {
@@ -12,7 +12,6 @@
           }
         }
       },
-      "additionalItems": false,
       "additionalProperties": false
     },
     "VisualRowBlock": {
@@ -21,13 +20,11 @@
       {{#components}}
         "{{{name}}}": {
           "$ref": "{{{schema}}}"
-        },
+        }{{^isLast}},{{/isLast}}
       {{/components}}
       },
-      "additionalItems": false,
       "additionalProperties": false
     },
-    "additionalItems": false,
     "additionalProperties": false
   },
   "type": "object",
@@ -38,7 +35,6 @@
         "$ref": "#/definitions/VisualRow"
       }
     },
-    "additionalItems": false,
     "additionalProperties": false
   }
 }

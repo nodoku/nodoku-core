@@ -15,7 +15,7 @@ register('./import-load-hooks.js', import.meta.url);
  * we register hooks, and only then use dynamic import to load custom template file
  */
 // @ts-ignore
-const template = (await import("./mustache/default-component-resolver.mtl")).default;
+const template = (await import("./mustache/default-component-resolver.ts.mtl")).default;
 
 function loadComponents(dir: string): Map<string, Manifest> {
 
