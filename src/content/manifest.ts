@@ -1,16 +1,17 @@
 export class ComponentDef {
-    componentImplementation: string;
-    componentSchema: string;
+    implementation: string;
+    schemaFile: string;
 
     constructor(componentImplementation: string, componentSchema: string) {
-        this.componentImplementation = componentImplementation;
-        this.componentSchema = componentSchema;
+        this.implementation = componentImplementation;
+        this.schemaFile = componentSchema;
     }
 
 }
 
 export class Manifest {
     moduleName: string
+    namespace: string | undefined = undefined;
     components: Map<string, ComponentDef> = new Map<string, ComponentDef>();
 
     constructor(moduleName: string) {

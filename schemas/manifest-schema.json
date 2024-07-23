@@ -1,16 +1,32 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "additionalProperties": {
-    "type": "object",
-    "properties": {
-      "schema": {
-        "type": "string"
-      },
-      "implementation": {
-        "type": "string"
-      }
+  "properties": {
+    "namespace": {
+      "type": "string"
     },
-    "additionalProperties": false
-  }
+    "components": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "schemaFile": {
+            "type": "string"
+          },
+          "implementation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaFile",
+          "implementation"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "components"
+  ],
+  "additionalProperties": false
 }

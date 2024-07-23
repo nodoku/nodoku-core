@@ -63,13 +63,15 @@ function loadComponentsByManifest(dir: string, moduleName: string): Manifest | u
                 } else {
                     json = JSON.parse(fs.readFileSync(`${dir}/nodoku.manifest.json`).toString());
                 }
-                console.log("loaded manifest ", `${dir}/${f}`);
+                console.log("loaded manifest ", path.resolve(dir, f));
 
                 console.log("found manifest json ", json);
 
-                Object.keys(json).forEach((k: string) => {
+                manifest.namespace = json.namespace;
 
-                    const v: any = json[`${k}`];
+                Object.keys(json.components).forEach((k: string) => {
+
+                    const v: any = json.components[k];
 
                     console.log("adding ", k, v);
 
@@ -108,12 +110,19 @@ function calculateTemplateView(dir: string | undefined = undefined): TemplateVie
             tv.modules.set(m.moduleName, []);
         }
 
-        m.components.forEach((cd: ComponentDef, cn: string) => {
 
-            tv.modules.get(m.moduleName)!.push(cd.componentImplementation);
+        if (m.namespace) {
+            tv.modules.get(m.moduleName)!.push(m.namespace);
+            m.components.forEach((cd: ComponentDef, cn: string) => {
+                tv.names.set(cn, `${m.namespace}.${cd.implementation}`)
+            })
+        } else {
+            m.components.forEach((cd: ComponentDef, cn: string) => {
+                tv.modules.get(m.moduleName)!.push(cd.implementation);
+                tv.names.set(cn, cd.implementation)
+            })
+        }
 
-            tv.names.set(cn, cd.componentImplementation)
-        })
 
     });
 

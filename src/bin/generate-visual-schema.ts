@@ -25,6 +25,8 @@ function loadComponents(dir: string): Map<string, Manifest> {
 
     const files: string[] = fs.readdirSync(dir);
 
+    console.log("reading ...", dir)
+
     for (const f of files) {
 
         const stat: fs.Stats = fs.statSync(`${dir}/${f}`);
@@ -63,13 +65,20 @@ function loadComponentsByManifest(dir: string, moduleName: string): Manifest | u
                 } else {
                     json = JSON.parse(fs.readFileSync(`${dir}/nodoku.manifest.json`).toString());
                 }
-                console.log("loaded manifest ", `${dir}/${f}`);
+                console.log("loaded manifest ", path.resolve(dir, f));
 
-                Object.keys(json).forEach((k: string) => {
+                console.log("found manifest json ", json);
 
-                    const v: any = json[`${k}`];
+                manifest.namespace = json.namespace;
 
-                    manifest.components.set(k, new ComponentDef(v.implementation, v.schema))
+                Object.keys(json.components).forEach((k: string) => {
+
+                    const v: any = json.components[k];
+
+                    console.log("adding ", k, v);
+
+                    // comps.set(k, Manifest.from(k, moduleName, v));
+                    manifest.components.set(k, new ComponentDef(v.implementation, v.schemaFile))
                 })
 
                 return manifest;
@@ -105,9 +114,9 @@ function calculateTemplateView(schemaDestinationDir: string, dirNodeModules: str
         m.components.forEach((cd: ComponentDef, cn: string) => {
 
             const moduleDir = `${dirNodeModules}/${m.moduleName}`;
-            const {content, dest } = readSchema(schemaDestinationDir, m.moduleName, moduleDir, cd.componentSchema)
+            const {content, dest } = readSchema(schemaDestinationDir, m.moduleName, moduleDir, cd.schemaFile)
 
-            const resolvedContent = resolveRefsInSchema(content, m.moduleName, dirNodeModules, schemaDestinationDir, cd.componentSchema);
+            const resolvedContent = resolveRefsInSchema(content, m.moduleName, dirNodeModules, schemaDestinationDir, cd.schemaFile);
 
             const schemaFile = writeSchema(dest, resolvedContent);
 
