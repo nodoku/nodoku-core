@@ -1,15 +1,9 @@
 #!/usr/bin/env node
-
-
 import { register } from 'node:module';
-
 import fs from "node:fs";
 import path from "path";
-import Mustache from "mustache"
-
+import Mustache from "mustache";
 register('./import-load-hooks.js', import.meta.url);
-
-
 /*
  * we need to use a dynamic import here since otherwise we have no guarantee that the template
  * file won't start loading prior to hooks registration
@@ -17,22 +11,14 @@ register('./import-load-hooks.js', import.meta.url);
  */
 // @ts-ignore
 const template = (await import("./mustache/content-schema.json.mtl")).default;
-
 const linkRegexPattern = "^((http|https)?:\\\\/\\\\/)?\\\\/?([-a-zA-Z0-9._\\\\+~#=]{1,256})([-a-zA-Z0-9@:%._\\\\+~#=]{1,256})([-a-zA-Z0-9()@:%_\\\\+.~#?&\\\\/\\\\/=]*)$";
-
 export function generateContentSchema() {
-
-    const args = process.argv.slice(2)
-
+    const args = process.argv.slice(2);
     const dir = path.resolve();
-    const schemaSrc = args[0] ? args[0] : "./schemas"
-
+    const schemaSrc = args[0] ? args[0] : "./schemas";
     console.log("generating content schema");
-
-    const view = {linkRegexPattern};
-
+    const view = { linkRegexPattern };
     const output = Mustache.render(template, view);
-
     const fileName = `${dir}/${schemaSrc}/content-schema.json`;
     fs.writeFile(fileName, output, err => {
         if (err) {
@@ -40,7 +26,5 @@ export function generateContentSchema() {
         }
         console.log(`${fileName}: File created!`);
     });
-
 }
-
 generateContentSchema();

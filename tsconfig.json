@@ -19,7 +19,7 @@
     "incremental": false,
     "declaration": true,
     "declarationDir": "./dist/types",
-    "outDir": "./dist/out",
+    "outDir": "./dist",
     "rootDir": "./src"
   },
   "include": [

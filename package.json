@@ -2,15 +2,12 @@
   "name": "nodoku-core",
   "version": "0.1.0",
   "description": "basic foundation for nodoku static site generator",
-  "types": "dist/types/index.d.ts",
-  "main": "./src/index.js",
-  "files": [
-    "/dist/out"
-  ],
+  "types": "./dist/types/index.d.ts",
+  "main": "./dist/index.js",
   "bin": {
-    "nodoku-gen-component-resolver": "src/bin/generate-component-resolver.ts",
-    "nodoku-gen-content-schema": "src/bin/generate-content-schema.ts",
-    "nodoku-gen-visual-schema": "src/bin/generate-visual-schema.ts"
+    "nodoku-gen-component-resolver": "./dist/bin/generate-component-resolver.js",
+    "nodoku-gen-content-schema": "./dist/bin/generate-content-schema.js",
+    "nodoku-gen-visual-schema": "./dist/bin/generate-visual-schema.js"
   },
   "type": "module",
   "dependencies": {
@@ -37,6 +34,6 @@
     "shx": "^0.3.4"
   },
   "scripts": {
-    "dist": "shx rm -rf ./dist && shx mkdir -p dist && shx mkdir -p dist/out && shx mkdir -p dist/out/bin && shx mkdir -p dist/schemas && shx cp package-dist.json dist/package.json && shx cp -r src/bin/mustache dist/out/bin/ && shx cp -r schemas ./dist && tsc"
+    "dist": "shx cp -r src/bin/mustache dist/bin/ && tsc"
   }
 }
