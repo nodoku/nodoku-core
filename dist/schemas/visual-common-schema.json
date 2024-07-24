@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ContentKey": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "ns": {
+              "type": "string",
+              "pattern": "[\\w-]+"
+            },
+            "key": {
+              "type": "string",
+              "pattern": "[\\w-]+"
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "string"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "description": "Nodoku content page schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Link": {
+      "type": "string",
+      "pattern": "^((http|https)?:\\/\\/)?\\/?([-a-zA-Z0-9._\\+~#=]{1,256})([-a-zA-Z0-9@:%._\\+~#=]{1,256})([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)$"
+    },
+    "Image": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "alt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    },
+    "ContentBlock": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "subTitle": {
+          "type": "string"
+        },
+        "footer": {
+          "type": "string"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Image"
+          }
+        },
+        "paragraphs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bgImage": {
+          "$ref": "#/definitions/Image"
+        },
+        "links": {
+          "properties": {
+            "titleLink": {
+              "$ref": "#/definitions/Link"
+            },
+            "subTitleLink": {
+              "$ref": "#/definitions/Link"
+            },
+            "footerLink": {
+              "$ref": "#/definitions/Link"
+            },
+            "imageLinks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Link"
+              }
+            },
+            "paragraphLinks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Link"
+              }
+            },
+            "blockLink": {
+              "$ref": "#/definitions/Link"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/ContentBlock"
+  }
+}

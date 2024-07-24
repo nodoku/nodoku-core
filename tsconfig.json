@@ -19,7 +19,7 @@
     "incremental": false,
     "declaration": true,
     "declarationDir": "./dist/types",
-    "outDir": "./dist",
+    "outDir": "./dist/esm",
     "rootDir": "./src"
   },
   "include": [

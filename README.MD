@@ -14,7 +14,7 @@ npm install nodoku-core nodoku-flowbite
 
 Then the rendering component would be as follows:
 
-```ts
+```tsx
 <RenderingPage 
     pageName={"main"}
     lng={lng}
