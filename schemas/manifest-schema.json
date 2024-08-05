@@ -15,11 +15,25 @@
           },
           "implementation": {
             "type": "string"
+          },
+          "numBlocks": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "unlimited"
+                ]
+              },
+              {
+                "type": "number"
+              }
+            ]
           }
         },
         "required": [
           "schemaFile",
-          "implementation"
+          "implementation",
+          "numBlocks"
         ],
         "additionalProperties": false
       }

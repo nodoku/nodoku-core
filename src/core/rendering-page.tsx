@@ -1,179 +1,49 @@
-import * as yaml from "js-yaml";
 import React, {JSX} from "react";
+import {NdContent, NdContentBlock,} from "../content/nd-content";
 import {
-    LbComponentProps,
-    LbContentBlock,
-    LbContentImage, LbContentKey,
-    LbNsContent,
-    LbPageVisual,
-    LbRow,
-    LbTranslatedText,
-    LbVisualComponent
-} from "../content/lb-content-block";
-import {RenderingPageProps} from "./rendering-page-props";
-import {
-    AsyncFunctionComponent,
-    ComponentProvider,
-    ContentYamlProvider,
-    i18nextProvider,
-    VisualYamlProvider
-} from "../content/providers";
+    NdComponentDefinition,
+    NdContentSelector,
+    NdPageSkin,
+    NdRow,
+    NdSkinComponent,
+    NdSkinComponentProps
+} from "../skin/nd-skin";
+import {RenderingPageProps, RenderingPriority} from "./rendering-page-props";
+import {AsyncFunctionComponent, ComponentProvider, i18nextProvider,} from "./providers";
 import {DummyComp} from "./dummy-comp";
 
-async function defaultComponentProvider(componentName: string): Promise<AsyncFunctionComponent> {
-    return DummyComp;
+async function defaultComponentProvider(): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
+    const compoDef: NdComponentDefinition = new NdComponentDefinition("unlimited");
+    return {compo: DummyComp, compoDef: compoDef};
 }
 
-
-async function fetchPageContent(lng: string, namespaces: string[], provider: ContentYamlProvider): Promise<Map<string, LbNsContent>> {
-    const pageContent: Map<string, LbNsContent> = new Map();
-    await Promise.all(namespaces.map(ns => readFileContent(lng, ns, pageContent, provider)))
-    // console.log("content", res)
-    return pageContent;
-}
-
-async function readFileContent(lng: string, ns: string, pageContent: Map<string, LbNsContent>, provider: ContentYamlProvider): Promise<void> {
-    console.log("fetching file content", lng, ns)
-    await provider(lng, ns)
-        .then((fileContent: any) => pageContent.set(ns, fetchSuccessContent(fileContent, ns)));
-
-}
-
-async function fetchPageVisual(pageName: string, provider: VisualYamlProvider): Promise<LbPageVisual> {
-    const res = await provider(pageName)
-        .then(fetchSuccessVisual);
-    console.log("all visual", JSON.stringify(res))
-    return res;
-}
-
-function fetchSuccessContent(fileContents: string, ns: string): LbNsContent {
-    const data: any = yaml.load(fileContents);
-    console.log("LbPageContent", Object.keys(data));
-
-    const res: LbNsContent = new LbNsContent();
-
-    res.blocks = Object.keys(data).map(((key: any, bi: number): LbContentBlock => {
-
-        const b: any = data[key];
-
-        const blockPrefix = key;
-        const bRes: LbContentBlock = new LbContentBlock(key);
-
-        bRes.title = new LbTranslatedText(ns);
-        bRes.title.key = `${blockPrefix}.title`;
-        bRes.title.text = b.header;
-
-        bRes.subTitle = new LbTranslatedText(ns);
-        bRes.subTitle.key = `${blockPrefix}.subTitle`;
-        bRes.subTitle.text = b.subHeader;
-
-        bRes.footer = new LbTranslatedText(ns);
-        bRes.footer.key = `${blockPrefix}.footer`;
-        bRes.footer.text = b.footer;
-
-        bRes.paragraphs = b.paragraphs ? b.paragraphs.map(((p: any, pi: number) =>
-                new LbTranslatedText(ns, `${key}.paragraphs.${pi}`, p)
-        )) : [];
-
-        bRes.images = b.images ? b.images.map(((im: any, imi: number) => {
-            const pRes: LbContentImage = new LbContentImage();
-            pRes.url = new LbTranslatedText(ns, `${key}.images.${imi}.url`, im.url);
-            pRes.alt = new LbTranslatedText(ns, `${key}.images.${imi}.alt`, im.alt);
-            pRes.title = new LbTranslatedText(ns, `${key}.images.${imi}.title`, im.title);
-            return pRes;
-        })) : [];
-
-        if (b.bgImage) {
-            bRes.bgImage = new LbContentImage();
-            bRes.bgImage.url = new LbTranslatedText(ns, `${key}.bgImage.url`, b.bgImage.url);
-            bRes.bgImage.alt = new LbTranslatedText(ns, `${key}.bgImage.alt`, b.bgImage.alt);
-            bRes.bgImage.alt = new LbTranslatedText(ns, `${key}.bgImage.title`, b.bgImage.title);
-        }
-
-        return bRes;
-    }))
-
-    return res;
-}
-
-function fetchSuccessVisual(fileContents: string): LbPageVisual {
-    const data: any = yaml.load(fileContents);
-
-    return {
-        rows: data.rows.map(((r: any, iRow: number) => {
-            const row: LbRow = new LbRow(iRow);
-
-            row.row = r.row.map((vc: any, iVc: number) => {
-
-                console.log("Object.keys(vc)", Object.keys(vc))
-
-                const vcName = Object.keys(vc)[0];
-                const lbVisualComponent = new LbVisualComponent(iRow, iVc);
-                lbVisualComponent.visualComponent = vcName;
-                const vb: any = vc[lbVisualComponent.visualComponent]
-                lbVisualComponent.ns = vb.ns;
-                lbVisualComponent.contentKeys = convertContentKeys(vb, lbVisualComponent.ns);
-                lbVisualComponent.theme = vb.theme
-                lbVisualComponent.options = vb.options;
-
-                lbVisualComponent.implementationModule = "nodoku-flowbite"
-                lbVisualComponent.implementationComponent = lbVisualComponent.visualComponent;
-
-                return lbVisualComponent;
-            })
-
-            return row;
-        }))
-    } as LbPageVisual;
-
-}
-
-function convertContentKeys(vb: any, defaultNs: string): LbContentKey[] {
-    var contentKeys = vb.contentKeys
-    if (!contentKeys && vb.contentKey) {
-        contentKeys = [vb.contentKey]
-    }
-    if (!contentKeys || !contentKeys.length) {
-        return []
-    }
-    return contentKeys.map((ck: any) => {
-        if (typeof ck == "string") {
-            return new LbContentKey(ck, defaultNs);
-        } else {
-            return new LbContentKey(ck.key, ck.ns ? ck.ns : defaultNs);
-        }
-    })
-}
 
 async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
 
 
-    const { pageName, lng , i18nextProvider, contentYamlProvider, visualYamlProvider} = props;
+    const {  lng , i18nextProvider, content, skin, renderingPriority} = props;
     var { componentProvider } = props;
 
     if (!componentProvider) {
         componentProvider = defaultComponentProvider;
     }
 
-    const pageVisual: LbPageVisual = await fetchPageVisual(pageName, visualYamlProvider);
+    let l: JSX.Element[][];
+    if (skin) {
 
-    const namespaces: Set<string> = new Set();
+        let blockSkin: NdPageSkin = skin;
 
-    pageVisual.rows.forEach((r: any) => {
-        r.row.forEach((vc: any) => {
-            vc.contentKeys.forEach((ck: any) => {
-                console.log(ck.ns)
-                namespaces.add(ck.ns);
-            })
-        })
-    })
+        if (renderingPriority == RenderingPriority.content_first) {
+            blockSkin = generateSkinByContentBlocks(content.blocks, skin, componentProvider);
+        }
 
-    const pageContent: Map<string, LbNsContent> = await fetchPageContent(lng, Array.from(namespaces.keys()), contentYamlProvider);
+        l = await Promise.all(blockSkin.rows.map(async (row: NdRow, iRow: number): Promise<JSX.Element[]> => {
+            return await createSubRows(row, iRow, content.blocks, lng, i18nextProvider, componentProvider)
+        }));
 
-    const l: JSX.Element[][] = await Promise.all(pageVisual.rows.map(async (row: LbRow, iRow: number): Promise<JSX.Element[]> => {
-        return await createSubRows(row, iRow, pageContent, lng, i18nextProvider, componentProvider)
-
-    }));
+    } else {
+        l = [await createSubRows(undefined, 0, content.blocks, lng, i18nextProvider, componentProvider)];
+    }
     const rows: JSX.Element[] = l.flatMap((a: JSX.Element[]) => a);
 
 
@@ -181,13 +51,61 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
 
 }
 
-async function createSubRows(row: LbRow, iRow: number, pageContent: Map<string, LbNsContent>, lng: string, i18nProvider: i18nextProvider, componentProvider: ComponentProvider): Promise<JSX.Element[]> {
+function generateSkinByContentBlocks(blocks: NdContentBlock[], skin: NdPageSkin, componentProvider: ComponentProvider): NdPageSkin {
 
-    const rowComponents: JSX.Element[] = await Promise.all(row.row.map(async (visualSection: LbVisualComponent, iComp: number): Promise<JSX.Element> => {
+    const rendered: Set<string> = new Set<string>();
+    let currentRow: NdRow | undefined = undefined;
+    const res: NdPageSkin = new NdPageSkin();
 
-        return await createRowBlock(iRow, iComp, visualSection, pageContent, lng, i18nProvider, componentProvider)
+    let rowIndex = 0;
+    blocks.map((b: NdContentBlock, i: number) => {
+        if (!rendered.has(b.id)) {
+            const bRows: NdRow[] = skin.rows.filter(r => r.row.filter(c => c.selector.match(b)).length > 0)
+            if (bRows.length > 0) {
+                if (currentRow) {
+                    res.rows.push(currentRow);
+                    currentRow = undefined;
+                }
+                bRows.forEach(r => res.rows.push(r))
+                bRows.flatMap(r => r.row.flatMap(c => c.selector.filterBlocks(blocks)))
+                    .forEach(b => rendered.add(b.id))
 
-    }));
+            } else {
+                if (!currentRow) {
+                    currentRow = new NdRow(res.rows.length)
+                }
+                currentRow.row.push(new NdSkinComponent(rowIndex, currentRow.row.length, new NdContentSelector([{key: "id", value: b.id}])));
+                rendered.add(b.id);
+            }
+        }
+    });
+
+    if (currentRow) {
+        res.rows.push(currentRow)
+    }
+
+    return res;
+
+}
+
+async function createSubRows(row: NdRow | undefined, iRow: number, blocks: NdContentBlock[], lng: string, i18nProvider: i18nextProvider, componentProvider: ComponentProvider): Promise<JSX.Element[]> {
+
+    let l: JSX.Element[][];
+    if (row) {
+        l = await Promise.all(row.row.map(async (visualSection: NdSkinComponent, iComp: number): Promise<JSX.Element[]> => {
+
+            return await createRowComponents(iRow, iComp, visualSection, blocks, lng, i18nProvider, componentProvider)
+
+        }));
+    } else {
+        l = await Promise.all(blocks.map(async (block: NdContentBlock, iComp: number): Promise<JSX.Element[]> => {
+
+            return await createRowComponents(iRow, iComp, undefined, [block], lng, i18nProvider, componentProvider)
+
+        }));
+    }
+
+    const rowComponents: JSX.Element[] = l.flatMap( (p: JSX.Element[]) => p);
 
     const numComponents = rowComponents.length;
 
@@ -214,52 +132,76 @@ async function createSubRows(row: LbRow, iRow: number, pageContent: Map<string, 
 
 }
 
-async function createRowBlock(rowIndex: number,
-                              componentIndex: number,
-                              visualSection: LbVisualComponent,
-                              pageContent: Map<string, LbNsContent>,
-                              lng: string,
-                              i18nProvider: i18nextProvider,
-                              componentProvider: ComponentProvider): Promise<JSX.Element> {
+async function createRowComponents(rowIndex: number,
+                                   blockIndex: number,
+                                   skinComponent: NdSkinComponent | undefined,
+                                   pageContent: NdContentBlock[],
+                                   lng: string,
+                                   i18nProvider: i18nextProvider,
+                                   componentProvider: ComponentProvider): Promise<JSX.Element[]> {
 
-    const blocks: LbContentBlock[] =
-        visualSection.contentKeys
-            .map((k: any) => pageContent.get(k.ns)?.blocks.find((b: LbContentBlock) => b.key == k.key))
-            .filter((b: any) => b != undefined)
-            .map((b: any) => b as LbContentBlock)
 
-    console.log("retrieving comp", rowIndex, componentIndex);
+    console.log("before component", skinComponent)
 
-    const component: AsyncFunctionComponent = await componentProvider(visualSection.implementationComponent)
+    const filteredBlocks: NdContentBlock[] = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
 
-    console.log("after component")
 
-    return renderWithVisual(rowIndex, componentIndex, component, blocks, visualSection, lng, i18nProvider);
+    console.log("retrieving comp", rowIndex, blockIndex);
 
+    const {compo, compoDef} = await componentProvider(skinComponent ? skinComponent.componentName : "default");
+
+    console.log("start rendering comp", rowIndex, blockIndex, skinComponent);
+
+    const res: JSX.Element[] = []
+    let start = 0;
+    let end = filteredBlocks.length;
+    do {
+        if (typeof compoDef.numBlocks == "number") {
+            end = Math.min(start + compoDef.numBlocks, filteredBlocks.length);
+        }
+
+        console.log("start rendering single component", skinComponent)
+        console.log("single component start", start, end)
+
+        if (start < end) {
+
+            const blocks: NdContentBlock[] = filteredBlocks.slice(start, end);
+
+            res.push(await renderSingleComponent(rowIndex, blockIndex, compo, blocks, skinComponent?.theme, skinComponent?.options, lng, i18nProvider));
+
+        }
+        start = end;
+    } while(end < filteredBlocks.length)
+
+    return res;
 }
 
 
-async function renderWithVisual(rowIndex: number,
-                          componentIndex: number,
-                          component: AsyncFunctionComponent,
-                          section: LbContentBlock[],
-                          visualSection: LbVisualComponent,
-                          lng: string,
-                          i18nextProvider: i18nextProvider): Promise<JSX.Element> {
+async function renderSingleComponent(rowIndex: number,
+                                componentIndex: number,
+                                component: AsyncFunctionComponent,
+                                section: NdContentBlock[],
+                                // visualSection: NdSkinComponent,
+                                theme: any,
+                                options: any,
+                                lng: string,
+                                i18nextProvider: i18nextProvider): Promise<JSX.Element> {
 
 
-    console.log("start rendering page");
-
-    const props: LbComponentProps = {
+    const props: NdSkinComponentProps = {
             rowIndex: rowIndex,
             componentIndex: componentIndex,
             content: section,
-            visual: visualSection.theme,
-            options: visualSection.options,
+            theme: theme,
+            options: options,
             lng: lng,
             i18nextProvider: i18nextProvider
     }
-    return await component(props);
+
+    console.log("start rendering page with props", props);
+    const res: JSX.Element = await component(props);
+    console.log("end rendering page with props", props);
+    return res;
 }
 
 export {RenderingPage};

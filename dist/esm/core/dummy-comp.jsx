@@ -1,6 +1,6 @@
 export async function DummyComp(props) {
     console.log("content dummy comp", props.content);
-    const { content, i18nextProvider, lng } = props;
+    const { content, i18nextProvider, lng, rowIndex, componentIndex } = props;
     const { t } = await i18nextProvider(lng);
     const blocks = content.map((block) => {
         var style = {};
@@ -12,7 +12,7 @@ export async function DummyComp(props) {
                 </div>
                 <div className={"top-0 bottom-0 left-0 right-0 absolute bg-white "} style={{ zIndex: -5, opacity: 0.7 }}>
                 </div>
-                <div className={"p-5 w-full bg-red-400 text-center"}>dummy component<h3><b>{block.key}</b></h3></div>
+                <div className={"p-5 w-full bg-red-400 text-center"}>dummy component<h3><b>{`${block.namespace}-row-${rowIndex}-i-${componentIndex}`}</b></h3></div>
 
 
                 <div className="p-5">

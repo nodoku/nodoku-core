@@ -1,3 +1,3 @@
-import { LbComponentProps } from "../content/lb-content-block";
 import { JSX } from "react";
-export declare function DummyComp(props: LbComponentProps): Promise<JSX.Element>;
+import { NdSkinComponentProps } from "../skin/nd-skin";
+export declare function DummyComp(props: NdSkinComponentProps): Promise<JSX.Element>;

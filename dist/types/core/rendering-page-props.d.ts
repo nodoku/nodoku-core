@@ -1,10 +1,17 @@
-import { ComponentProvider, ContentYamlProvider, i18nextProvider, VisualYamlProvider } from "../content/providers";
+import { ComponentProvider, i18nextProvider } from "./providers";
+import { NdContent } from "../content/nd-content";
+import { NdPageSkin } from "../skin/nd-skin";
+export declare enum RenderingPriority {
+    content_first = 0,
+    skin_first = 1
+}
 export declare class RenderingPageProps {
-    pageName: string;
     lng: string;
+    renderingPriority: RenderingPriority;
     i18nextProvider: i18nextProvider;
-    contentYamlProvider: ContentYamlProvider;
-    visualYamlProvider: VisualYamlProvider;
+    content: NdContent;
+    skin: NdPageSkin | undefined;
     componentProvider: ComponentProvider;
-    constructor(pageName: string, lng: string, i18nextProvider: i18nextProvider, contentYamlProvider: ContentYamlProvider, visualYamlProvider: VisualYamlProvider, componentProvider: ComponentProvider);
+    constructor(//pageName: string,
+    lng: string, renderingPriority: RenderingPriority | undefined, i18nextProvider: i18nextProvider, content: NdContent, skin: NdPageSkin | undefined, componentProvider: ComponentProvider);
 }

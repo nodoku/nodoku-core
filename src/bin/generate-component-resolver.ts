@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import { register } from 'node:module';
 
-import {ComponentDef, Manifest} from "../content/manifest.js";
+import {ComponentDef, Manifest} from "./manifest.js";
 import fs from "node:fs";
 import path from "path";
 import Mustache from "mustache"
+import {loadManifestsFromFolder} from "./manifest-loader.js";
 
 register('./import-load-hooks.js', import.meta.url);
 
@@ -15,118 +16,48 @@ register('./import-load-hooks.js', import.meta.url);
  * we register hooks, and only then use dynamic import to load custom template file
  */
 // @ts-ignore
-const template = (await import("./mustache/default-component-resolver.ts.mtl")).default;
-
-function loadComponents(dir: string): Map<string, Manifest> {
-
-    const comps: Map<string, Manifest> = new Map();
-
-    const files: string[] = fs.readdirSync(dir);
-
-    console.log("reading ...", dir)
-
-    for (const f of files) {
-
-        const stat: fs.Stats = fs.statSync(`${dir}/${f}`);
-        if (stat.isDirectory()) {
-
-            const m: Manifest | undefined = loadComponentsByManifest(`${dir}/${f}`, f);
-            if (m) {
-                comps.set(f, m);
-            }
-
-        }
-
-    }
-
-    return comps;
-
-}
-
-function loadComponentsByManifest(dir: string, moduleName: string): Manifest | undefined {
-
-    const files: string[] = fs.readdirSync(dir);
-
-    for (const f of files) {
-        const stat: fs.Stats = fs.statSync(`${dir}/${f}`);
-
-        if (stat.isFile()) {
-
-            if (f == "nodoku.manifest.json") {
-
-                const manifest: Manifest = new Manifest(moduleName);
-                console.log("found manifest ", `${dir}/${f}`, "reading...");
-
-                let json: any;
-                if (stat.isSymbolicLink()) {
-                    json = JSON.parse(fs.readlinkSync(`${dir}/nodoku.manifest.json`));
-                } else {
-                    json = JSON.parse(fs.readFileSync(`${dir}/nodoku.manifest.json`).toString());
-                }
-                console.log("loaded manifest ", path.resolve(dir, f));
-
-                console.log("found manifest json ", json);
-
-                manifest.namespace = json.namespace;
-
-                Object.keys(json.components).forEach((k: string) => {
-
-                    const v: any = json.components[k];
-
-                    console.log("adding ", k, v);
-
-                    // comps.set(k, Manifest.from(k, moduleName, v));
-                    manifest.components.set(k, new ComponentDef(v.implementation, v.schema))
-                })
-
-                return manifest;
-
-            }
-        }
-    }
-
-    return undefined;
-}
-
+const template = (await import("./mustache/component-resolver.ts.mtl")).default;
 
 class TemplateView {
-    modules: Map<string, string[]> = new Map<string, string[]>();
-    names: Map<string, string> = new Map<string, string>();
+    modules: {module: string, comps: string[]}[] = [];
+    comps: {name: string, impl: string, numBlocks: string | number}[] = [];
 }
 
-function calculateTemplateView(dir: string | undefined = undefined): TemplateView {
+function calculateTemplateView(dirNodeModules: string | undefined = undefined): TemplateView {
 
-    if (!dir) {
-        dir = path.resolve();
+    if (!dirNodeModules) {
+        dirNodeModules = `${path.resolve()}/node_modules`
     }
 
-    const components: Map<string, Manifest> = loadComponents(`${dir}/node_modules`);
+    const manifests: Map<string, Manifest> = loadManifestsFromFolder(dirNodeModules);
 
-    const tv: TemplateView = new TemplateView();
-    components.forEach((m: Manifest, k: string): void  => {
+    const view: TemplateView = new TemplateView();
 
-        if (!tv.modules.get(m.moduleName)) {
-            console.log("adding ", m.moduleName)
-            tv.modules.set(m.moduleName, []);
-        }
+    manifests.forEach((m: Manifest, k: string): void  => {
 
+        let prefix = ""
 
         if (m.namespace) {
-            tv.modules.get(m.moduleName)!.push(m.namespace);
-            m.components.forEach((cd: ComponentDef, cn: string) => {
-                tv.names.set(cn, `${m.namespace}.${cd.implementation}`)
-            })
+            view.modules.push({module: m.moduleName, comps: [m.namespace]})
+            prefix = `${m.namespace}.`
         } else {
-            m.components.forEach((cd: ComponentDef, cn: string) => {
-                tv.modules.get(m.moduleName)!.push(cd.implementation);
-                tv.names.set(cn, cd.implementation)
-            })
+            view.modules.push({module: m.moduleName, comps: Array.from(m.components.entries()).map(c => c[1].implementation)})
         }
 
+        m.components.forEach((cd: ComponentDef, cn: string) => {
+            let nb: string
+            if (typeof cd.numBlocks == "string") {
+                nb = `"${cd.numBlocks}"`
+            } else {
+                nb = `${cd.numBlocks}`
+            }
+            view.comps.push({name: cn, impl: `${prefix}${cd.implementation}`, numBlocks: nb});
+        })
 
     });
 
-    return tv;
+
+    return view;
 }
 
 export function generateComponentResolver() {
@@ -138,13 +69,7 @@ export function generateComponentResolver() {
 
     console.log("generating component resolver");
 
-    const tv: TemplateView = calculateTemplateView();
-    const view = {
-        modules: Array.from(tv.modules.entries()).map((e) => {
-            return {"module": e[0], "comps": e[1].join(", ") };
-        }),
-        names: Array.from(tv.names.entries()).map((n) => {return {n: n[0], c: n[1]}})
-    }
+    const view: TemplateView = calculateTemplateView();
 
     console.log("view", JSON.stringify(view));
 

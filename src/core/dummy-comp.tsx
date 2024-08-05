@@ -1,15 +1,16 @@
-import {LbComponentProps, LbContentBlock, LbContentImage, LbTranslatedText} from "../content/lb-content-block";
+import {NdContentBlock, NdContentImage, LbTranslatedText} from "../content/nd-content";
 import {JSX} from "react";
+import {NdSkinComponentProps} from "../skin/nd-skin";
 
-export async function DummyComp(props: LbComponentProps): Promise<JSX.Element> {
+export async function DummyComp(props: NdSkinComponentProps): Promise<JSX.Element> {
 
     console.log("content dummy comp", props.content)
 
-    const {content, i18nextProvider, lng} = props;
+    const {content, i18nextProvider, lng, rowIndex, componentIndex} = props;
 
     const {t} = await i18nextProvider(lng);
 
-    const blocks: JSX.Element[] = content.map((block: LbContentBlock) => {
+    const blocks: JSX.Element[] = content.map((block: NdContentBlock) => {
 
         var style = {};
         if (block.bgImage && block.bgImage.url) {
@@ -24,7 +25,7 @@ export async function DummyComp(props: LbComponentProps): Promise<JSX.Element> {
                 </div>
                 <div className={"top-0 bottom-0 left-0 right-0 absolute bg-white "} style={{zIndex: -5, opacity: 0.7}}>
                 </div>
-                <div className={"p-5 w-full bg-red-400 text-center"}>dummy component<h3><b>{block.key}</b></h3></div>
+                <div className={"p-5 w-full bg-red-400 text-center"}>dummy component<h3><b>{`${block.namespace}-row-${rowIndex}-i-${componentIndex}`}</b></h3></div>
 
 
                 <div className="p-5">
@@ -51,7 +52,7 @@ export async function DummyComp(props: LbComponentProps): Promise<JSX.Element> {
                         )
                     })}
                     images:
-                    {block.images.map((i: LbContentImage, ii: number) => {
+                    {block.images.map((i: NdContentImage, ii: number) => {
                         return (
                             <div>
                                 <p key={"url" + ii} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>

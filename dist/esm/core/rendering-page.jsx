@@ -1,129 +1,90 @@
-import * as yaml from "js-yaml";
 import React from "react";
-import { LbContentBlock, LbContentImage, LbContentKey, LbNsContent, LbRow, LbTranslatedText, LbVisualComponent } from "../content/lb-content-block";
+import { NdComponentDefinition, NdContentSelector, NdPageSkin, NdRow, NdSkinComponent } from "../skin/nd-skin";
+import { RenderingPriority } from "./rendering-page-props";
 import { DummyComp } from "./dummy-comp";
-async function defaultComponentProvider(componentName) {
-    return DummyComp;
-}
-async function fetchPageContent(lng, namespaces, provider) {
-    const pageContent = new Map();
-    await Promise.all(namespaces.map(ns => readFileContent(lng, ns, pageContent, provider)));
-    // console.log("content", res)
-    return pageContent;
-}
-async function readFileContent(lng, ns, pageContent, provider) {
-    console.log("fetching file content", lng, ns);
-    await provider(lng, ns)
-        .then((fileContent) => pageContent.set(ns, fetchSuccessContent(fileContent, ns)));
-}
-async function fetchPageVisual(pageName, provider) {
-    const res = await provider(pageName)
-        .then(fetchSuccessVisual);
-    console.log("all visual", JSON.stringify(res));
-    return res;
-}
-function fetchSuccessContent(fileContents, ns) {
-    const data = yaml.load(fileContents);
-    console.log("LbPageContent", Object.keys(data));
-    const res = new LbNsContent();
-    res.blocks = Object.keys(data).map(((key, bi) => {
-        const b = data[key];
-        const blockPrefix = key;
-        const bRes = new LbContentBlock(key);
-        bRes.title = new LbTranslatedText(ns);
-        bRes.title.key = `${blockPrefix}.title`;
-        bRes.title.text = b.header;
-        bRes.subTitle = new LbTranslatedText(ns);
-        bRes.subTitle.key = `${blockPrefix}.subTitle`;
-        bRes.subTitle.text = b.subHeader;
-        bRes.footer = new LbTranslatedText(ns);
-        bRes.footer.key = `${blockPrefix}.footer`;
-        bRes.footer.text = b.footer;
-        bRes.paragraphs = b.paragraphs ? b.paragraphs.map(((p, pi) => new LbTranslatedText(ns, `${key}.paragraphs.${pi}`, p))) : [];
-        bRes.images = b.images ? b.images.map(((im, imi) => {
-            const pRes = new LbContentImage();
-            pRes.url = new LbTranslatedText(ns, `${key}.images.${imi}.url`, im.url);
-            pRes.alt = new LbTranslatedText(ns, `${key}.images.${imi}.alt`, im.alt);
-            pRes.title = new LbTranslatedText(ns, `${key}.images.${imi}.title`, im.title);
-            return pRes;
-        })) : [];
-        if (b.bgImage) {
-            bRes.bgImage = new LbContentImage();
-            bRes.bgImage.url = new LbTranslatedText(ns, `${key}.bgImage.url`, b.bgImage.url);
-            bRes.bgImage.alt = new LbTranslatedText(ns, `${key}.bgImage.alt`, b.bgImage.alt);
-            bRes.bgImage.alt = new LbTranslatedText(ns, `${key}.bgImage.title`, b.bgImage.title);
-        }
-        return bRes;
-    }));
-    return res;
-}
-function fetchSuccessVisual(fileContents) {
-    const data = yaml.load(fileContents);
-    return {
-        rows: data.rows.map(((r, iRow) => {
-            const row = new LbRow(iRow);
-            row.row = r.row.map((vc, iVc) => {
-                console.log("Object.keys(vc)", Object.keys(vc));
-                const vcName = Object.keys(vc)[0];
-                const lbVisualComponent = new LbVisualComponent(iRow, iVc);
-                lbVisualComponent.visualComponent = vcName;
-                const vb = vc[lbVisualComponent.visualComponent];
-                lbVisualComponent.ns = vb.ns;
-                lbVisualComponent.contentKeys = convertContentKeys(vb, lbVisualComponent.ns);
-                lbVisualComponent.theme = vb.theme;
-                lbVisualComponent.options = vb.options;
-                lbVisualComponent.implementationModule = "nodoku-flowbite";
-                lbVisualComponent.implementationComponent = lbVisualComponent.visualComponent;
-                return lbVisualComponent;
-            });
-            return row;
-        }))
-    };
-}
-function convertContentKeys(vb, defaultNs) {
-    var contentKeys = vb.contentKeys;
-    if (!contentKeys && vb.contentKey) {
-        contentKeys = [vb.contentKey];
-    }
-    if (!contentKeys || !contentKeys.length) {
-        return [];
-    }
-    return contentKeys.map((ck) => {
-        if (typeof ck == "string") {
-            return new LbContentKey(ck, defaultNs);
-        }
-        else {
-            return new LbContentKey(ck.key, ck.ns ? ck.ns : defaultNs);
-        }
-    });
+async function defaultComponentProvider() {
+    const compoDef = new NdComponentDefinition("unlimited");
+    return { compo: DummyComp, compoDef: compoDef };
 }
 async function RenderingPage(props) {
-    const { pageName, lng, i18nextProvider, contentYamlProvider, visualYamlProvider } = props;
+    const { lng, i18nextProvider, content, skin, renderingPriority } = props;
     var { componentProvider } = props;
     if (!componentProvider) {
         componentProvider = defaultComponentProvider;
     }
-    const pageVisual = await fetchPageVisual(pageName, visualYamlProvider);
-    const namespaces = new Set();
-    pageVisual.rows.forEach((r) => {
-        r.row.forEach((vc) => {
-            vc.contentKeys.forEach((ck) => {
-                console.log(ck.ns);
-                namespaces.add(ck.ns);
-            });
-        });
-    });
-    const pageContent = await fetchPageContent(lng, Array.from(namespaces.keys()), contentYamlProvider);
-    const l = await Promise.all(pageVisual.rows.map(async (row, iRow) => {
-        return await createSubRows(row, iRow, pageContent, lng, i18nextProvider, componentProvider);
-    }));
+    // const pageVisual: NdPageSkin = await fetchPageVisual(pageName, visualYamlProvider);
+    // const namespaces: Set<string> = new Set();
+    // if (skin) {
+    //     skin.rows.forEach((r: any) => {
+    //         r.row.forEach((vc: any) => {
+    //             vc.contentKeys.forEach((ck: any) => {
+    //                 console.log(ck.ns)
+    //                 namespaces.add(ck.ns);
+    //             })
+    //         })
+    //     })
+    // }
+    // const pageContent: Map<string, NdContent> = await fetchPageContent(lng, Array.from(namespaces.keys()), contentYamlProvider);
+    let l;
+    if (skin) {
+        let blockSkin = skin;
+        if (renderingPriority == RenderingPriority.content_first) {
+            blockSkin = generateSkinByContentBlocks(content.blocks, skin, componentProvider);
+        }
+        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => {
+            return await createSubRows(row, iRow, content.blocks, lng, i18nextProvider, componentProvider);
+        }));
+    }
+    else {
+        l = [await createSubRows(undefined, 0, content.blocks, lng, i18nextProvider, componentProvider)];
+    }
     const rows = l.flatMap((a) => a);
     return <>{rows}</>;
 }
-async function createSubRows(row, iRow, pageContent, lng, i18nProvider, componentProvider) {
-    const rowComponents = await Promise.all(row.row.map(async (visualSection, iComp) => {
-        return await createRowBlock(iRow, iComp, visualSection, pageContent, lng, i18nProvider, componentProvider);
-    }));
+function generateSkinByContentBlocks(blocks, skin, componentProvider) {
+    const rendered = new Set();
+    let currentRow = undefined;
+    const res = new NdPageSkin();
+    let rowIndex = 0;
+    blocks.map((b, i) => {
+        if (!rendered.has(b.id)) {
+            const bRows = skin.rows.filter(r => r.row.filter(c => c.selector.match(b)).length > 0);
+            if (bRows.length > 0) {
+                if (currentRow) {
+                    res.rows.push(currentRow);
+                    currentRow = undefined;
+                }
+                bRows.forEach(r => res.rows.push(r));
+                bRows.flatMap(r => r.row.flatMap(c => c.selector.filterBlocks(blocks)))
+                    .forEach(b => rendered.add(b.id));
+            }
+            else {
+                if (!currentRow) {
+                    currentRow = new NdRow(res.rows.length);
+                }
+                currentRow.row.push(new NdSkinComponent(rowIndex, currentRow.row.length, new NdContentSelector([{ key: "id", value: b.id }])));
+                rendered.add(b.id);
+            }
+        }
+    });
+    if (currentRow) {
+        res.rows.push(currentRow);
+    }
+    return res;
+}
+async function createSubRows(row, iRow, blocks, lng, i18nProvider, componentProvider) {
+    let l;
+    if (row) {
+        l = await Promise.all(row.row.map(async (visualSection, iComp) => {
+            return await createRowComponents(iRow, iComp, visualSection, blocks, lng, i18nProvider, componentProvider);
+        }));
+    }
+    else {
+        l = await Promise.all(blocks.map(async (block, iComp) => {
+            return await createRowComponents(iRow, iComp, undefined, [block], lng, i18nProvider, componentProvider);
+        }));
+    }
+    const rowComponents = l.flatMap((p) => p);
     const numComponents = rowComponents.length;
     if (numComponents == 1) {
         return [rowComponents[0]];
@@ -140,27 +101,49 @@ async function createSubRows(row, iRow, pageContent, lng, i18nProvider, componen
         return subRows;
     }
 }
-async function createRowBlock(rowIndex, componentIndex, visualSection, pageContent, lng, i18nProvider, componentProvider) {
-    const blocks = visualSection.contentKeys
-        .map((k) => pageContent.get(k.ns)?.blocks.find((b) => b.key == k.key))
-        .filter((b) => b != undefined)
-        .map((b) => b);
-    console.log("retrieving comp", rowIndex, componentIndex);
-    const component = await componentProvider(visualSection.implementationComponent);
-    console.log("after component");
-    return renderWithVisual(rowIndex, componentIndex, component, blocks, visualSection, lng, i18nProvider);
+async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, i18nProvider, componentProvider) {
+    // const blocks: NdContentBlock[] =
+    //     skinComponent.contentKeys
+    //         .map((k: any) => pageContent.get(k.ns)?.blocks.find((b: NdContentBlock) => b.key == k.key))
+    //         .filter((b: any) => b != undefined)
+    //         .map((b: any) => b as NdContentBlock)
+    console.log("before component", skinComponent);
+    const filteredBlocks = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
+    console.log("retrieving comp", rowIndex, blockIndex);
+    const { compo, compoDef } = await componentProvider(skinComponent ? skinComponent.componentName : "default");
+    console.log("start rendering comp", rowIndex, blockIndex, skinComponent);
+    const res = [];
+    let start = 0;
+    let end = filteredBlocks.length;
+    do {
+        if (typeof compoDef.numBlocks == "number") {
+            end = Math.min(start + compoDef.numBlocks, filteredBlocks.length);
+        }
+        console.log("start rendering single component", skinComponent);
+        console.log("single component start", start, end);
+        if (start < end) {
+            const blocks = filteredBlocks.slice(start, end);
+            res.push(await renderSingleComponent(rowIndex, blockIndex, compo, blocks, skinComponent?.theme, skinComponent?.options, lng, i18nProvider));
+        }
+        start = end;
+    } while (end < filteredBlocks.length);
+    return res;
 }
-async function renderWithVisual(rowIndex, componentIndex, component, section, visualSection, lng, i18nextProvider) {
-    console.log("start rendering page");
+async function renderSingleComponent(rowIndex, componentIndex, component, section, 
+// visualSection: NdSkinComponent,
+theme, options, lng, i18nextProvider) {
     const props = {
         rowIndex: rowIndex,
         componentIndex: componentIndex,
         content: section,
-        visual: visualSection.theme,
-        options: visualSection.options,
+        theme: theme,
+        options: options,
         lng: lng,
         i18nextProvider: i18nextProvider
     };
-    return await component(props);
+    console.log("start rendering page with props", props);
+    const res = await component(props);
+    console.log("end rendering page with props", props);
+    return res;
 }
 export { RenderingPage };

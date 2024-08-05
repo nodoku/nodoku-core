@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-
-
 import { register } from 'node:module';
 
-import {ComponentDef, Manifest} from "../content/manifest.js";
+import {ComponentDef, Manifest} from "./manifest.js";
 import fs from "node:fs";
 import path from "path";
 import Mustache from "mustache"
+import {loadManifestsFromFolder} from "./manifest-loader.js";
 
 register('./import-load-hooks.js', import.meta.url);
 
@@ -19,78 +18,6 @@ register('./import-load-hooks.js', import.meta.url);
 // @ts-ignore
 const template = (await import("./mustache/visual-schema.json.mtl")).default;
 
-function loadComponents(dir: string): Map<string, Manifest> {
-
-    const comps: Map<string, Manifest> = new Map();
-
-    const files: string[] = fs.readdirSync(dir);
-
-    console.log("reading ...", dir)
-
-    for (const f of files) {
-
-        const stat: fs.Stats = fs.statSync(`${dir}/${f}`);
-        if (stat.isDirectory()) {
-
-            const m: Manifest | undefined = loadComponentsByManifest(`${dir}/${f}`, f);
-            if (m) {
-                comps.set(f, m);
-            }
-
-        }
-
-    }
-
-    return comps;
-
-}
-
-function loadComponentsByManifest(dir: string, moduleName: string): Manifest | undefined {
-
-    const files: string[] = fs.readdirSync(dir);
-
-    for (const f of files) {
-        const stat: fs.Stats = fs.statSync(`${dir}/${f}`);
-
-        if (stat.isFile()) {
-
-            if (f == "nodoku.manifest.json") {
-
-                const manifest: Manifest = new Manifest(moduleName);
-                console.log("found manifest ", `${dir}/${f}`, "reading...");
-
-                let json: any;
-                if (stat.isSymbolicLink()) {
-                    json = JSON.parse(fs.readlinkSync(`${dir}/nodoku.manifest.json`));
-                } else {
-                    json = JSON.parse(fs.readFileSync(`${dir}/nodoku.manifest.json`).toString());
-                }
-                console.log("loaded manifest ", path.resolve(dir, f));
-
-                console.log("found manifest json ", json);
-
-                manifest.namespace = json.namespace;
-
-                Object.keys(json.components).forEach((k: string) => {
-
-                    const v: any = json.components[k];
-
-                    console.log("adding ", k, v);
-
-                    // comps.set(k, Manifest.from(k, moduleName, v));
-                    manifest.components.set(k, new ComponentDef(v.implementation, v.schemaFile))
-                })
-
-                return manifest;
-
-            }
-        }
-    }
-
-    return undefined;
-}
-
-
 class TemplateView {
     components: Map<string, string> = new Map<string, string>();
 }
@@ -101,12 +28,11 @@ interface LooseObject {
 
 function calculateTemplateView(schemaDestinationDir: string, dirNodeModules: string | undefined = undefined): LooseObject {
 
-
     if (!dirNodeModules) {
         dirNodeModules = `${path.resolve()}/node_modules`
     }
 
-    const components: Map<string, Manifest> = loadComponents(dirNodeModules);
+    const components: Map<string, Manifest> = loadManifestsFromFolder(dirNodeModules);
 
     const tv: TemplateView = new TemplateView();
     components.forEach((m: Manifest): void  => {
@@ -261,15 +187,15 @@ function stripTrailingSlash(path: string): string {
 }
 
 function stripLeadingSlash(path: string): string {
-    if (path.startsWith("/")) {
+    if (path && path.startsWith("/")) {
         return path.substring(1);
-    } else if (path.startsWith("./")) {
+    } else if (path && path.startsWith("./")) {
         return path.substring(2);
     }
     return path;
 }
 
-export function generateVisualSchema() {
+export function generateSkinSchema() {
 
     const args = process.argv.slice(2)
 
@@ -292,4 +218,4 @@ export function generateVisualSchema() {
 
 }
 
-generateVisualSchema();
+generateSkinSchema();
