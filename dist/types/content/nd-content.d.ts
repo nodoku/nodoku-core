@@ -11,6 +11,7 @@ export declare class LbTranslatedText {
 }
 export declare class NdContentBlock {
     id: string;
+    lng: string;
     attributes: {
         key: string;
         value: string;
@@ -27,7 +28,8 @@ export declare class NdContentBlock {
     paragraphs: LbTranslatedText[];
     bgImage?: NdContentImage;
     images: NdContentImage[];
-    constructor(id: string);
+    constructor(id: string, lng: string);
+    getByKey(key: string): string | undefined;
 }
 export declare class NdContent {
     blocks: NdContentBlock[];

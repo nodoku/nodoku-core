@@ -12,24 +12,11 @@ async function RenderingPage(props) {
     if (!componentProvider) {
         componentProvider = defaultComponentProvider;
     }
-    // const pageVisual: NdPageSkin = await fetchPageVisual(pageName, visualYamlProvider);
-    // const namespaces: Set<string> = new Set();
-    // if (skin) {
-    //     skin.rows.forEach((r: any) => {
-    //         r.row.forEach((vc: any) => {
-    //             vc.contentKeys.forEach((ck: any) => {
-    //                 console.log(ck.ns)
-    //                 namespaces.add(ck.ns);
-    //             })
-    //         })
-    //     })
-    // }
-    // const pageContent: Map<string, NdContent> = await fetchPageContent(lng, Array.from(namespaces.keys()), contentYamlProvider);
     let l;
     if (skin) {
         let blockSkin = skin;
         if (renderingPriority == RenderingPriority.content_first) {
-            blockSkin = generateSkinByContentBlocks(content.blocks, skin, componentProvider);
+            blockSkin = generateSkinByContentBlocks(content.blocks, skin);
         }
         l = await Promise.all(blockSkin.rows.map(async (row, iRow) => {
             return await createSubRows(row, iRow, content.blocks, lng, i18nextProvider, componentProvider);
@@ -41,7 +28,7 @@ async function RenderingPage(props) {
     const rows = l.flatMap((a) => a);
     return <>{rows}</>;
 }
-function generateSkinByContentBlocks(blocks, skin, componentProvider) {
+function generateSkinByContentBlocks(blocks, skin) {
     const rendered = new Set();
     let currentRow = undefined;
     const res = new NdPageSkin();
@@ -102,11 +89,6 @@ async function createSubRows(row, iRow, blocks, lng, i18nProvider, componentProv
     }
 }
 async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, i18nProvider, componentProvider) {
-    // const blocks: NdContentBlock[] =
-    //     skinComponent.contentKeys
-    //         .map((k: any) => pageContent.get(k.ns)?.blocks.find((b: NdContentBlock) => b.key == k.key))
-    //         .filter((b: any) => b != undefined)
-    //         .map((b: any) => b as NdContentBlock)
     console.log("before component", skinComponent);
     const filteredBlocks = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
     console.log("retrieving comp", rowIndex, blockIndex);
@@ -129,17 +111,28 @@ async function createRowComponents(rowIndex, blockIndex, skinComponent, pageCont
     } while (end < filteredBlocks.length);
     return res;
 }
-async function renderSingleComponent(rowIndex, componentIndex, component, section, 
-// visualSection: NdSkinComponent,
-theme, options, lng, i18nextProvider) {
+async function renderSingleComponent(rowIndex, componentIndex, component, blocks, theme, options, lng, i18nextProvider) {
+    let actualI18nextProvider = i18nextProvider;
+    const l = await i18nextProvider(lng);
+    if (lng == blocks[0].lng) {
+        actualI18nextProvider = async (lng) => {
+            return { t: (key, ns) => {
+                    const b = blocks.map((b) => b.getByKey(key)).find((s) => s);
+                    if (b) {
+                        return b;
+                    }
+                    return l.t(key, ns);
+                } };
+        };
+    }
     const props = {
         rowIndex: rowIndex,
         componentIndex: componentIndex,
-        content: section,
+        content: blocks,
         theme: theme,
         options: options,
         lng: lng,
-        i18nextProvider: i18nextProvider
+        i18nextProvider: actualI18nextProvider
     };
     console.log("start rendering page with props", props);
     const res = await component(props);

@@ -1,5 +1,5 @@
 import React, {JSX} from "react";
-import {NdContent, NdContentBlock,} from "../content/nd-content";
+import {NdContentBlock} from "../content/nd-content";
 import {
     NdComponentDefinition,
     NdContentSelector,
@@ -9,14 +9,13 @@ import {
     NdSkinComponentProps
 } from "../skin/nd-skin";
 import {RenderingPageProps, RenderingPriority} from "./rendering-page-props";
-import {AsyncFunctionComponent, ComponentProvider, i18nextProvider,} from "./providers";
+import {AsyncFunctionComponent, ComponentProvider, I18nextProvider,} from "./providers";
 import {DummyComp} from "./dummy-comp";
 
 async function defaultComponentProvider(): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const compoDef: NdComponentDefinition = new NdComponentDefinition("unlimited");
     return {compo: DummyComp, compoDef: compoDef};
 }
-
 
 async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
 
@@ -34,7 +33,7 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
         let blockSkin: NdPageSkin = skin;
 
         if (renderingPriority == RenderingPriority.content_first) {
-            blockSkin = generateSkinByContentBlocks(content.blocks, skin, componentProvider);
+            blockSkin = generateSkinByContentBlocks(content.blocks, skin);
         }
 
         l = await Promise.all(blockSkin.rows.map(async (row: NdRow, iRow: number): Promise<JSX.Element[]> => {
@@ -51,7 +50,7 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
 
 }
 
-function generateSkinByContentBlocks(blocks: NdContentBlock[], skin: NdPageSkin, componentProvider: ComponentProvider): NdPageSkin {
+function generateSkinByContentBlocks(blocks: NdContentBlock[], skin: NdPageSkin): NdPageSkin {
 
     const rendered: Set<string> = new Set<string>();
     let currentRow: NdRow | undefined = undefined;
@@ -88,7 +87,12 @@ function generateSkinByContentBlocks(blocks: NdContentBlock[], skin: NdPageSkin,
 
 }
 
-async function createSubRows(row: NdRow | undefined, iRow: number, blocks: NdContentBlock[], lng: string, i18nProvider: i18nextProvider, componentProvider: ComponentProvider): Promise<JSX.Element[]> {
+async function createSubRows(row: NdRow | undefined,
+                             iRow: number,
+                             blocks: NdContentBlock[],
+                             lng: string,
+                             i18nProvider: I18nextProvider,
+                             componentProvider: ComponentProvider): Promise<JSX.Element[]> {
 
     let l: JSX.Element[][];
     if (row) {
@@ -137,7 +141,7 @@ async function createRowComponents(rowIndex: number,
                                    skinComponent: NdSkinComponent | undefined,
                                    pageContent: NdContentBlock[],
                                    lng: string,
-                                   i18nProvider: i18nextProvider,
+                                   i18nProvider: I18nextProvider,
                                    componentProvider: ComponentProvider): Promise<JSX.Element[]> {
 
 
@@ -178,24 +182,40 @@ async function createRowComponents(rowIndex: number,
 
 
 async function renderSingleComponent(rowIndex: number,
-                                componentIndex: number,
-                                component: AsyncFunctionComponent,
-                                section: NdContentBlock[],
-                                // visualSection: NdSkinComponent,
-                                theme: any,
-                                options: any,
-                                lng: string,
-                                i18nextProvider: i18nextProvider): Promise<JSX.Element> {
+                                     componentIndex: number,
+                                     component: AsyncFunctionComponent,
+                                     blocks: NdContentBlock[],
+                                     theme: any,
+                                     options: any,
+                                     lng: string,
+                                     i18nextProvider: I18nextProvider): Promise<JSX.Element> {
+
+    let actualI18nextProvider: I18nextProvider = i18nextProvider
+
+    const l = await i18nextProvider(lng)
+
+    if (lng == blocks[0].lng) {
+        actualI18nextProvider = async (lng: string): Promise<{t: (key: string, ns: string) => string}> => {
+
+            return {t: (key: string, ns: string): string => {
+                const b: string | undefined = blocks.map((b: NdContentBlock) => b.getByKey(key)).find((s: string | undefined)  => s);
+                if (b) {
+                    return b;
+                }
+                return l.t(key, ns);
+            }};
+        }
+    }
 
 
     const props: NdSkinComponentProps = {
             rowIndex: rowIndex,
             componentIndex: componentIndex,
-            content: section,
+            content: blocks,
             theme: theme,
             options: options,
             lng: lng,
-            i18nextProvider: i18nextProvider
+            i18nextProvider: actualI18nextProvider
     }
 
     console.log("start rendering page with props", props);

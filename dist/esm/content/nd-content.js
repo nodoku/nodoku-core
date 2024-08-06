@@ -15,6 +15,7 @@ export class LbTranslatedText {
 }
 export class NdContentBlock {
     id;
+    lng;
     attributes = [];
     tags = [];
     namespace = undefined;
@@ -28,9 +29,42 @@ export class NdContentBlock {
     paragraphs = [];
     bgImage;
     images = [];
-    constructor(id) {
+    constructor(id, lng) {
         this.id = id;
+        this.lng = lng;
     }
+    getByKey(key) {
+        if (!key.startsWith(this.id)) {
+            return undefined;
+        }
+        const path = key.substring(this.id.length + 1);
+        console.log("getByKey ", key, path);
+        const val = getPropertyFromObjectRecursively(this, path);
+        if (typeof val == "string") {
+            return val;
+        }
+        return val ? val.toString() : val;
+    }
+}
+function getPropertyFromObjectRecursively(obj, path) {
+    console.log("getting path from obj", obj, path);
+    if (obj instanceof LbTranslatedText) {
+        return obj.text;
+    }
+    if (path.length == 0) {
+        return obj;
+    }
+    let p = path;
+    let nextP = "";
+    const k = path.indexOf(".");
+    if (k > -1) {
+        p = path.substring(0, k);
+        nextP = path.substring(k + 1);
+    }
+    if (obj[p]) {
+        return getPropertyFromObjectRecursively(obj[p], nextP);
+    }
+    return undefined;
 }
 export class NdContent {
     blocks = [];

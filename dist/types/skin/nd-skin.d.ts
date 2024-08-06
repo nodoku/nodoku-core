@@ -1,4 +1,4 @@
-import { i18nextProvider } from "../core/providers";
+import { I18nextProvider } from "../core/providers";
 import { NdContentBlock } from "../content/nd-content";
 export declare class NdContentKey {
     key: string;
@@ -47,6 +47,6 @@ export declare class NdSkinComponentProps<TComponentTheme = any, TComponentOptio
     theme: TComponentTheme | undefined;
     options: TComponentOptions | undefined;
     lng: string;
-    i18nextProvider: i18nextProvider;
-    constructor(rowIndex: number, componentIndex: number, content: NdContentBlock[], theme: TComponentTheme, options: TComponentOptions, lng: string, i18nextProvider: i18nextProvider);
+    i18nextProvider: I18nextProvider;
+    constructor(rowIndex: number, componentIndex: number, content: NdContentBlock[], theme: TComponentTheme, options: TComponentOptions, lng: string, i18nextProvider: I18nextProvider);
 }
