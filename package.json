@@ -18,7 +18,8 @@
   "bin": {
     "nodoku-gen-component-resolver": "./dist/esm/bin/generate-component-resolver.js",
     "nodoku-gen-content-schema": "./dist/esm/bin/generate-content-schema.js",
-    "nodoku-gen-skin-schema": "./dist/esm/bin/generate-skin-schema.js"
+    "nodoku-gen-skin-schema": "./dist/esm/bin/generate-skin-schema.js",
+    "nodoku-gen-component-default-theme": "./dist/esm/bin/generate-component-default-theme.js"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.9",

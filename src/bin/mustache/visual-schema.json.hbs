@@ -1,0 +1,149 @@
+{
+    "description": "Nodoku visual page schema",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "VisualRow": {
+            "type": "object",
+            "properties": {
+                "row": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/VisualRowBlock"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+
+        "VisualRowBlock": {
+            "type": "object",
+            "properties": {
+                {{#components}}
+
+                "{{{name}}}": {
+                    "type": "object",
+                    "properties": {
+                        "selector": {
+                            "$ref": "../node_modules/nodoku-core/schemas/skin-common-schema.json#/definitions/Selector"
+                        },
+                        {{#options}}
+                        "options": {
+                            "$ref": "{{{options}}}",
+                            "additionalProperties": false
+                        }{{#schema}},{{/schema}}
+                        {{/options}}
+                        {{#schema}}
+                        "theme": {
+                            "$ref": "{{{schema}}}",
+                            "additionalProperties": false
+                        },
+                        "themes": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "{{{schema}}}",
+                                "additionalProperties": false
+                            },
+                            "additionalItems": false
+                        }
+                        {{/schema}}
+                    },
+                    "required": [
+                        "selector"
+                    ],
+                    "additionalItems": false,
+                    "additionalProperties": false
+                }{{^isLast}},{{/isLast}}
+                {{/components}}
+            },
+            "additionalProperties": false
+        },
+        "additionalProperties": false
+    },
+    "type": "object",
+    "properties": {
+        "global": {
+            "type": "object",
+            "properties": {
+                "defaultTheme": {
+                    "type": "string",
+                    "enum": [
+                        "light",
+                        "dark"
+                    ]
+                },
+                "theme": {
+                    "allOf": [
+                        {{#components}}
+                        {
+                            "$ref": "{{{schema}}}",
+                            "additionalProperties": false
+                        }{{^isLast}},{{/isLast}}
+                        {{/components}}
+                    ],
+                    "additionalProperties": false
+                },
+                "themes": {
+                    "type": "array",
+                    "items": {
+                        "allOf": [
+                            {{#components}}
+                            {
+                                "$ref": "{{{schema}}}",
+                                "additionalProperties": false
+                            }{{^isLast}},{{/isLast}}
+                            {{/components}}
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "components": {
+                    "type": "object",
+                    "properties": {
+                        {{#components}}
+
+                        "{{{name}}}": {
+                            "type": "object",
+                            "properties": {
+                                {{#options}}
+                                "options": {
+                                    "$ref": "{{{options}}}",
+                                    "additionalProperties": false
+                                }{{#schema}},{{/schema}}
+                                {{/options}}
+                                {{#schema}}
+                                "theme": {
+                                    "$ref": "{{{schema}}}",
+                                    "additionalProperties": false
+                                },
+                                "themes": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "{{{schema}}}",
+                                        "additionalProperties": false
+                                    },
+                                    "additionalItems": false
+                                }
+                                {{/schema}}
+                            },
+                            "additionalItems": false,
+                            "additionalProperties": false
+                        }{{^isLast}},{{/isLast}}
+                        {{/components}}
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "rows": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/VisualRow"
+            },
+            "additionalItems": false
+        },
+        "additionalProperties": false
+    },
+    "additionalItems": false,
+    "additionalProperties": false
+}

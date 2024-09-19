@@ -39,7 +39,7 @@ function loadComponentsByManifest(dir, moduleName) {
                     const v = json.components[k];
                     console.log("adding ", k, v);
                     // comps.set(k, Manifest.from(k, moduleName, v));
-                    manifest.components.set(k, new ComponentDef(v.implementation, v.schemaFile, v.numBlocks));
+                    manifest.components.set(k, new ComponentDef(v.implementation, v.schemaFile, v.optionsFile, v.defaultThemeFile, v.numBlocks));
                 });
                 return manifest;
             }

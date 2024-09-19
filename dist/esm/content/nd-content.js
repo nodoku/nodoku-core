@@ -1,9 +1,9 @@
 export class NdContentImage {
-    url;
+    url = {};
     title;
     alt;
 }
-export class LbTranslatedText {
+export class NdTranslatedText {
     key = "";
     ns = "";
     text = "";
@@ -13,12 +13,34 @@ export class LbTranslatedText {
         this.text = text;
     }
 }
+export class NdList {
+    items;
+    ordered;
+    constructor(ordered, items) {
+        this.ordered = ordered;
+        this.items = items;
+    }
+    static createOrdered(items) {
+        return new NdList(true, items);
+    }
+    static createUnOrdered(items) {
+        return new NdList(false, items);
+    }
+}
+export class NdCode {
+    lang;
+    code;
+    constructor(lang, code) {
+        this.lang = lang;
+        this.code = code;
+    }
+}
 export class NdContentBlock {
     id;
     lng;
     attributes = [];
     tags = [];
-    namespace = undefined;
+    namespace;
     title;
     subTitle;
     h3;
@@ -29,16 +51,18 @@ export class NdContentBlock {
     paragraphs = [];
     bgImage;
     images = [];
-    constructor(id, lng) {
+    constructor(id, ns, lng) {
         this.id = id;
+        this.namespace = ns;
         this.lng = lng;
+        this.attributes.push({ key: "id", value: id });
     }
-    getByKey(key) {
-        if (!key.startsWith(this.id)) {
+    getByKey(key, ns) {
+        if (!key.startsWith(this.id) || ns !== this.namespace) {
             return undefined;
         }
         const path = key.substring(this.id.length + 1);
-        console.log("getByKey ", key, path);
+        // console.log("getByKey ", key, path)
         const val = getPropertyFromObjectRecursively(this, path);
         if (typeof val == "string") {
             return val;
@@ -47,8 +71,8 @@ export class NdContentBlock {
     }
 }
 function getPropertyFromObjectRecursively(obj, path) {
-    console.log("getting path from obj", obj, path);
-    if (obj instanceof LbTranslatedText) {
+    // console.log(`getting path from obj >>${path}<<`, obj)
+    if (obj instanceof NdTranslatedText) {
         return obj.text;
     }
     if (path.length == 0) {
@@ -65,7 +89,4 @@ function getPropertyFromObjectRecursively(obj, path) {
         return getPropertyFromObjectRecursively(obj[p], nextP);
     }
     return undefined;
-}
-export class NdContent {
-    blocks = [];
 }

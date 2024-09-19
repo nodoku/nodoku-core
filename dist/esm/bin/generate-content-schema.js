@@ -10,7 +10,7 @@ register('./import-load-hooks.js', import.meta.url);
  * we register hooks, and only then use dynamic import to load custom template file
  */
 // @ts-ignore
-const template = (await import("./mustache/content-schema.json.mtl")).default;
+const template = (await import("./mustache/content-schema.json.hbs")).default;
 const linkRegexPattern = "^((http|https)?:\\\\/\\\\/)?\\\\/?([-a-zA-Z0-9._\\\\+~#=]{1,256})([-a-zA-Z0-9@:%._\\\\+~#=]{1,256})([-a-zA-Z0-9()@:%_\\\\+.~#?&\\\\/\\\\/=]*)$";
 export function generateContentSchema() {
     const args = process.argv.slice(2);

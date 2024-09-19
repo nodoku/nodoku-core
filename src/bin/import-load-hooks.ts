@@ -14,7 +14,7 @@ export async function resolve(specifier: any, context: any, nextResolve: any) {
 export async function load(url: any, context: any, nextLoad: any) {
     console.log("Take a resolved URL and return the source code to be evaluated.", url, context, nextLoad)
 
-    if (url.endsWith(".mtl")) {
+    if (url.endsWith(".hbs")) {
         const prefix = path.resolve("./");
         const filePath = nodeUrl.fileURLToPath(url);
         const file = await open(filePath);

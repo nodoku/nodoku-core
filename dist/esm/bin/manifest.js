@@ -1,10 +1,14 @@
 export class ComponentDef {
     implementation;
-    schemaFile;
+    themeSchema;
+    optionsSchema;
+    defaultThemeFile;
     numBlocks;
-    constructor(componentImplementation, componentSchema, numBlocks) {
+    constructor(componentImplementation, componentSchema, optionsSchema, defaultThemeFile, numBlocks) {
         this.implementation = componentImplementation;
-        this.schemaFile = componentSchema;
+        this.themeSchema = componentSchema;
+        this.optionsSchema = optionsSchema;
+        this.defaultThemeFile = defaultThemeFile;
         this.numBlocks = numBlocks;
     }
 }

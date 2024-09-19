@@ -1,13 +1,25 @@
 export declare class NdContentImage {
-    url?: LbTranslatedText;
-    title?: LbTranslatedText;
-    alt?: LbTranslatedText;
+    url: NdTranslatedText;
+    title?: NdTranslatedText;
+    alt?: NdTranslatedText;
 }
-export declare class LbTranslatedText {
+export declare class NdTranslatedText {
     key: string;
     ns: string;
     text: string;
     constructor(ns: string, key?: string, text?: string);
+}
+export declare class NdList {
+    items: NdTranslatedText[];
+    ordered: boolean;
+    private constructor();
+    static createOrdered(items: NdTranslatedText[]): NdList;
+    static createUnOrdered(items: NdTranslatedText[]): NdList;
+}
+export declare class NdCode {
+    lang: string;
+    code: string;
+    constructor(lang: string, code: string);
 }
 export declare class NdContentBlock {
     id: string;
@@ -17,20 +29,17 @@ export declare class NdContentBlock {
         value: string;
     }[];
     tags: string[];
-    namespace: string | undefined;
-    title?: LbTranslatedText;
-    subTitle?: LbTranslatedText;
-    h3?: LbTranslatedText;
-    h4?: LbTranslatedText;
-    h5?: LbTranslatedText;
-    h6?: LbTranslatedText;
-    footer?: LbTranslatedText;
-    paragraphs: LbTranslatedText[];
+    namespace: string;
+    title?: NdTranslatedText;
+    subTitle?: NdTranslatedText;
+    h3?: NdTranslatedText;
+    h4?: NdTranslatedText;
+    h5?: NdTranslatedText;
+    h6?: NdTranslatedText;
+    footer?: NdTranslatedText;
+    paragraphs: (NdTranslatedText | NdList | NdCode)[];
     bgImage?: NdContentImage;
     images: NdContentImage[];
-    constructor(id: string, lng: string);
-    getByKey(key: string): string | undefined;
-}
-export declare class NdContent {
-    blocks: NdContentBlock[];
+    constructor(id: string, ns: string, lng: string);
+    getByKey(key: string, ns: string): string | undefined;
 }

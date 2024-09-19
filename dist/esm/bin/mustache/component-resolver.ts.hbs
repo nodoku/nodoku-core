@@ -7,10 +7,10 @@ import { {{comps}} } from "{{module}}";
 const components: Map<string, {compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> = new Map<string, {compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}>();
 
 {{#comps}}
-components.set("{{{name}}}", {compo: {{impl}}, compoDef: new NdComponentDefinition({{{numBlocks}}})});
+components.set("{{{name}}}", {compo: {{impl}}, compoDef: new NdComponentDefinition({{{numBlocks}}}, "{{{defaultThemeFile}}}")});
 {{/comps}}
 
 export function defaultComponentProvider(componentName: string): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const f: {compo: AsyncFunctionComponent, compoDef: NdComponentDefinition} | undefined = components.get(componentName);
-    return Promise.resolve(f ? f : {compo: DummyComp, compoDef: new NdComponentDefinition("unlimited")});
+    return Promise.resolve(f ? f : {compo: DummyComp, compoDef: new NdComponentDefinition(1)});
 }

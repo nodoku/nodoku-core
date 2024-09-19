@@ -1,6 +1,55 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
+
+    "CssProperties": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+
+    "ThemeStyle": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "type": "string"
+        },
+        "decoration": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "ExtendedThemeStyle": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ThemeStyle"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "css": {
+              "type": "object",
+              "properties": {
+                "light": {
+                  "$ref": "#/definitions/CssProperties"
+                },
+                "dark": {
+                  "$ref": "#/definitions/CssProperties"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+
+
+
     "Selector": {
       "type": "object",
       "properties": {

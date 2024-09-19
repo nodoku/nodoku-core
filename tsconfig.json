@@ -20,7 +20,10 @@
     "declaration": true,
     "declarationDir": "./dist/types",
     "outDir": "./dist/esm",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
   },
   "include": [
     "src/**/*.ts",

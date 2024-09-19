@@ -11,33 +11,62 @@ register('./import-load-hooks.js', import.meta.url);
  * we register hooks, and only then use dynamic import to load custom template file
  */
 // @ts-ignore
-const template = (await import("./mustache/visual-schema.json.mtl")).default;
+const template = (await import("./mustache/visual-schema.json.hbs")).default;
 class TemplateView {
     components = new Map();
 }
 function calculateTemplateView(schemaDestinationDir, dirNodeModules = undefined) {
     if (!dirNodeModules) {
-        dirNodeModules = `${path.resolve()}/node_modules`;
+        dirNodeModules = path.resolve("./node_modules");
     }
     const components = loadManifestsFromFolder(dirNodeModules);
     const tv = new TemplateView();
     components.forEach((m) => {
         m.components.forEach((cd, cn) => {
             const moduleDir = `${dirNodeModules}/${m.moduleName}`;
-            const { content, dest } = readSchema(schemaDestinationDir, m.moduleName, moduleDir, cd.schemaFile);
-            const resolvedContent = resolveRefsInSchema(content, m.moduleName, dirNodeModules, schemaDestinationDir, cd.schemaFile);
-            const schemaFile = writeSchema(dest, resolvedContent);
-            const res = schemaFile.startsWith(schemaDestinationDir) ? schemaFile.replace(stripTrailingSlash(schemaDestinationDir), ".") : schemaFile;
-            tv.components.set(cn, res);
+            const themeSchema = resolveSchema(schemaDestinationDir, m.moduleName, moduleDir, cd.themeSchema, dirNodeModules);
+            const optionsSchema = resolveSchema(schemaDestinationDir, m.moduleName, moduleDir, cd.optionsSchema, dirNodeModules);
+            tv.components.set(cn, { themeSchema: themeSchema, optionsSchema: optionsSchema });
+            /*
+             * copy default-theme.yml
+            */
+            const compSchema = cd.themeSchema;
+            const moduleSchemaFile = path.resolve(stripTrailingSlash(moduleDir), stripLeadingSlash(compSchema));
+            const defaultYamlFilePath = path.resolve(path.dirname(moduleSchemaFile), "default-theme.yml");
+            let stat = undefined;
+            try {
+                stat = fs.statSync(defaultYamlFilePath);
+                console.log("defaultYamlFilePath", defaultYamlFilePath);
+                if (stat.isFile()) {
+                    let destSchemaFile = path.resolve(m.moduleName, compSchema);
+                    console.log("compSchema", compSchema);
+                    const dest = `${schemaDestinationDir}/${themeSchema}`;
+                    console.log("copying default-theme.yml", schemaDestinationDir, destSchemaFile, defaultYamlFilePath, dest, path.dirname(dest));
+                    fs.copyFile(defaultYamlFilePath, path.resolve(path.dirname(dest), "default-theme.yml"), (err) => { });
+                }
+            }
+            catch (e) {
+                console.log("defaultYamlFilePath file not found ", defaultYamlFilePath);
+            }
         });
     });
     const compSchemas = [];
     let i = 0;
     tv.components.forEach((v, k) => {
-        compSchemas.push({ name: k, schema: v, isLast: i == tv.components.size - 1 });
+        compSchemas.push({ name: k, schema: v.themeSchema, options: v.optionsSchema, isLast: i == tv.components.size - 1 });
         i++;
     });
     return { components: compSchemas };
+}
+function resolveSchema(schemaDestinationDir, moduleName, moduleDir, schemaFileLoc, dirNodeModules) {
+    if (!schemaFileLoc) {
+        return undefined;
+    }
+    const { content, dest } = readSchema(schemaDestinationDir, moduleName, moduleDir, schemaFileLoc);
+    const resolvedContent = resolveRefsInSchema(content, moduleName, dirNodeModules, schemaDestinationDir, schemaFileLoc);
+    const schemaFile = writeSchema(dest, resolvedContent);
+    const res = schemaFile.startsWith(schemaDestinationDir) ? schemaFile.replace(stripTrailingSlash(schemaDestinationDir), ".") : schemaFile;
+    return res;
 }
 function resolveRefsInSchema(schemaFileContent, moduleName, dirNodeModules, schemaDestinationDir, schemaFileRelativeToModuleDir) {
     const regex = /\s*"\$ref": "(.*)"/;
@@ -98,10 +127,11 @@ function resolveRef(ref, moduleName, dirNodeModules, schemaDestinationDir, schem
     console.log("returning ref", ref);
     return ref;
 }
-function readSchema(schemaDestinationDir, moduleName, moduleDir, compSchema) {
-    const moduleSchemaFile = `${stripTrailingSlash(moduleDir)}/${stripLeadingSlash(compSchema)}`;
+function readSchema(schemaDestinationDir, moduleName, moduleDir, schemaFileLoc) {
+    // const moduleSchemaFile = `${stripTrailingSlash(moduleDir)}/${stripLeadingSlash(schemaFileLoc)}`;
+    const moduleSchemaFile = path.resolve(moduleDir, schemaFileLoc);
     console.log("module dir", moduleDir);
-    let destSchemaFile = `${moduleName}/${stripLeadingSlash(compSchema)}`;
+    let destSchemaFile = `${moduleName}/${stripLeadingSlash(schemaFileLoc)}`;
     const dest = `${schemaDestinationDir}/${destSchemaFile}`;
     const moduleSchemaFilePath = moduleSchemaFile.replaceAll("/", "\\");
     const stat = fs.statSync(moduleSchemaFilePath);

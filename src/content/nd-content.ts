@@ -1,11 +1,13 @@
 
 export class NdContentImage {
-    url?: LbTranslatedText;
-    title?: LbTranslatedText;
-    alt?: LbTranslatedText;
+    url: NdTranslatedText = {} as NdTranslatedText;
+    title?: NdTranslatedText;
+    alt?: NdTranslatedText;
+
+
 }
 
-export class LbTranslatedText {
+export class NdTranslatedText {
     key: string = "";
     ns: string = "";
     text: string = "";
@@ -17,37 +19,69 @@ export class LbTranslatedText {
     }
 }
 
+export class NdList {
+    items: NdTranslatedText[];
+    ordered: boolean;
+
+    private constructor(ordered: boolean, items: NdTranslatedText[]) {
+        this.ordered = ordered;
+        this.items = items;
+    }
+
+    public static createOrdered(items: NdTranslatedText[]): NdList {
+        return new NdList(true, items)
+    }
+
+    public static createUnOrdered(items: NdTranslatedText[]): NdList {
+        return new NdList(false, items)
+    }
+
+}
+
+export class NdCode {
+    lang: string;
+    code: string;
+
+    constructor(lang: string, code: string) {
+        this.lang = lang;
+        this.code = code;
+    }
+
+}
+
 export class NdContentBlock {
     id: string;
     lng: string;
     attributes: {key: string, value: string}[] = [];
     tags: string[] = []
-    namespace: string | undefined = undefined;
-    title?: LbTranslatedText;
-    subTitle?: LbTranslatedText;
-    h3?: LbTranslatedText;
-    h4?: LbTranslatedText;
-    h5?: LbTranslatedText;
-    h6?: LbTranslatedText;
-    footer?: LbTranslatedText;
-    paragraphs: LbTranslatedText[] = [];
+    namespace: string;
+    title?: NdTranslatedText;
+    subTitle?: NdTranslatedText;
+    h3?: NdTranslatedText;
+    h4?: NdTranslatedText;
+    h5?: NdTranslatedText;
+    h6?: NdTranslatedText;
+    footer?: NdTranslatedText;
+    paragraphs: (NdTranslatedText | NdList | NdCode)[] = [];
     bgImage?: NdContentImage;
     images: NdContentImage[] = []
 
-    constructor(id: string, lng: string) {
+    constructor(id: string, ns: string, lng: string) {
         this.id = id;
+        this.namespace = ns;
         this.lng = lng;
+        this.attributes.push({key: "id", value: id})
     }
 
-    getByKey(key: string): string | undefined {
+    getByKey(key: string, ns: string): string | undefined {
 
-        if (!key.startsWith(this.id)) {
+        if (!key.startsWith(this.id) || ns !== this.namespace) {
             return undefined;
         }
 
         const path = key.substring(this.id.length + 1)
 
-        console.log("getByKey ", key, path)
+        // console.log("getByKey ", key, path)
 
         const val: any = getPropertyFromObjectRecursively(this, path);
         if (typeof val == "string") {
@@ -60,16 +94,15 @@ export class NdContentBlock {
 
 function getPropertyFromObjectRecursively(obj: any, path: string): any {
 
-    console.log("getting path from obj", obj, path)
+    // console.log(`getting path from obj >>${path}<<`, obj)
 
-    if (obj instanceof LbTranslatedText) {
+    if (obj instanceof NdTranslatedText) {
         return obj.text
     }
 
     if (path.length == 0) {
         return obj;
     }
-
 
     let p: string = path;
     let nextP: string = "";
@@ -87,8 +120,4 @@ function getPropertyFromObjectRecursively(obj: any, path: string): any {
 
 }
 
-export class NdContent {
-    blocks: NdContentBlock[] = [];
-
-}
 

@@ -16,11 +16,11 @@ register('./import-load-hooks.js', import.meta.url);
  * we register hooks, and only then use dynamic import to load custom template file
  */
 // @ts-ignore
-const template = (await import("./mustache/component-resolver.ts.mtl")).default;
+const template = (await import("./mustache/component-resolver.ts.hbs")).default;
 
 class TemplateView {
     modules: {module: string, comps: string[]}[] = [];
-    comps: {name: string, impl: string, numBlocks: string | number}[] = [];
+    comps: {name: string, impl: string, defaultThemeFile: string, numBlocks: string | number}[] = [];
 }
 
 function calculateTemplateView(dirNodeModules: string | undefined = undefined): TemplateView {
@@ -51,7 +51,7 @@ function calculateTemplateView(dirNodeModules: string | undefined = undefined): 
             } else {
                 nb = `${cd.numBlocks}`
             }
-            view.comps.push({name: cn, impl: `${prefix}${cd.implementation}`, numBlocks: nb});
+            view.comps.push({name: cn, impl: `${prefix}${cd.implementation}`, defaultThemeFile: "./" + path.relative(path.resolve("."), path.resolve("./schemas", m.moduleName, cd.defaultThemeFile)).replaceAll("\\", "/"), numBlocks: nb});
         })
 
     });
