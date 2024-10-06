@@ -1,6 +1,7 @@
-import {I18nextProvider} from "../core/providers";
+import {I18nextProvider, ImageUrlProvider} from "../core/providers";
 import {NdContentBlock} from "../content/nd-content";
 import {mergeTheme} from "../theme-utils/theme-merger";
+import {ThemeStyle} from "../theme-utils/theme-style";
 
 export type NdDefaultThemeName = "light" | "dark";
 
@@ -80,15 +81,23 @@ export class NdSkinComponent {
 
 export class NdRow {
     rowIndex: number;
-    row: NdSkinComponent[] = [];
+    maxCols?: number;
+    theme: ThemeStyle | undefined;
+    components: NdSkinComponent[] = [];
 
     constructor(rowIndex: number) {
         this.rowIndex = rowIndex;
+    }
+
+    public static defaultRowTheme: ThemeStyle = {
+        base: "md:grid-cols-1  gap-4",
+        decoration: ""
     }
 }
 
 
 export class NdPageSkin {
+    renderingPage: ThemeStyle | undefined;
     rows: NdRow[] = []
 }
 
@@ -152,6 +161,7 @@ export class NdSkinComponentProps<TComponentTheme = any, TComponentOptions = any
     themes: TComponentTheme[];
     options: TComponentOptions | undefined;
     lng: string;
+    imageUrlProvider: ImageUrlProvider;
     i18nextProvider: I18nextProvider;
 
     constructor(rowIndex: number,
@@ -162,6 +172,7 @@ export class NdSkinComponentProps<TComponentTheme = any, TComponentOptions = any
                 themes: TComponentTheme[],
                 options: TComponentOptions,
                 lng: string,
+                imageUrlProvider: ImageUrlProvider,
                 i18nextProvider: I18nextProvider) {
 
         this.rowIndex = rowIndex;
@@ -172,6 +183,7 @@ export class NdSkinComponentProps<TComponentTheme = any, TComponentOptions = any
         this.themes = themes.slice();
         this.options = options;
         this.lng = lng;
+        this.imageUrlProvider = imageUrlProvider;
         this.i18nextProvider = i18nextProvider;
     }
 }

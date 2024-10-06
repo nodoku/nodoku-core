@@ -1,4 +1,4 @@
-import { ComponentProvider, I18nextProvider } from "./providers";
+import { ComponentProvider, I18nextProvider, ImageUrlProvider } from "./providers";
 import { NdContentBlock } from "../content/nd-content";
 import { NdPageSkin } from "../skin/nd-skin";
 export declare enum RenderingPriority {
@@ -8,9 +8,10 @@ export declare enum RenderingPriority {
 export declare class RenderingPageProps {
     lng: string;
     renderingPriority: RenderingPriority;
-    i18nextProvider: I18nextProvider;
     content: NdContentBlock[];
+    componentProvider: ComponentProvider | undefined;
     skin: NdPageSkin | undefined;
-    componentProvider: ComponentProvider;
-    constructor(lng: string, renderingPriority: RenderingPriority | undefined, i18nextProvider: I18nextProvider, content: NdContentBlock[], skin: NdPageSkin | undefined, componentProvider: ComponentProvider);
+    imageUrlProvider: ImageUrlProvider | undefined;
+    i18nextProvider: I18nextProvider | undefined;
+    constructor(lng: string, renderingPriority: RenderingPriority | undefined, content: NdContentBlock[], componentProvider: ComponentProvider | undefined, skin: NdPageSkin | undefined, imageUrlProvider: ImageUrlProvider | undefined, i18nextProvider: I18nextProvider | undefined);
 }

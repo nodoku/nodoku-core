@@ -1,0 +1,46 @@
+pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}
+code.hljs {
+  padding: 3px 5px
+}
+/*
+
+Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org>
+
+*/
+.hljs {
+  background: white;
+  color: black
+}
+.hljs-string,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-section,
+.hljs-addition,
+.hljs-attribute,
+.hljs-link {
+  color: #888
+}
+.hljs-comment,
+.hljs-quote,
+.hljs-meta,
+.hljs-deletion {
+  color: #ccc
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-section,
+.hljs-name,
+.hljs-type,
+.hljs-strong {
+  font-weight: bold
+}
+.hljs-emphasis {
+  font-style: italic
+}
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uL25vZGVfbW9kdWxlcy9oaWdobGlnaHQuanMvc3R5bGVzL2FzY2V0aWMuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBIiwiZmlsZSI6Im91dHB1dC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyJwcmUgY29kZS5obGpzIHtcbiAgZGlzcGxheTogYmxvY2s7XG4gIG92ZXJmbG93LXg6IGF1dG87XG4gIHBhZGRpbmc6IDFlbVxufVxuY29kZS5obGpzIHtcbiAgcGFkZGluZzogM3B4IDVweFxufVxuLypcblxuT3JpZ2luYWwgc3R5bGUgZnJvbSBzb2Z0d2FyZW1hbmlhY3Mub3JnIChjKSBJdmFuIFNhZ2FsYWV2IDxNYW5pYWNAU29mdHdhcmVNYW5pYWNzLk9yZz5cblxuKi9cbi5obGpzIHtcbiAgYmFja2dyb3VuZDogd2hpdGU7XG4gIGNvbG9yOiBibGFja1xufVxuLmhsanMtc3RyaW5nLFxuLmhsanMtdmFyaWFibGUsXG4uaGxqcy10ZW1wbGF0ZS12YXJpYWJsZSxcbi5obGpzLXN5bWJvbCxcbi5obGpzLWJ1bGxldCxcbi5obGpzLXNlY3Rpb24sXG4uaGxqcy1hZGRpdGlvbixcbi5obGpzLWF0dHJpYnV0ZSxcbi5obGpzLWxpbmsge1xuICBjb2xvcjogIzg4OFxufVxuLmhsanMtY29tbWVudCxcbi5obGpzLXF1b3RlLFxuLmhsanMtbWV0YSxcbi5obGpzLWRlbGV0aW9uIHtcbiAgY29sb3I6ICNjY2Ncbn1cbi5obGpzLWtleXdvcmQsXG4uaGxqcy1zZWxlY3Rvci10YWcsXG4uaGxqcy1zZWN0aW9uLFxuLmhsanMtbmFtZSxcbi5obGpzLXR5cGUsXG4uaGxqcy1zdHJvbmcge1xuICBmb250LXdlaWdodDogYm9sZFxufVxuLmhsanMtZW1waGFzaXMge1xuICBmb250LXN0eWxlOiBpdGFsaWNcbn0iXX0= */

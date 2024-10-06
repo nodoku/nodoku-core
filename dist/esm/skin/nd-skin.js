@@ -66,12 +66,19 @@ export class NdSkinComponent {
 }
 export class NdRow {
     rowIndex;
-    row = [];
+    maxCols;
+    theme;
+    components = [];
     constructor(rowIndex) {
         this.rowIndex = rowIndex;
     }
+    static defaultRowTheme = {
+        base: "md:grid-cols-1  gap-4",
+        decoration: ""
+    };
 }
 export class NdPageSkin {
+    renderingPage;
     rows = [];
 }
 export class NdContentSelector {
@@ -114,8 +121,9 @@ export class NdSkinComponentProps {
     themes;
     options;
     lng;
+    imageUrlProvider;
     i18nextProvider;
-    constructor(rowIndex, componentIndex, content, defaultThemeName, theme, themes, options, lng, i18nextProvider) {
+    constructor(rowIndex, componentIndex, content, defaultThemeName, theme, themes, options, lng, imageUrlProvider, i18nextProvider) {
         this.rowIndex = rowIndex;
         this.componentIndex = componentIndex;
         this.content = content;
@@ -124,6 +132,7 @@ export class NdSkinComponentProps {
         this.themes = themes.slice();
         this.options = options;
         this.lng = lng;
+        this.imageUrlProvider = imageUrlProvider;
         this.i18nextProvider = i18nextProvider;
     }
 }

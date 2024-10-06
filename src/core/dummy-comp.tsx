@@ -18,8 +18,8 @@ export async function DummyComp(props: NdSkinComponentProps): Promise<JSX.Elemen
 
 async function render(rowIndex: number, componentIndex: number, block: NdContentBlock, t: (key: string, ns: string) => string): Promise<JSX.Element> {
     var style = {};
-    if (block.bgImage && block.bgImage.url) {
-        style = {backgroundImage: `url(${t(block.bgImage.url.key, block.bgImage.url.ns)})`}
+    if (block.bgImageUrl) {
+        style = {backgroundImage: `url(${t(block.bgImageUrl.key, block.bgImageUrl.ns)})`}
     }
 
     return (

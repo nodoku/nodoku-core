@@ -49,7 +49,7 @@ export class NdContentBlock {
     h6;
     footer;
     paragraphs = [];
-    bgImage;
+    bgImageUrl;
     images = [];
     constructor(id, ns, lng) {
         this.id = id;

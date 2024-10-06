@@ -6,16 +6,29 @@
             "type": "object",
             "properties": {
                 "row": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/VisualRowBlock"
-                    }
+                    "type": "object",
+                    "properties": {
+                        "theme": {
+                            "$ref": "../node_modules/nodoku-core/schemas/skin-common-schema.json#/definitions/ThemeStyle",
+                            "additionalProperties": false
+                        },
+                        "maxCols": {
+                            "type": "number"
+                        },
+                        "components": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/RowComponent"
+                            }
+                        }
+                    },
+                    "additionalProperties": false
                 }
             },
             "additionalProperties": false
         },
 
-        "VisualRowBlock": {
+        "RowComponent": {
             "type": "object",
             "properties": {
                 {{#components}}
@@ -70,6 +83,10 @@
                         "light",
                         "dark"
                     ]
+                },
+                "renderingPage": {
+                    "$ref": "../node_modules/nodoku-core/schemas/skin-common-schema.json#/definitions/ThemeStyle",
+                    "additionalProperties": false
                 },
                 "theme": {
                     "allOf": [
@@ -141,8 +158,7 @@
                 "$ref": "#/definitions/VisualRow"
             },
             "additionalItems": false
-        },
-        "additionalProperties": false
+        }
     },
     "additionalItems": false,
     "additionalProperties": false

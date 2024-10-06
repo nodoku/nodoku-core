@@ -38,7 +38,7 @@ export declare class NdContentBlock {
     h6?: NdTranslatedText;
     footer?: NdTranslatedText;
     paragraphs: (NdTranslatedText | NdList | NdCode)[];
-    bgImage?: NdContentImage;
+    bgImageUrl?: NdTranslatedText;
     images: NdContentImage[];
     constructor(id: string, ns: string, lng: string);
     getByKey(key: string, ns: string): string | undefined;

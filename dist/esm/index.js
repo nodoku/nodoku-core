@@ -9,3 +9,5 @@ export { NdContentImage, NdTranslatedText, NdList, NdCode, NdContentBlock, NdSki
 export { RenderingPageProps, RenderingPriority, RenderingPage };
 export { mergeTheme, ThemeStyle, ExtendedThemeStyle };
 export { DummyComp } from "./core/dummy-comp";
+export { contentMarkdownProvider, parseMarkdownAsContent } from "./providers/content/content-markdown-provider";
+export { skinYamlProvider, parseYamlContentAsSkin } from "./providers/skin/skin-yaml-provider";

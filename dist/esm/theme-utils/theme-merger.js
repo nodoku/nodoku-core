@@ -64,7 +64,7 @@ function mergeObjectsRecursively_object(obj, defaultObj) {
             obj[key] = mergeObjectsRecursively_array(obj[key], defaultObj[key]);
         }
         else {
-            obj[key] = obj[key] ? obj[key] : defaultObj[key];
+            obj[key] = (obj[key] && ("" + obj[key]).length > 0) ? obj[key] : defaultObj[key];
         }
     }
     return obj;

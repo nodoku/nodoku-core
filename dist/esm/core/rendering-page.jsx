@@ -4,16 +4,20 @@ import { RenderingPriority } from "./rendering-page-props";
 import { DummyComp } from "./dummy-comp";
 import yaml from "js-yaml";
 import fs from "node:fs";
+import { mergeTheme } from "../theme-utils/theme-merger";
 async function defaultComponentProvider() {
     const compoDef = new NdComponentDefinition("unlimited", undefined, {});
     return { compo: DummyComp, compoDef: compoDef };
 }
+async function defaultImageUrlProvider(imageUrl) {
+    return imageUrl;
+}
 async function RenderingPage(props) {
-    const { lng, i18nextProvider, content, skin, renderingPriority } = props;
-    var { componentProvider } = props;
-    if (!componentProvider) {
-        componentProvider = defaultComponentProvider;
-    }
+    const { lng, renderingPriority, content, componentProvider, skin, imageUrlProvider, i18nextProvider } = props;
+    const actualComponentProvider = componentProvider ? componentProvider : defaultComponentProvider;
+    // if (!componentProvider) {
+    //     componentProvider = defaultComponentProvider;
+    // }
     let l;
     if (skin) {
         let blockSkin = skin;
@@ -22,13 +26,16 @@ async function RenderingPage(props) {
         }
         // console.log(" >>> this is my content <<< ", content)
         // console.log(" >>> this is my skin <<< ", JSON.stringify(blockSkin))
-        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createSubRows(row, iRow, content, lng, i18nextProvider, componentProvider)));
+        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createRow(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)
+        // await createSubRows(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)
+        ));
     }
     else {
-        l = [await createSubRows(undefined, 0, content, lng, i18nextProvider, componentProvider)];
+        l = [await createRow(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)];
+        // l = [await createSubRows(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)];
     }
-    const rows = l.flatMap((a) => a);
-    return <>{rows}</>;
+    // const rows: JSX.Element[] = l.flatMap((a: JSX.Element[]) => a);
+    return <div className={`${skin?.renderingPage?.base} ${skin?.renderingPage?.decoration}`}>{l}</div>;
 }
 function generateSkinByContentBlocks(blocks, skin) {
     const rendered = new Set();
@@ -37,21 +44,21 @@ function generateSkinByContentBlocks(blocks, skin) {
     let rowIndex = 0;
     blocks.map((b, i) => {
         if (!rendered.has(b.id)) {
-            const bRows = skin.rows.filter(r => r.row.filter(c => c.selector.match(b)).length > 0);
+            const bRows = skin.rows.filter(r => r.components.filter(c => c.selector.match(b)).length > 0);
             if (bRows.length > 0) {
                 if (currentRow) {
                     res.rows.push(currentRow);
                     currentRow = undefined;
                 }
                 bRows.forEach(r => res.rows.push(r));
-                bRows.flatMap(r => r.row.flatMap(c => c.selector.filterBlocks(blocks)))
+                bRows.flatMap(r => r.components.flatMap(c => c.selector.filterBlocks(blocks)))
                     .forEach(b => rendered.add(b.id));
             }
             else {
                 if (!currentRow) {
                     currentRow = new NdRow(res.rows.length);
                 }
-                currentRow.row.push(new NdSkinComponent(rowIndex, currentRow.row.length, "light", new NdContentSelector([{ key: "id", value: b.id }])));
+                currentRow.components.push(new NdSkinComponent(rowIndex, currentRow.components.length, "light", new NdContentSelector([{ key: "id", value: b.id }])));
                 rendered.add(b.id);
             }
         }
@@ -62,44 +69,146 @@ function generateSkinByContentBlocks(blocks, skin) {
     // console.log("generated skin", JSON.stringify(res))
     return res;
 }
-async function createSubRows(row, iRow, blocks, lng, i18nProvider, componentProvider) {
+// async function createSubRows(row: NdRow | undefined,
+//                              iRow: number,
+//                              blocks: NdContentBlock[],
+//                              lng: string,
+//                              imageUrlProvider: ImageUrlProvider | undefined,
+//                              i18nProvider: I18nextProvider | undefined,
+//                              componentProvider: ComponentProvider): Promise<JSX.Element[]> {
+//
+//     let l: JSX.Element[][];
+//     if (row) {
+//         l = await Promise.all(row.components.map(async (visualSection: NdSkinComponent, iComp: number): Promise<JSX.Element[]> =>
+//
+//             await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentProvider)
+//
+//         ));
+//     } else {
+//         l = await Promise.all(blocks.map(async (block: NdContentBlock, iComp: number): Promise<JSX.Element[]> =>
+//
+//             await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentProvider)
+//
+//         ));
+//     }
+//
+//     const rowComponents: JSX.Element[] = l.flatMap( (p: JSX.Element[]) => p);
+//
+//     const numComponents = rowComponents.length;
+//
+//     const rowEffectiveTheme: ThemeStyle = mergeTheme(row?.theme, NdRow.defaultRowTheme)
+//
+//     if (numComponents == 1) {
+//         return [<div key={`row-${iRow}`} className={`${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>{rowComponents[0]}</div>];
+//     } else {
+//         const maxCols = row?.maxCols ? row.maxCols : 3;
+//         const numCols = numComponents <= maxCols  ? numComponents : maxCols;
+//
+//         let gridCols: string = "grid-cols-1";
+//         switch (numCols) {
+//             case 1:
+//                 gridCols = "lg:grid-cols-1";
+//                 break;
+//             case 2:
+//                 gridCols = "lg:grid-cols-2";
+//                 break;
+//             case 3:
+//                 gridCols = "lg:grid-cols-3";
+//                 break;
+//             case 4:
+//                 gridCols = "lg:grid-cols-4";
+//                 break;
+//         }
+//
+//
+//         const subRows: JSX.Element[] = [];
+//         for (var i = 0; i < numComponents / numCols; i++) {
+//             subRows.push(
+//                 <div key={`row-${iRow}`} className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
+//                     {rowComponents.slice(numCols * i, Math.min((i + 1) * numCols, numComponents))}
+//                 </div>
+//             )
+//
+//         }
+//
+//         return subRows;
+//     }
+//
+//
+// }
+async function createRow(row, iRow, blocks, lng, imageUrlProvider, i18nProvider, componentProvider) {
     let l;
     if (row) {
-        l = await Promise.all(row.row.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, i18nProvider, componentProvider)));
+        l = await Promise.all(row.components.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentProvider)));
     }
     else {
-        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, i18nProvider, componentProvider)));
+        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentProvider)));
     }
     const rowComponents = l.flatMap((p) => p);
     const numComponents = rowComponents.length;
-    if (numComponents == 1) {
-        return [rowComponents[0]];
+    const rowEffectiveTheme = mergeTheme(row?.theme, NdRow.defaultRowTheme);
+    const maxCols = row?.maxCols ? row.maxCols : 3;
+    const numCols = numComponents <= maxCols ? numComponents : maxCols;
+    let gridCols = "grid-cols-1";
+    switch (numCols) {
+        case 1:
+            gridCols = "lg:grid-cols-1";
+            break;
+        case 2:
+            gridCols = "lg:grid-cols-2";
+            break;
+        case 3:
+            gridCols = "lg:grid-cols-3";
+            break;
+        case 4:
+            gridCols = "lg:grid-cols-4";
+            break;
+        case 5:
+            gridCols = "lg:grid-cols-5";
+            break;
+        case 6:
+            gridCols = "lg:grid-cols-6";
+            break;
+        case 7:
+            gridCols = "lg:grid-cols-7";
+            break;
+        case 8:
+            gridCols = "lg:grid-cols-8";
+            break;
+        case 9:
+            gridCols = "lg:grid-cols-9";
+            break;
+        case 9:
+            gridCols = "lg:grid-cols-9";
+            break;
+        case 10:
+            gridCols = "lg:grid-cols-10";
+            break;
+        case 11:
+            gridCols = "lg:grid-cols-11";
+            break;
+        case 12:
+            gridCols = "lg:grid-cols-12";
+            break;
     }
-    else {
-        const maxCols = 3;
-        const numCols = numComponents <= maxCols ? numComponents : maxCols;
-        let gridCols = "grid-cols-1";
-        switch (numCols) {
-            case 1:
-                gridCols = "grid-cols-1";
-                break;
-            case 2:
-                gridCols = "grid-cols-2";
-                break;
-            case 3:
-                gridCols = "grid-cols-3";
-                break;
-        }
-        const subRows = [];
-        for (var i = 0; i < numComponents / numCols; i++) {
-            subRows.push(<div key={`row-${iRow}`} className={`grid ${gridCols} gap-4`}>
-                    {rowComponents.slice(numCols * i, Math.min((i + 1) * numCols, numComponents))}
-                </div>);
-        }
-        return subRows;
-    }
+    // if (numComponents == 1) {
+    //     return [<div key={`row-${iRow}`} className={`${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>{rowComponents[0]}</div>];
+    // } else {
+    // const subRows: JSX.Element[] = [];
+    // for (var i = 0; i < numComponents / numCols; i++) {
+    //     subRows.push(
+    //         <div key={`row-${iRow}`} className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
+    //             {rowComponents.slice(numCols * i, Math.min((i + 1) * numCols, numComponents))}
+    //         </div>
+    //     )
+    //
+    // }
+    return (<div key={`row-${iRow}`} className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
+                {rowComponents}
+            </div>);
+    // }
 }
-async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, i18nProvider, componentProvider) {
+async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageUrlProvide, i18nProvider, componentProvider) {
     // console.log("before component", skinComponent)
     const filteredBlocks = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
     // console.log("retrieving comp", rowIndex, blockIndex, filteredBlocks.map(fb => JSON.stringify(fb.attributes)).join(", "));
@@ -122,17 +231,16 @@ async function createRowComponents(rowIndex, blockIndex, skinComponent, pageCont
             const blocks = filteredBlocks.slice(start, end);
             const compIndex = blockIndex * filteredBlocks.length + i;
             // console.log("calculated compo index ", compIndex, "filteredBlocks.length", filteredBlocks.length, "blockIndex", blockIndex)
-            res.push(await renderSingleComponent(rowIndex, compIndex, compo, blocks, skinComponent?.defaultThemeName || "light", compoDef.defaultTheme, skinComponent?.themeHierarchy, lng, i18nProvider));
+            res.push(await renderSingleComponent(rowIndex, compIndex, compo, blocks, skinComponent?.defaultThemeName || "light", compoDef.defaultTheme, skinComponent?.themeHierarchy, lng, imageUrlProvide, i18nProvider));
         }
         start = end;
         ++i;
     } while (end < filteredBlocks.length);
     return res;
 }
-async function renderSingleComponent(rowIndex, componentIndex, component, blocks, defaultThemeName, defaultTheme, themeHierarchy, lng, i18nextProvider) {
-    let actualI18nextProvider = i18nextProvider;
-    const l = await i18nextProvider(lng);
-    if (lng == blocks[0].lng) {
+async function renderSingleComponent(rowIndex, componentIndex, component, blocks, defaultThemeName, defaultTheme, themeHierarchy, lng, imageUrlProvider, i18nextProvider) {
+    let actualI18nextProvider;
+    if (lng == blocks[0].lng || !i18nextProvider) {
         actualI18nextProvider = async (lng) => {
             return { t: (key, ns) => {
                     const b = blocks.map((b) => b.getByKey(key, ns)).find((s) => s);
@@ -140,11 +248,15 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
                 } };
         };
     }
-    if (themeHierarchy) {
-        console.log("themeHierarchy", themeHierarchy);
+    else {
+        actualI18nextProvider = i18nextProvider;
     }
+    const actualImageUrlProvider = imageUrlProvider ? imageUrlProvider : defaultImageUrlProvider;
+    // if (themeHierarchy) {
+    //     console.log("themeHierarchy", themeHierarchy)
+    // }
     const { effectiveTheme, effectiveThemes, effectiveOptions } = themeHierarchy?.calculateEffectiveTheme(componentIndex, defaultTheme) || { effectiveTheme: defaultTheme, effectiveThemes: [], effectiveOptions: {} };
-    console.log(">>> ended themeHierarchy <<<");
+    // console.log(">>> ended themeHierarchy <<<")
     const props = {
         rowIndex: rowIndex,
         componentIndex: componentIndex,
@@ -154,6 +266,7 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
         themes: effectiveThemes,
         options: effectiveOptions,
         lng: lng,
+        imageUrlProvider: actualImageUrlProvider,
         i18nextProvider: actualI18nextProvider
     };
     // console.log("start rendering page with props", props);

@@ -48,25 +48,28 @@ function calculateTemplateView(schemaDestinationDir: string, dirNodeModules: str
             /*
              * copy default-theme.yml
             */
-            const compSchema = cd.themeSchema
+            const compSchema = cd.themeSchema;
             const moduleSchemaFile = path.resolve(stripTrailingSlash(moduleDir), stripLeadingSlash(compSchema));
-            const defaultYamlFilePath = path.resolve(path.dirname(moduleSchemaFile), "default-theme.yml")
+            const compDefaultYaml = cd.defaultThemeFile;
+            // const moduleDefaultYamlFile = path.resolve(path.dirname(moduleSchemaFile), stripLeadingSlash(compDefaultYaml));
+            const moduleDefaultYamlFile = path.resolve(stripTrailingSlash(moduleDir), stripLeadingSlash(compDefaultYaml));
             let stat = undefined;
             try {
-                stat = fs.statSync(defaultYamlFilePath);
+                stat = fs.statSync(moduleDefaultYamlFile);
 
-                console.log("defaultYamlFilePath", defaultYamlFilePath)
+                console.log("defaultYamlFilePath", moduleDefaultYamlFile)
 
                 if (stat.isFile()) {
                     let destSchemaFile = path.resolve(m.moduleName, compSchema);
                     console.log("compSchema", compSchema)
 
-                    const dest: string = `${schemaDestinationDir}/${themeSchema}`;
-                    console.log("copying default-theme.yml", schemaDestinationDir, destSchemaFile, defaultYamlFilePath, dest, path.dirname(dest))
-                    fs.copyFile(defaultYamlFilePath, path.resolve(path.dirname(dest), "default-theme.yml"), (err) => {})
+                    const dest: string = path.resolve(schemaDestinationDir, themeSchema!);
+                    const yamlFileName = path.basename(moduleDefaultYamlFile)
+                    console.log("copying default-theme.yml", yamlFileName, schemaDestinationDir, destSchemaFile, moduleDefaultYamlFile, dest, path.dirname(dest))
+                    fs.copyFile(moduleDefaultYamlFile, path.resolve(path.dirname(dest), yamlFileName), (err) => {})
                 }
             } catch (e) {
-                console.log("defaultYamlFilePath file not found ", defaultYamlFilePath)
+                console.log("defaultYamlFilePath file not found ", moduleDefaultYamlFile)
             }
 
 

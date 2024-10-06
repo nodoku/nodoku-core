@@ -1,5 +1,6 @@
-import { I18nextProvider } from "../core/providers";
+import { I18nextProvider, ImageUrlProvider } from "../core/providers";
 import { NdContentBlock } from "../content/nd-content";
+import { ThemeStyle } from "../theme-utils/theme-style";
 export type NdDefaultThemeName = "light" | "dark";
 export declare class NdThemeHierarchy {
     defaultThemeName: NdDefaultThemeName;
@@ -29,10 +30,14 @@ export declare class NdSkinComponent {
 }
 export declare class NdRow {
     rowIndex: number;
-    row: NdSkinComponent[];
+    maxCols?: number;
+    theme: ThemeStyle | undefined;
+    components: NdSkinComponent[];
     constructor(rowIndex: number);
+    static defaultRowTheme: ThemeStyle;
 }
 export declare class NdPageSkin {
+    renderingPage: ThemeStyle | undefined;
     rows: NdRow[];
 }
 export declare class NdContentSelector {
@@ -64,6 +69,7 @@ export declare class NdSkinComponentProps<TComponentTheme = any, TComponentOptio
     themes: TComponentTheme[];
     options: TComponentOptions | undefined;
     lng: string;
+    imageUrlProvider: ImageUrlProvider;
     i18nextProvider: I18nextProvider;
-    constructor(rowIndex: number, componentIndex: number, content: NdContentBlock[], defaultThemeName: NdDefaultThemeName, theme: TComponentTheme, themes: TComponentTheme[], options: TComponentOptions, lng: string, i18nextProvider: I18nextProvider);
+    constructor(rowIndex: number, componentIndex: number, content: NdContentBlock[], defaultThemeName: NdDefaultThemeName, theme: TComponentTheme, themes: TComponentTheme[], options: TComponentOptions, lng: string, imageUrlProvider: ImageUrlProvider, i18nextProvider: I18nextProvider);
 }

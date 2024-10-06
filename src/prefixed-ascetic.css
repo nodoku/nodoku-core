@@ -1,0 +1,45 @@
+.kaka pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}
+.kaka code.hljs {
+  padding: 3px 5px
+}
+/*
+
+Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org>
+
+*/
+.kaka .hljs {
+  background: white;
+  color: black
+}
+.kaka .hljs-string,
+.kaka .hljs-variable,
+.kaka .hljs-template-variable,
+.kaka .hljs-symbol,
+.kaka .hljs-bullet,
+.kaka .hljs-section,
+.kaka .hljs-addition,
+.kaka .hljs-attribute,
+.kaka .hljs-link {
+  color: #888
+}
+.kaka .hljs-comment,
+.kaka .hljs-quote,
+.kaka .hljs-meta,
+.kaka .hljs-deletion {
+  color: #ccc
+}
+.kaka .hljs-keyword,
+.kaka .hljs-selector-tag,
+.kaka .hljs-section,
+.kaka .hljs-name,
+.kaka .hljs-type,
+.kaka .hljs-strong {
+  font-weight: bold
+}
+.kaka .hljs-emphasis {
+  font-style: italic
+}

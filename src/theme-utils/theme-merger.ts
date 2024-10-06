@@ -78,7 +78,7 @@ function mergeObjectsRecursively_object<T extends object>(obj: T, defaultObj: T)
             type ElementType = (typeof defaultObj[typeof key] extends (infer U)[] ? U : never) & object;
             obj[key] = mergeObjectsRecursively_array<ElementType>(obj[key] as ElementType[], defaultObj[key]) as T[keyof T];
         } else {
-            obj[key] = obj[key] ? obj[key] : defaultObj[key];
+            obj[key] = (obj[key] && ("" + obj[key]).length > 0) ? obj[key] : defaultObj[key];
         }
     }
 

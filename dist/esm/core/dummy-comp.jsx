@@ -8,8 +8,8 @@ export async function DummyComp(props) {
 }
 async function render(rowIndex, componentIndex, block, t) {
     var style = {};
-    if (block.bgImage && block.bgImage.url) {
-        style = { backgroundImage: `url(${t(block.bgImage.url.key, block.bgImage.url.ns)})` };
+    if (block.bgImageUrl) {
+        style = { backgroundImage: `url(${t(block.bgImageUrl.key, block.bgImageUrl.ns)})` };
     }
     return (<div className={"w-full w-full flex flex-col items-left justify-left  border border-4 border-red-200 relative pb-10"}>
             <div className={"top-0 bottom-0 left-0 right-0 absolute bg-cover bg-no-repeat"} style={{ ...style, zIndex: -11 }}>

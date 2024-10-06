@@ -6,16 +6,18 @@ export var RenderingPriority;
 export class RenderingPageProps {
     lng;
     renderingPriority;
-    i18nextProvider;
     content;
-    skin;
     componentProvider;
-    constructor(lng, renderingPriority = RenderingPriority.content_first, i18nextProvider, content, skin, componentProvider) {
+    skin;
+    imageUrlProvider = undefined;
+    i18nextProvider = undefined;
+    constructor(lng, renderingPriority = RenderingPriority.content_first, content, componentProvider, skin, imageUrlProvider, i18nextProvider) {
         this.lng = lng;
         this.renderingPriority = renderingPriority;
-        this.i18nextProvider = i18nextProvider;
         this.content = content;
-        this.skin = skin;
         this.componentProvider = componentProvider;
+        this.skin = skin;
+        this.imageUrlProvider = imageUrlProvider;
+        this.i18nextProvider = i18nextProvider;
     }
 }
