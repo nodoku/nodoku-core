@@ -1,3 +1,4 @@
+import HTMLElement from "node-html-parser/dist/nodes/html";
 export declare class NdContentImage {
     url: NdTranslatedText;
     title?: NdTranslatedText;
@@ -40,6 +41,10 @@ export declare class NdContentBlock {
     paragraphs: (NdTranslatedText | NdList | NdCode)[];
     bgImageUrl?: NdTranslatedText;
     images: NdContentImage[];
+    htmlElements: {
+        htmlElem: HTMLElement;
+        translatedTexts: NdTranslatedText[];
+    }[];
     constructor(id: string, ns: string, lng: string);
     getByKey(key: string, ns: string): string | undefined;
 }

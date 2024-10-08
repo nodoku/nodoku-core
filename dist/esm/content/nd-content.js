@@ -51,6 +51,7 @@ export class NdContentBlock {
     paragraphs = [];
     bgImageUrl;
     images = [];
+    htmlElements = [];
     constructor(id, ns, lng) {
         this.id = id;
         this.namespace = ns;

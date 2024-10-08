@@ -90,8 +90,8 @@ export class NdRow {
     }
 
     public static defaultRowTheme: ThemeStyle = {
-        base: "md:grid-cols-1  gap-4",
-        decoration: ""
+        base: "md:grid-cols-1",
+        decoration: "gap-4"
     }
 }
 

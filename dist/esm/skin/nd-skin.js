@@ -73,8 +73,8 @@ export class NdRow {
         this.rowIndex = rowIndex;
     }
     static defaultRowTheme = {
-        base: "md:grid-cols-1  gap-4",
-        decoration: ""
+        base: "md:grid-cols-1",
+        decoration: "gap-4"
     };
 }
 export class NdPageSkin {
