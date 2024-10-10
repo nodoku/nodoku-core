@@ -30,7 +30,7 @@ class BlockHolder {
         this.lng = lng;
         this.blockDefYaml = blockDefYaml;
     }
-    blockContent = { /*paragraphs: [], images: [],*/ paragraphsIndex: [], imagesIndex: [], htmlStream: [] };
+    blockContent = { paragraphsIndex: [], imagesIndex: [], htmlStream: [] };
     hasContentH1AndBelow() {
         return this.blockContent.titleIndex != undefined || this.hasContentH2AndBelow();
     }
@@ -123,7 +123,8 @@ class BlockHolder {
         if (this.blockDefYaml && this.hasContent()) {
             res.push(this.createContentBlock(res.length));
         }
-        return new BlockHolder(this.ns, this.lng, blockDefYaml);
+        const blockDef = yaml.load(blockDefYaml);
+        return new BlockHolder(this.ns, this.lng, blockDef);
     }
     addParagraph(childNode) {
         console.log("adding paragraph: ", childNode.innerHTML, this.blockContent.htmlStream.length);
@@ -141,7 +142,7 @@ class BlockHolder {
         return this;
     }
     createContentBlock(blockIndex) {
-        const loadedBlockDef = yaml.load(this.blockDefYaml);
+        const loadedBlockDef = this.blockDefYaml;
         const blockDef = loadedBlockDef["nd-block"];
         const blockId = blockDef.id ? blockDef.id : `block-${blockIndex}`;
         const attributes = blockDef.attributes;
@@ -156,43 +157,36 @@ class BlockHolder {
         let pi = 0;
         let imi = 0;
         this.blockContent.htmlStream.forEach((htmlElem, i) => {
-            const texts = [];
+            let text = undefined;
             if (i === this.blockContent.titleIndex) {
                 newBlock.title = new NdTranslatedText(this.ns, `${blockId}.title`, htmlElem.innerHTML);
-                texts.push(newBlock.title);
+                text = newBlock.title;
             }
             else if (i === this.blockContent.subTitleIndex) {
                 newBlock.subTitle = new NdTranslatedText(this.ns, `${blockId}.subTitle`, htmlElem.innerHTML);
-                texts.push(newBlock.subTitle);
+                text = newBlock.subTitle;
             }
             else if (i === this.blockContent.h3Index) {
                 newBlock.h3 = new NdTranslatedText(this.ns, `${blockId}.h3`, htmlElem.innerHTML);
-                texts.push(newBlock.h3);
+                text = newBlock.h3;
             }
             else if (i === this.blockContent.h4Index) {
                 newBlock.h4 = new NdTranslatedText(this.ns, `${blockId}.h4`, htmlElem.innerHTML);
-                texts.push(newBlock.h4);
+                text = newBlock.h4;
             }
             else if (i === this.blockContent.h5Index) {
                 newBlock.h5 = new NdTranslatedText(this.ns, `${blockId}.h5`, htmlElem.innerHTML);
-                texts.push(newBlock.h5);
+                text = newBlock.h5;
             }
             else if (i === this.blockContent.h6Index) {
                 newBlock.h6 = new NdTranslatedText(this.ns, `${blockId}.h6`, htmlElem.innerHTML);
-                texts.push(newBlock.h6);
+                text = newBlock.h6;
             }
             else if (this.blockContent.paragraphsIndex.indexOf(i) >= 0) {
                 const para = this.parseParagraph(blockId, htmlElem, pi);
                 if (para) {
                     newBlock.paragraphs.push(para);
-                    if (para instanceof NdTranslatedText) {
-                        texts.push(para);
-                    }
-                    else if (para instanceof NdList) {
-                        para.items.forEach((item) => {
-                            texts.push(item);
-                        });
-                    }
+                    text = para;
                     pi++;
                 }
             }
@@ -232,32 +226,15 @@ class BlockHolder {
                 }
                 if (img) {
                     newBlock.images.push(img);
-                    texts.push(img.url);
-                    if (img.alt) {
-                        texts.push(img.alt);
-                    }
-                    if (img.title) {
-                        texts.push(img.title);
-                    }
+                    text = img;
                     imi++;
                 }
             }
             else {
-                texts.push(new NdTranslatedText(this.ns, `${blockId}.htmlElements.${newBlock.htmlElements.length}`, ""));
+                text = new NdTranslatedText(this.ns, `${blockId}.htmlElements.${newBlock.htmlElements.length}`, "");
             }
-            newBlock.htmlElements.push({ htmlElem: htmlElem, translatedTexts: texts });
+            newBlock.htmlElements.push({ htmlElem: htmlElem, translatedText: text });
         });
-        // if (this.blockContent.titleIndex && this.blockContent.htmlElements[this.blockContent.titleIndex].innerHTML.trim().length > 0) {
-        //     newBlock.title = new NdTranslatedText(this.ns);
-        //     newBlock.title!.key = `${blockId}.title`;
-        //     newBlock.title!.text = this.blockContent.htmlElements[this.blockContent.titleIndex].innerHTML.trim(); //this.blockContent.title;
-        // }
-        //
-        // if (this.blockContent.subTitle && this.blockContent.subTitle.trim().length > 0) {
-        //     newBlock.subTitle = new NdTranslatedText(this.ns);
-        //     newBlock.subTitle!.key = `${blockId}.subTitle`;
-        //     newBlock.subTitle!.text = this.blockContent.subTitle;
-        // }
         if (this.blockContent.footer && this.blockContent.footer.trim().length > 0) {
             newBlock.footer = new NdTranslatedText(this.ns);
             newBlock.footer.key = `${blockId}.footer`;
@@ -268,54 +245,7 @@ class BlockHolder {
             newBlock.bgImageUrl.key = `${blockId}.bgImageUrl`;
             newBlock.bgImageUrl.text = this.blockContent.bgImage.getAttribute("src");
         }
-        // newBlock.images = this.blockContent.images.map(im => {
-        //     const innerP: HTMLElement = im;
-        //     // if (innerP.rawTagName == "img") {
-        //     const imi = newBlock.images.length;
-        //     const img: NdContentImage = new NdContentImage();
-        //     img.url = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.url`, innerP.attributes["src"]);
-        //     img.alt = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.alt`, innerP.attributes["alt"]);
-        //     img.title = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.title`, innerP.attributes["title"]);
-        //     // console.log("adding image ", img)
-        //     return img;
-        // })
-        //
-        // newBlock.paragraphs = this.blockContent.paragraphs
-        //     .map((p: HTMLElement, pi: number): NdTranslatedText | NdList | NdCode | undefined => {
-        //         return this.parseParagraph(blockId, p, pi)
-        //     })
-        //     .filter((p: NdTranslatedText | NdList | NdCode | undefined) => p !== undefined)
-        //     .map((p: NdTranslatedText | NdList | NdCode) => p as NdTranslatedText | NdList | NdCode)
         console.log("added block", newBlock);
-        // newBlock.htmlElements = this.blockContent.htmlElements.map((elem): {htmlElem: HTMLElement, translatedText: NdTranslatedText}  => {
-        //
-        //     const tt = new NdTranslatedText(this.ns);
-        //
-        //     if (elem.rawTagName === "h1") {
-        //         tt.key = `${blockId}.title`;
-        //         tt.text = elem.innerHTML;
-        //     } else if (elem.rawTagName === "h2") {
-        //         tt.key = `${blockId}.subTitle`;
-        //         tt.text = elem.innerHTML;
-        //     } else if (elem.rawTagName === "h3") {
-        //         tt.key = `${blockId}.h3`;
-        //         tt.text = elem.innerHTML;
-        //     } else if (elem.rawTagName === "h4") {
-        //         tt.key = `${blockId}.h4`;
-        //         tt.text = elem.innerHTML;
-        //     } else if (elem.rawTagName === "h5") {
-        //         tt.key = `${blockId}.h5`;
-        //         tt.text = elem.innerHTML;
-        //     } else if (elem.rawTagName === "h6") {
-        //         tt.key = `${blockId}.h6`;
-        //         tt.text = elem.innerHTML;
-        //     } else if (elem.rawTagName === "p") {
-        //         tt.key = `${blockId}.p.${Math.random()}`;
-        //         tt.text = elem.innerHTML;
-        //     }
-        //
-        //     return {htmlElem: elem, translatedText: tt}
-        // });
         return newBlock;
     }
     parseParagraph(blockId, p, pi) {
@@ -338,7 +268,7 @@ class BlockHolder {
                 .filter(lin => lin.innerText && lin.innerText.trim().length > 0)
                 .map((lin, k) => {
                 const li = lin;
-                return new NdTranslatedText(this.ns, `${blockId}.paragraphs${pi}.items.${k}`, li.innerHTML);
+                return new NdTranslatedText(this.ns, `${blockId}.paragraphs.${pi}.items.${k}`, li.innerHTML);
             }));
         }
         else if (p.rawTagName === "ul") {
@@ -359,9 +289,8 @@ export function parseMarkdownAsContent(fileContents, contentLng, ns) {
     let currentBlock = new BlockHolder(ns, contentLng);
     const mdParsed = Marked.parse(fileContents);
     const root = parse(mdParsed);
-    root.childNodes.forEach((cn, i) => {
+    root.childNodes.forEach(cn => {
         const childNode = cn;
-        // currentBlock.blockContent.htmlStream.push(childNode);
         if (childNode.rawTagName === "h1") {
             currentBlock = currentBlock.addTitle(childNode, res);
         }
@@ -386,26 +315,20 @@ export function parseMarkdownAsContent(fileContents, contentLng, ns) {
                 const rawText = codeHtml.text;
                 const rCode = codePattern.exec(rawText);
                 if (rCode) {
-                    // res.push(currentBlock.createContentBlock(res.length))
-                    // currentBlock = new BlockHolder(ns, contentLng, rCode[2]);
                     currentBlock = currentBlock.addYamlDefBlock(rCode[2], res);
                 }
             }
             else {
-                // currentBlock.blockContent.paragraphs.push(childNode)
                 currentBlock.addParagraph(childNode);
             }
         }
         else if (childNode.rawTagName === "hr") {
-            // currentBlock.blockContent.paragraphs.push(childNode)
             currentBlock.addHorizontalLine(childNode);
         }
         else if (childNode.rawTagName === "ul") {
-            // currentBlock.blockContent.paragraphs.push(childNode)
             currentBlock.addParagraph(childNode);
         }
         else if (childNode.rawTagName === "ol") {
-            // currentBlock.blockContent.paragraphs.push(childNode)
             currentBlock.addParagraph(childNode);
         }
         else if (childNode.rawTagName === "p" || childNode.rawTagName === "blockquote") {
@@ -417,18 +340,15 @@ export function parseMarkdownAsContent(fileContents, contentLng, ns) {
                 childNode.childNodes.filter(cn => cn.rawTagName == "img")
                     .forEach((cn) => {
                     const l = cn;
-                    console.log("this is found image ", l.getAttribute("src"), l.getAttribute("alt"));
                     if (l.getAttribute("alt") === "bg-image") {
                         currentBlock.blockContent.bgImage = l;
                     }
                     else {
-                        // currentBlock.addImage(childNode.childNodes[i] as HTMLElement)
                         currentBlock.addImage(cn);
                     }
                 });
             }
             else {
-                // currentBlock.blockContent.paragraphs.push(childNode)
                 currentBlock.addParagraph(childNode);
             }
         }

@@ -66,7 +66,7 @@ export class NdContentBlock {
     paragraphs: (NdTranslatedText | NdList | NdCode)[] = [];
     bgImageUrl?: NdTranslatedText;
     images: NdContentImage[] = [];
-    htmlElements: {htmlElem: HTMLElement, translatedTexts: NdTranslatedText[]}[] = [];
+    htmlElements: {htmlElem: HTMLElement, translatedText: (NdTranslatedText | NdContentImage | NdList | NdCode)}[] = [];
 
     constructor(id: string, ns: string, lng: string) {
         this.id = id;

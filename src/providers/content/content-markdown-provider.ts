@@ -2,12 +2,13 @@ import {NdTranslatedText, NdList, NdContentBlock, NdContentImage, NdCode} from "
 import { Marked } from '@ts-stack/markdown';
 import {parse, HTMLElement, TextNode} from 'node-html-parser';
 import yaml from "js-yaml";
-import * as child_process from "node:child_process";
 
 
 const nsRegex = /.*\/(.*)\.md/
 
-export async function contentMarkdownProvider(mdFileUrl: string, contentLng: string, ns: string | undefined = undefined): Promise<NdContentBlock[]> {
+export async function contentMarkdownProvider(mdFileUrl: string,
+                                              contentLng: string,
+                                              ns: string | undefined = undefined): Promise<NdContentBlock[]> {
 
     return await fetch(mdFileUrl)
         .then(response => response.text())
@@ -55,12 +56,10 @@ class BlockHolder {
         h6Index?: number;
         footer?: string;
         bgImage?: HTMLElement;
-        // paragraphs: HTMLElement[];
         paragraphsIndex: number[];
-        // images: HTMLElement[];
         imagesIndex: number[];
         htmlStream: HTMLElement[];
-    } = {/*paragraphs: [], images: [],*/paragraphsIndex: [], imagesIndex: [], htmlStream: []};
+    } = {paragraphsIndex: [], imagesIndex: [], htmlStream: []};
 
     hasContentH1AndBelow(): boolean {
         return this.blockContent.titleIndex != undefined || this.hasContentH2AndBelow();
@@ -210,38 +209,32 @@ class BlockHolder {
         let imi = 0
         this.blockContent.htmlStream.forEach((htmlElem: HTMLElement, i: number) => {
 
-            const texts: NdTranslatedText[] = [];
+            let text: (NdTranslatedText | NdContentImage | NdList | NdCode | undefined) = undefined;
 
             if (i === this.blockContent.titleIndex) {
                 newBlock.title = new NdTranslatedText(this.ns, `${blockId}.title`, htmlElem.innerHTML);
-                texts.push(newBlock.title)
+                text = newBlock.title;
             } else if (i === this.blockContent.subTitleIndex) {
                 newBlock.subTitle = new NdTranslatedText(this.ns, `${blockId}.subTitle`, htmlElem.innerHTML);
-                texts.push(newBlock.subTitle)
+                text = newBlock.subTitle
             } else if (i === this.blockContent.h3Index) {
                 newBlock.h3 = new NdTranslatedText(this.ns, `${blockId}.h3`, htmlElem.innerHTML)
-                texts.push(newBlock.h3)
+                text = newBlock.h3
             } else if (i === this.blockContent.h4Index) {
                 newBlock.h4 = new NdTranslatedText(this.ns, `${blockId}.h4`, htmlElem.innerHTML)
-                texts.push(newBlock.h4)
+                text = newBlock.h4
             } else if (i === this.blockContent.h5Index) {
                 newBlock.h5 = new NdTranslatedText(this.ns, `${blockId}.h5`, htmlElem.innerHTML)
-                texts.push(newBlock.h5)
+                text = newBlock.h5
             } else if (i === this.blockContent.h6Index) {
                 newBlock.h6 = new NdTranslatedText(this.ns, `${blockId}.h6`, htmlElem.innerHTML)
-                texts.push(newBlock.h6)
+                text = newBlock.h6
             } else if (this.blockContent.paragraphsIndex.indexOf(i) >= 0) {
 
                 const para: NdTranslatedText | NdList | NdCode | undefined = this.parseParagraph(blockId, htmlElem, pi);
                 if (para) {
                     newBlock.paragraphs.push(para);
-                    if (para instanceof NdTranslatedText) {
-                        texts.push(para)
-                    } else if (para instanceof NdList) {
-                        (para as NdList).items.forEach((item: NdTranslatedText) => {
-                            texts.push(item);
-                        })
-                    }
+                    text = para
                     pi++;
                 }
             } else if (this.blockContent.imagesIndex.indexOf(i) >= 0) {
@@ -281,20 +274,14 @@ class BlockHolder {
 
                 if (img) {
                     newBlock.images.push(img)
-                    texts.push(img.url);
-                    if (img.alt) {
-                        texts.push(img.alt);
-                    }
-                    if (img.title) {
-                        texts.push(img.title);
-                    }
+                    text = img;
                     imi++;
                 }
             } else {
-                texts.push(new NdTranslatedText(this.ns, `${blockId}.htmlElements.${newBlock.htmlElements.length}`, ""))
+                text = new NdTranslatedText(this.ns, `${blockId}.htmlElements.${newBlock.htmlElements.length}`, "")
             }
 
-            newBlock.htmlElements.push({htmlElem: htmlElem, translatedTexts: texts});
+            newBlock.htmlElements.push({htmlElem: htmlElem, translatedText: text!});
 
         });
 
@@ -309,25 +296,6 @@ class BlockHolder {
             newBlock.bgImageUrl!.key = `${blockId}.bgImageUrl`;
             newBlock.bgImageUrl!.text = this.blockContent.bgImage.getAttribute("src") as string;
         }
-
-        // newBlock.images = this.blockContent.images.map(im => {
-        //     const innerP: HTMLElement = im;
-        //     // if (innerP.rawTagName == "img") {
-        //     const imi = newBlock.images.length;
-        //     const img: NdContentImage = new NdContentImage();
-        //     img.url = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.url`, innerP.attributes["src"]);
-        //     img.alt = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.alt`, innerP.attributes["alt"]);
-        //     img.title = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.title`, innerP.attributes["title"]);
-        //     // console.log("adding image ", img)
-        //     return img;
-        // })
-        //
-        // newBlock.paragraphs = this.blockContent.paragraphs
-        //     .map((p: HTMLElement, pi: number): NdTranslatedText | NdList | NdCode | undefined => {
-        //         return this.parseParagraph(blockId, p, pi)
-        //     })
-        //     .filter((p: NdTranslatedText | NdList | NdCode | undefined) => p !== undefined)
-        //     .map((p: NdTranslatedText | NdList | NdCode) => p as NdTranslatedText | NdList | NdCode)
 
         console.log("added block", newBlock)
 
@@ -351,7 +319,7 @@ class BlockHolder {
                 .filter(lin => lin.innerText && lin.innerText.trim().length > 0)
                 .map((lin, k: number) => {
                     const li: HTMLElement = lin as HTMLElement;
-                    return new NdTranslatedText(this.ns, `${blockId}.paragraphs${pi}.items.${k}`, li.innerHTML)
+                    return new NdTranslatedText(this.ns, `${blockId}.paragraphs.${pi}.items.${k}`, li.innerHTML)
                 }));
         } else if (p.rawTagName === "ul") {
             return NdList.createUnOrdered(p.childNodes
@@ -380,7 +348,7 @@ export function parseMarkdownAsContent(fileContents: string, contentLng: string,
 
     const root: HTMLElement = parse(mdParsed);
 
-    root.childNodes.forEach((cn, i) => {
+    root.childNodes.forEach(cn => {
 
         const childNode = cn as HTMLElement
 
@@ -422,8 +390,6 @@ export function parseMarkdownAsContent(fileContents: string, contentLng: string,
                 childNode.childNodes.filter(cn => cn.rawTagName == "img")
                     .forEach((cn) => {
                         const l: HTMLElement = cn as HTMLElement
-
-                        console.log("this is found image ", l.getAttribute("src"), l.getAttribute("alt"))
 
                         if (l.getAttribute("alt") === "bg-image") {
                             currentBlock.blockContent.bgImage = l;

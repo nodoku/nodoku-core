@@ -43,7 +43,7 @@ export declare class NdContentBlock {
     images: NdContentImage[];
     htmlElements: {
         htmlElem: HTMLElement;
-        translatedTexts: NdTranslatedText[];
+        translatedText: (NdTranslatedText | NdContentImage | NdList | NdCode);
     }[];
     constructor(id: string, ns: string, lng: string);
     getByKey(key: string, ns: string): string | undefined;
