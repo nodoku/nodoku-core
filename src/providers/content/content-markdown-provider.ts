@@ -171,7 +171,6 @@ class BlockHolder {
     }
 
     addParagraph(childNode: HTMLElement): BlockHolder {
-        console.log("adding paragraph: ", childNode.innerHTML, this.blockContent.htmlStream.length)
         this.blockContent.paragraphsIndex.push(this.blockContent.htmlStream.length);
         this.blockContent.htmlStream.push(childNode);
         return this;
@@ -203,7 +202,7 @@ class BlockHolder {
         }
         newBlock.tags = tags?.slice();
 
-        console.log("creating block: ", this.blockContent.paragraphsIndex)
+        // console.log("creating block: ", this.blockContent.paragraphsIndex)
 
         let pi = 0;
         let imi = 0
@@ -297,7 +296,7 @@ class BlockHolder {
             newBlock.bgImageUrl!.text = this.blockContent.bgImage.getAttribute("src") as string;
         }
 
-        console.log("added block", newBlock)
+        // console.log("added block", newBlock)
 
         return newBlock;
     }

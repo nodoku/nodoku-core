@@ -9,7 +9,7 @@ export async function DummyComp(props) {
 async function render(rowIndex, componentIndex, block, t) {
     var style = {};
     if (block.bgImageUrl) {
-        style = { backgroundImage: `url(${t(block.bgImageUrl.key, block.bgImageUrl.ns)})` };
+        style = { backgroundImage: `url(${t(block.bgImageUrl)})` };
     }
     return (<div className={"w-full w-full flex flex-col items-left justify-left  border border-4 border-red-200 relative pb-10"}>
             <div className={"top-0 bottom-0 left-0 right-0 absolute bg-cover bg-no-repeat"} style={{ ...style, zIndex: -11 }}>
@@ -23,12 +23,12 @@ async function render(rowIndex, componentIndex, block, t) {
                 {block.title && <a href="#">
                     {block.title && block.title.key}
                     <h5 className={"mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"}>
-                        {block.title && t(block.title.key, block.title.ns)}
+                        {block.title && t(block.title)}
                     </h5>
                 </a>}
                 {block.subTitle && block.subTitle.key}
                 {block.subTitle && <h6 className={"mb-2 text-xl tracking-tight text-gray-900 dark:text-white"}>
-                    {block.subTitle && t(block.subTitle.key, block.subTitle.ns)}
+                    {block.subTitle && t(block.subTitle)}
                 </h6>}
 
                 paragraphs:
@@ -37,7 +37,7 @@ async function render(rowIndex, componentIndex, block, t) {
                 return (<div>
                                 {p && p.key}
                                 <p key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                    {p && t(p.key, p.ns)}
+                                    {p && t(p)}
                                 </p>
                             </div>);
             }
@@ -53,12 +53,12 @@ async function render(rowIndex, componentIndex, block, t) {
                 const list = p;
                 if (list.ordered) {
                     return (<ol className={"list-disc list-outside"}>
-                                    {list.items.map(i => <li className={"ml-4"}>{t(i.key, i.ns)} <small>(<i>{i.key}</i>)</small></li>)}
+                                    {list.items.map(i => <li className={"ml-4"}>{t(i)} <small>(<i>{i.key}</i>)</small></li>)}
                                 </ol>);
                 }
                 else {
                     return (<ul className={"list-disc list-outside"}>
-                                    {list.items.map(i => <li className={"ml-4"}>{t(i.key, i.ns)} <small>(<i>{i.key}</i>)</small></li>)}
+                                    {list.items.map(i => <li className={"ml-4"}>{t(i)} <small>(<i>{i.key}</i>)</small></li>)}
                                 </ul>);
                 }
             }
@@ -67,19 +67,19 @@ async function render(rowIndex, componentIndex, block, t) {
                 {block.images.map((img, ii) => {
             return (<div>
                             <p key={"url" + ii} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                url: {img && img.url && t(img.url.key, img.url.ns)}
+                                url: {img && img.url && t(img.url)}
                                 {img.url && <span className={"bg-cover bg-no-repeat"} style={{
                         display: "block",
                         width: "200px",
                         height: "200px",
-                        backgroundImage: `url(${t(img.url.key, img.url.ns)})`
+                        backgroundImage: `url(${t(img.url)})`
                     }}></span>}
                             </p>
                             <p key={"alt" + ii} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                alt: {img && img.alt && t(img.alt.key, img.alt.ns)}
+                                alt: {img && img.alt && t(img.alt)}
                             </p>
                             <p key={"title" + ii} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                title: {img && img.title && t(img.title.key, img.title.ns)}
+                                title: {img && img.title && t(img.title)}
                             </p>
                         </div>);
         })}
@@ -87,7 +87,7 @@ async function render(rowIndex, componentIndex, block, t) {
 
             <div className={"absolute bottom-0 p-5"}>
                 {block.footer?.key}
-                <p>{block.footer && t(block.footer.key, block.footer.ns)}</p>
+                <p>{block.footer && t(block.footer)}</p>
             </div>
 
         </div>);

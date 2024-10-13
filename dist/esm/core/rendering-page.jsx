@@ -69,73 +69,6 @@ function generateSkinByContentBlocks(blocks, skin) {
     // console.log("generated skin", JSON.stringify(res))
     return res;
 }
-// async function createSubRows(row: NdRow | undefined,
-//                              iRow: number,
-//                              blocks: NdContentBlock[],
-//                              lng: string,
-//                              imageUrlProvider: ImageUrlProvider | undefined,
-//                              i18nProvider: I18nextProvider | undefined,
-//                              componentProvider: ComponentProvider): Promise<JSX.Element[]> {
-//
-//     let l: JSX.Element[][];
-//     if (row) {
-//         l = await Promise.all(row.components.map(async (visualSection: NdSkinComponent, iComp: number): Promise<JSX.Element[]> =>
-//
-//             await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentProvider)
-//
-//         ));
-//     } else {
-//         l = await Promise.all(blocks.map(async (block: NdContentBlock, iComp: number): Promise<JSX.Element[]> =>
-//
-//             await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentProvider)
-//
-//         ));
-//     }
-//
-//     const rowComponents: JSX.Element[] = l.flatMap( (p: JSX.Element[]) => p);
-//
-//     const numComponents = rowComponents.length;
-//
-//     const rowEffectiveTheme: ThemeStyle = mergeTheme(row?.theme, NdRow.defaultRowTheme)
-//
-//     if (numComponents == 1) {
-//         return [<div key={`row-${iRow}`} className={`${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>{rowComponents[0]}</div>];
-//     } else {
-//         const maxCols = row?.maxCols ? row.maxCols : 3;
-//         const numCols = numComponents <= maxCols  ? numComponents : maxCols;
-//
-//         let gridCols: string = "grid-cols-1";
-//         switch (numCols) {
-//             case 1:
-//                 gridCols = "lg:grid-cols-1";
-//                 break;
-//             case 2:
-//                 gridCols = "lg:grid-cols-2";
-//                 break;
-//             case 3:
-//                 gridCols = "lg:grid-cols-3";
-//                 break;
-//             case 4:
-//                 gridCols = "lg:grid-cols-4";
-//                 break;
-//         }
-//
-//
-//         const subRows: JSX.Element[] = [];
-//         for (var i = 0; i < numComponents / numCols; i++) {
-//             subRows.push(
-//                 <div key={`row-${iRow}`} className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
-//                     {rowComponents.slice(numCols * i, Math.min((i + 1) * numCols, numComponents))}
-//                 </div>
-//             )
-//
-//         }
-//
-//         return subRows;
-//     }
-//
-//
-// }
 async function createRow(row, iRow, blocks, lng, imageUrlProvider, i18nProvider, componentProvider) {
     let l;
     if (row) {
@@ -242,9 +175,9 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
     let actualI18nextProvider;
     if (lng == blocks[0].lng || !i18nextProvider) {
         actualI18nextProvider = async (lng) => {
-            return { t: (key, ns) => {
-                    const b = blocks.map((b) => b.getByKey(key, ns)).find((s) => s);
-                    return b ? b : `key not found: ${ns}:${key}`;
+            return { t: (text) => {
+                    const b = blocks.map((b) => b.getByKey(text.key, text.ns)).find((s) => s);
+                    return b ? b : `key not found: ${text.ns}:${text.key}`;
                 } };
         };
     }

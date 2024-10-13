@@ -1,5 +1,5 @@
 import React, {JSX} from "react";
-import {NdContentBlock} from "../content/nd-content";
+import {NdContentBlock, NdTranslatedText} from "../content/nd-content";
 import {
     NdComponentDefinition,
     NdContentSelector, NdDefaultThemeName,
@@ -111,74 +111,6 @@ function generateSkinByContentBlocks(blocks: NdContentBlock[], skin: NdPageSkin)
     return res;
 
 }
-
-// async function createSubRows(row: NdRow | undefined,
-//                              iRow: number,
-//                              blocks: NdContentBlock[],
-//                              lng: string,
-//                              imageUrlProvider: ImageUrlProvider | undefined,
-//                              i18nProvider: I18nextProvider | undefined,
-//                              componentProvider: ComponentProvider): Promise<JSX.Element[]> {
-//
-//     let l: JSX.Element[][];
-//     if (row) {
-//         l = await Promise.all(row.components.map(async (visualSection: NdSkinComponent, iComp: number): Promise<JSX.Element[]> =>
-//
-//             await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentProvider)
-//
-//         ));
-//     } else {
-//         l = await Promise.all(blocks.map(async (block: NdContentBlock, iComp: number): Promise<JSX.Element[]> =>
-//
-//             await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentProvider)
-//
-//         ));
-//     }
-//
-//     const rowComponents: JSX.Element[] = l.flatMap( (p: JSX.Element[]) => p);
-//
-//     const numComponents = rowComponents.length;
-//
-//     const rowEffectiveTheme: ThemeStyle = mergeTheme(row?.theme, NdRow.defaultRowTheme)
-//
-//     if (numComponents == 1) {
-//         return [<div key={`row-${iRow}`} className={`${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>{rowComponents[0]}</div>];
-//     } else {
-//         const maxCols = row?.maxCols ? row.maxCols : 3;
-//         const numCols = numComponents <= maxCols  ? numComponents : maxCols;
-//
-//         let gridCols: string = "grid-cols-1";
-//         switch (numCols) {
-//             case 1:
-//                 gridCols = "lg:grid-cols-1";
-//                 break;
-//             case 2:
-//                 gridCols = "lg:grid-cols-2";
-//                 break;
-//             case 3:
-//                 gridCols = "lg:grid-cols-3";
-//                 break;
-//             case 4:
-//                 gridCols = "lg:grid-cols-4";
-//                 break;
-//         }
-//
-//
-//         const subRows: JSX.Element[] = [];
-//         for (var i = 0; i < numComponents / numCols; i++) {
-//             subRows.push(
-//                 <div key={`row-${iRow}`} className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
-//                     {rowComponents.slice(numCols * i, Math.min((i + 1) * numCols, numComponents))}
-//                 </div>
-//             )
-//
-//         }
-//
-//         return subRows;
-//     }
-//
-//
-// }
 
 async function createRow(row: NdRow | undefined,
                          iRow: number,
@@ -360,11 +292,11 @@ async function renderSingleComponent(rowIndex: number,
     let actualI18nextProvider: I18nextProvider;
 
     if (lng == blocks[0].lng || !i18nextProvider) {
-        actualI18nextProvider = async (lng: string): Promise<{t: (key: string, ns: string) => string}> => {
+        actualI18nextProvider = async (lng: string): Promise<{t: (text: NdTranslatedText) => string}> => {
 
-            return {t: (key: string, ns: string): string => {
-                const b: string | undefined = blocks.map((b: NdContentBlock) => b.getByKey(key, ns)).find((s: string | undefined)  => s);
-                return b ? b : `key not found: ${ns}:${key}`;
+            return {t: (text: NdTranslatedText): string => {
+                const b: string | undefined = blocks.map((b: NdContentBlock) => b.getByKey(text.key, text.ns)).find((s: string | undefined)  => s);
+                return b ? b : `key not found: ${text.ns}:${text.key}`;
             }};
         }
     } else {

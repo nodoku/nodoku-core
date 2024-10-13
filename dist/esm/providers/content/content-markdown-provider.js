@@ -123,11 +123,9 @@ class BlockHolder {
         if (this.blockDefYaml && this.hasContent()) {
             res.push(this.createContentBlock(res.length));
         }
-        const blockDef = yaml.load(blockDefYaml);
-        return new BlockHolder(this.ns, this.lng, blockDef);
+        return new BlockHolder(this.ns, this.lng, blockDefYaml);
     }
     addParagraph(childNode) {
-        console.log("adding paragraph: ", childNode.innerHTML, this.blockContent.htmlStream.length);
         this.blockContent.paragraphsIndex.push(this.blockContent.htmlStream.length);
         this.blockContent.htmlStream.push(childNode);
         return this;
@@ -142,7 +140,7 @@ class BlockHolder {
         return this;
     }
     createContentBlock(blockIndex) {
-        const loadedBlockDef = this.blockDefYaml;
+        const loadedBlockDef = yaml.load(this.blockDefYaml);
         const blockDef = loadedBlockDef["nd-block"];
         const blockId = blockDef.id ? blockDef.id : `block-${blockIndex}`;
         const attributes = blockDef.attributes;
@@ -153,7 +151,7 @@ class BlockHolder {
             newBlock.attributes.push({ key: "id", value: blockId });
         }
         newBlock.tags = tags?.slice();
-        console.log("creating block: ", this.blockContent.paragraphsIndex);
+        // console.log("creating block: ", this.blockContent.paragraphsIndex)
         let pi = 0;
         let imi = 0;
         this.blockContent.htmlStream.forEach((htmlElem, i) => {
@@ -245,7 +243,7 @@ class BlockHolder {
             newBlock.bgImageUrl.key = `${blockId}.bgImageUrl`;
             newBlock.bgImageUrl.text = this.blockContent.bgImage.getAttribute("src");
         }
-        console.log("added block", newBlock);
+        // console.log("added block", newBlock)
         return newBlock;
     }
     parseParagraph(blockId, p, pi) {
