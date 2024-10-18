@@ -7,10 +7,12 @@ export class NdTranslatedText {
     key = "";
     ns = "";
     text = "";
-    constructor(ns, key = "", text = "") {
+    excludeFromTranslation = false;
+    constructor(ns, key = "", text = "", excludeFromTranslation = false) {
         this.ns = ns;
         this.key = key;
         this.text = text;
+        this.excludeFromTranslation = excludeFromTranslation;
     }
 }
 export class NdList {

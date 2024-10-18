@@ -8,7 +8,8 @@ export declare class NdTranslatedText {
     key: string;
     ns: string;
     text: string;
-    constructor(ns: string, key?: string, text?: string);
+    excludeFromTranslation: boolean;
+    constructor(ns: string, key?: string, text?: string, excludeFromTranslation?: boolean);
 }
 export declare class NdList {
     items: NdTranslatedText[];

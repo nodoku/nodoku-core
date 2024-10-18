@@ -12,11 +12,13 @@ export class NdTranslatedText {
     key: string = "";
     ns: string = "";
     text: string = "";
+    excludeFromTranslation: boolean = false;
 
-    constructor(ns: string, key: string = "", text: string = "") {
+    constructor(ns: string, key: string = "", text: string = "", excludeFromTranslation = false) {
         this.ns = ns;
         this.key = key;
         this.text = text;
+        this.excludeFromTranslation = excludeFromTranslation;
     }
 }
 

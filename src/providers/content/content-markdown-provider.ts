@@ -248,7 +248,7 @@ class BlockHolder {
                             const imgHtmlElem: HTMLElement = cn as HTMLElement;
                             if (imgHtmlElem.rawTagName == "img") {
                                 img = new NdContentImage()
-                                img.url = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.url`, imgHtmlElem.attributes["src"]);
+                                img.url = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.url`, imgHtmlElem.attributes["src"], true);
                                 img.alt = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.alt`, imgHtmlElem.attributes["alt"]);
                                 img.title = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.title`, imgHtmlElem.attributes["title"]);
                             }
@@ -266,7 +266,7 @@ class BlockHolder {
                      * extract image from <img>
                      */
                     img = new NdContentImage();
-                    img.url = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.url`, htmlElem.attributes["src"]);
+                    img.url = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.url`, htmlElem.attributes["src"], true);
                     img.alt = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.alt`, htmlElem.attributes["alt"]);
                     img.title = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.title`, htmlElem.attributes["title"]);
                 }
@@ -285,15 +285,12 @@ class BlockHolder {
         });
 
         if (this.blockContent.footer && this.blockContent.footer.trim().length > 0) {
-            newBlock.footer = new NdTranslatedText(this.ns);
-            newBlock.footer!.key = `${blockId}.footer`;
-            newBlock.footer!.text = this.blockContent.footer;
+            newBlock.footer = new NdTranslatedText(this.ns, `${blockId}.footer`, this.blockContent.footer);
         }
 
         if (this.blockContent.bgImage && this.blockContent.bgImage.getAttribute("src")) {
-            newBlock.bgImageUrl = new NdTranslatedText(this.ns);
-            newBlock.bgImageUrl!.key = `${blockId}.bgImageUrl`;
-            newBlock.bgImageUrl!.text = this.blockContent.bgImage.getAttribute("src") as string;
+            newBlock.bgImageUrl = new NdTranslatedText(this.ns,  `${blockId}.bgImageUrl`,
+                this.blockContent.bgImage.getAttribute("src") as string, true);
         }
 
         // console.log("added block", newBlock)
