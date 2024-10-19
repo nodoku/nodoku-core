@@ -22,13 +22,17 @@ export async function contentMarkdownProvider(mdFileUrl, contentLng, ns = undefi
 const footerPattern = /^\|(.*)\|/;
 const codePattern = /<code class="lang-(\w+)">(.*)<\/code>/s;
 class BlockHolder {
+    blockIndex;
+    blockDefIndex;
     ns;
     lng;
     blockDefYaml;
-    constructor(ns, lng, blockDefYaml = undefined) {
+    constructor(ns, lng, blockIndex, blockDefIndex, blockDefYaml = undefined) {
         this.ns = ns;
         this.lng = lng;
         this.blockDefYaml = blockDefYaml;
+        this.blockIndex = blockIndex;
+        this.blockDefIndex = blockDefIndex;
     }
     blockContent = { paragraphsIndex: [], imagesIndex: [], htmlStream: [] };
     hasContentH1AndBelow() {
@@ -62,8 +66,8 @@ class BlockHolder {
     addTitle(childNode, res) {
         let bl = this;
         if (this.hasContentH1AndBelow()) {
-            res.push(this.createContentBlock(res.length));
-            bl = new BlockHolder(this.ns, this.lng, this.blockDefYaml);
+            res.push(this.createContentBlock());
+            bl = new BlockHolder(this.ns, this.lng, this.blockIndex + 1, this.blockDefIndex + 1, this.blockDefYaml);
         }
         bl.blockContent.titleIndex = bl.blockContent.htmlStream.length; //childNode.innerHTML;
         bl.blockContent.htmlStream.push(childNode);
@@ -72,8 +76,8 @@ class BlockHolder {
     addSubTitle(childNode, res) {
         let bl = this;
         if (this.hasContentH2AndBelow()) {
-            res.push(this.createContentBlock(res.length));
-            bl = new BlockHolder(this.ns, this.lng, this.blockDefYaml);
+            res.push(this.createContentBlock());
+            bl = new BlockHolder(this.ns, this.lng, this.blockIndex + 1, this.blockDefIndex + 1, this.blockDefYaml);
         }
         bl.blockContent.subTitleIndex = bl.blockContent.htmlStream.length; //childNode.innerHTML;
         bl.blockContent.htmlStream.push(childNode);
@@ -82,8 +86,8 @@ class BlockHolder {
     addH3(childNode, res) {
         let bl = this;
         if (this.hasContentH3AndBelow()) {
-            res.push(this.createContentBlock(res.length));
-            bl = new BlockHolder(this.ns, this.lng, this.blockDefYaml);
+            res.push(this.createContentBlock());
+            bl = new BlockHolder(this.ns, this.lng, this.blockIndex + 1, this.blockDefIndex + 1, this.blockDefYaml);
         }
         bl.blockContent.h3Index = bl.blockContent.htmlStream.length; //childNode.innerHTML;
         bl.blockContent.htmlStream.push(childNode);
@@ -92,38 +96,32 @@ class BlockHolder {
     addH4(childNode, res) {
         let bl = this;
         if (this.hasContentH4AndBelow()) {
-            res.push(this.createContentBlock(res.length));
-            bl = new BlockHolder(this.ns, this.lng, this.blockDefYaml);
+            res.push(this.createContentBlock());
+            bl = new BlockHolder(this.ns, this.lng, this.blockIndex + 1, this.blockDefIndex + 1, this.blockDefYaml);
         }
-        bl.blockContent.h4Index = bl.blockContent.htmlStream.length; //childNode.innerHTML;
+        bl.blockContent.h4Index = bl.blockContent.htmlStream.length;
         bl.blockContent.htmlStream.push(childNode);
         return bl;
     }
     addH5(childNode, res) {
         let bl = this;
         if (this.hasContentH5AndBelow()) {
-            res.push(this.createContentBlock(res.length));
-            bl = new BlockHolder(this.ns, this.lng, this.blockDefYaml);
+            res.push(this.createContentBlock());
+            bl = new BlockHolder(this.ns, this.lng, this.blockIndex + 1, this.blockDefIndex + 1, this.blockDefYaml);
         }
-        bl.blockContent.h5Index = bl.blockContent.htmlStream.length; //childNode.innerHTML;
+        bl.blockContent.h5Index = bl.blockContent.htmlStream.length;
         bl.blockContent.htmlStream.push(childNode);
         return bl;
     }
     addH6(childNode, res) {
         let bl = this;
         if (this.hasContentH6AndBelow()) {
-            res.push(this.createContentBlock(res.length));
-            bl = new BlockHolder(this.ns, this.lng, this.blockDefYaml);
+            res.push(this.createContentBlock());
+            bl = new BlockHolder(this.ns, this.lng, this.blockIndex + 1, this.blockDefIndex + 1, this.blockDefYaml);
         }
-        bl.blockContent.h6Index = bl.blockContent.htmlStream.length; //childNode.innerHTML;
+        bl.blockContent.h6Index = bl.blockContent.htmlStream.length;
         bl.blockContent.htmlStream.push(childNode);
         return bl;
-    }
-    addYamlDefBlock(blockDefYaml, res) {
-        if (this.blockDefYaml && this.hasContent()) {
-            res.push(this.createContentBlock(res.length));
-        }
-        return new BlockHolder(this.ns, this.lng, blockDefYaml);
     }
     addParagraph(childNode) {
         this.blockContent.paragraphsIndex.push(this.blockContent.htmlStream.length);
@@ -139,10 +137,26 @@ class BlockHolder {
         this.blockContent.htmlStream.push(childNode);
         return this;
     }
-    createContentBlock(blockIndex) {
+    addYamlDefBlock(blockDefYaml, res) {
+        if (this.blockDefYaml && this.hasContent()) {
+            res.push(this.createContentBlock());
+        }
+        return new BlockHolder(this.ns, this.lng, this.blockIndex + 1, 0, blockDefYaml);
+    }
+    createBlockId(blockIndex, blockDefIndex, blockDef) {
+        if (blockDef.id) {
+            return blockDef.id;
+        }
+        if (blockDef.attributes) {
+            const prefix = Object.keys(blockDef.attributes).map(k => { return `${k}=${blockDef.attributes[k]}`; }).join(",");
+            return `${prefix}-block-${blockDefIndex}`;
+        }
+        return `block-${blockIndex}`;
+    }
+    createContentBlock() {
         const loadedBlockDef = yaml.load(this.blockDefYaml);
         const blockDef = loadedBlockDef["nd-block"];
-        const blockId = blockDef.id ? blockDef.id : `block-${blockIndex}`;
+        const blockId = this.createBlockId(this.blockIndex, this.blockDefIndex, blockDef);
         const attributes = blockDef.attributes;
         const tags = blockDef.tags;
         const newBlock = new NdContentBlock(blockId, this.ns, this.lng);
@@ -280,7 +294,7 @@ class BlockHolder {
 export function parseMarkdownAsContent(fileContents, contentLng, ns) {
     Marked.setOptions({ isNoP: true });
     const res = [];
-    let currentBlock = new BlockHolder(ns, contentLng);
+    let currentBlock = new BlockHolder(ns, contentLng, 0, 0);
     const mdParsed = Marked.parse(fileContents);
     const root = parse(mdParsed);
     root.childNodes.forEach(cn => {
@@ -354,7 +368,7 @@ export function parseMarkdownAsContent(fileContents, contentLng, ns) {
         }
     });
     if (currentBlock && currentBlock.blockDefYaml && currentBlock.hasContent()) {
-        res.push(currentBlock.createContentBlock(res.length));
+        res.push(currentBlock.createContentBlock());
     }
     return res;
 }
