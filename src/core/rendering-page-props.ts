@@ -3,7 +3,21 @@ import {NdContentBlock} from "../content/nd-content";
 import {NdPageSkin} from "../skin/nd-skin";
 
 export enum RenderingPriority {
-    content_first, skin_first
+    /*
+     * the content is rendered as it appears in the markdown file, sequentially, block by block, from top to bottom
+     * if a visual component is configured in the skin Yaml file, this visual component is used for rendering the content block.
+     * Otherwise a default visual component is used
+     */
+    content_first,
+
+    /*
+     * the rendering is fully prescribed by the skin Yaml file
+     * The components are rendered in the order they appear in the Yaml file
+     * If a content block is not matched by any of the visual components in the skin Yaml file, it is not rendered at all
+     * If a content block matches more than one visual component, each visual component is rendered,
+     * and the same content block will appear several times on the page
+     */
+    skin_first
 }
 
 export class RenderingPageProps {
