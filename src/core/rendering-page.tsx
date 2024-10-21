@@ -39,9 +39,6 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
     } = props;
 
     const actualComponentProvider = componentProvider ? componentProvider : defaultComponentProvider;
-    // if (!componentProvider) {
-    //     componentProvider = defaultComponentProvider;
-    // }
 
     let l: JSX.Element[];
     if (skin) {
@@ -58,15 +55,11 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
 
         l = await Promise.all(blockSkin.rows.map(async (row: NdRow, iRow: number): Promise<JSX.Element> =>
             await createRow(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)
-            // await createSubRows(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)
         ));
 
     } else {
         l = [await createRow(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)];
-        // l = [await createSubRows(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)];
     }
-    // const rows: JSX.Element[] = l.flatMap((a: JSX.Element[]) => a);
-
 
     return <div className={`${skin?.renderingPage?.base} ${skin?.renderingPage?.decoration}`}>{l}</div>
 
@@ -173,9 +166,6 @@ async function createRow(row: NdRow | undefined,
         case 9:
             gridCols = "lg:grid-cols-9";
             break;
-        case 9:
-            gridCols = "lg:grid-cols-9";
-            break;
         case 10:
             gridCols = "lg:grid-cols-10";
             break;
@@ -187,29 +177,12 @@ async function createRow(row: NdRow | undefined,
             break;
     }
 
-
-    // if (numComponents == 1) {
-    //     return [<div key={`row-${iRow}`} className={`${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>{rowComponents[0]}</div>];
-    // } else {
-
-        // const subRows: JSX.Element[] = [];
-        // for (var i = 0; i < numComponents / numCols; i++) {
-        //     subRows.push(
-        //         <div key={`row-${iRow}`} className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
-        //             {rowComponents.slice(numCols * i, Math.min((i + 1) * numCols, numComponents))}
-        //         </div>
-        //     )
-        //
-        // }
-
-        return (
-            <div key={`row-${iRow}`}
-                 className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
-                {rowComponents}
-            </div>
-        );
-    // }
-
+    return (
+        <div key={`row-${iRow}`}
+             className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
+            {rowComponents}
+        </div>
+    );
 
 }
 

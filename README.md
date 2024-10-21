@@ -6,6 +6,9 @@
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
   * [Integrating Nodoku into a project](#integrating-nodoku-into-a-project)
+    * [Content parsing](#content-parsing)
+    * [Loading of the skin Yaml file](#loading-of-the-skin-yaml-file)
+    * [Rendering Nodoku](#rendering-nodoku)
 * [generation scripts](#generation-scripts)
 <!-- TOC -->
 
@@ -271,25 +274,106 @@ const skin: NdPageSkin = await skinYamlProvider("<url location of the skin file>
 />
 ```
 
+### Content parsing
+
+First, we parse the content MD file, using the predefined function _contentMarkdownProvider_.
+
+The implementation of this function is intentionally kept simple, so that it can easily be replaced by a custom provider, if for some reason the standard one cannot be used
+
+```ts
+async function contentMarkdownProvider(
+    mdFileUrl: string,
+    contentLng: string, 
+    ns: string): Promise<NdContentBlock[]> {
+    
+    return await fetch(mdFileUrl)
+        .then(response => response.text())
+        .then(fileContent => {
+            return parseMarkdownAsContent(fileContent, contentLng, ns)
+        })
+}
+```
+
+The real parsing happens in the function _parseMarkdownAsContent_, which can also be used directly, if for some reason the URL of the MD file is not available.   
+
+The result of this phase is the set of content blocks, represented as an array of _NdContentBlock_ items.
+
+### Loading of the skin Yaml file
+
+Likewise, there is a readily available parser for Yaml files, used as Nodoku skin. Recall, that _skin_ is a configuration for visual page rendering.
+
+```ts
+async function skinYamlProvider(yamlFileUrl: string): Promise<NdPageSkin> {
+    return await fetch(yamlFileUrl)
+        .then(response => response.text())
+        .then(parseYamlContentAsSkin);
+}
+```
+
+If, for some reason, the standard implementation is not suitable for particular needs, one can easily replace this function by another one, using _parseYamlContentAsSkin_ as the actual parser.
+
+The result of this parsing is an instance of _NdPageSkin_, which conveys the necessary information regarding the Nodoku skin.
+
+### Rendering Nodoku
+
+Finally, when the skin and content are loaded, we can invoke the actual rendering using the provided component _RenderingPage_.
+
+RenderingPage is an async JSX function, which is suitable for usage in the NextJS environment.
+
+Let's have a closer look at its properties:
+
+```ts
+class RenderingPageProps {
+    lng: string;
+    content: NdContentBlock[];
+    skin: NdPageSkin | undefined;
+    renderingPriority: RenderingPriority = RenderingPriority.content_first;
+    componentProvider: ComponentProvider | undefined = undefined;
+    imageUrlProvider: ImageUrlProvider | undefined = undefined;
+    i18nextProvider: I18nextProvider | undefined = undefined;
+}
+```
+
+- **_lng_**: the language in which the page should be rendered. Nodoku supports localization out of the box (see more on Nodoku localization in [nodoku-i18n](https://github.com/nodoku/nodoku-i18n))
+
+
+- **_content_**: the content flow, represented as an array of NdContentBlock instances. The content blocks are usually parsed from a Markdown file using the provided parser _contentMarkdownProvider_.
+
+
+- **_skin_**: an instance of NdPageSkin class representing the Nodoku skin - configuration of the visual representation of the page. It is usually loaded from a Yaml file using the supplied loader _skinYamlProvider_.
+
+
+- **_renderingPriority_**: this parameter is an enum that can have two values:
+  - > **_content_first_**: the content is rendered as it appears in the markdown file, sequentially, block by block, from top to bottom. If a visual component is configured in the skin Yaml file, this visual component is used for rendering the content block. Otherwise, a default visual component is used
+  - > **_skin_first_**: the rendering is fully prescribed by the skin Yaml file. The components are rendered in the order they appear in the Yaml file
+    If a content block is not matched by any of the visual components in the skin Yaml file, it is not rendered at all. If a content block matches more than one visual component, each visual component is rendered, and the same content block will appear several times on the page.
+
+
+- **_componentProvider_**: the function returning an actual implementation of the component, given its name, as specified in the skin. The signature is as follows: 
+  > ```(componentName: string) => Promise<AsyncFunctionComponent>```
+  > 
+  where AsyncFunctionComponent is the following function: 
+  > ```(props: LbComponentProps) => Promise<JSX.Element>```
+
+
+- **_imageUrlProvider_**: the function allowing to customize the image URL conversion for rendering. It may so happen that the URL of images appearing in the MD file are different from those appearing on the page. For example, we often use the relative notation for images in the MD file, whereas this is not suitable for page rendering. The conversion between URL's in the MD file, and the URL's on the page can be provided using this parameter. The default implementation strips the leading dots, thus naively converting a relative url to an absolute one. Like this (more sophisticated patterns can be implemented, if required): 
+  > ../images/my-image.123 ==> /images/my-image.123  
+
+
+- **_i18nextProvider_**: this parameter can be used to provide the localization mechanism for Nodoku. This function is supposed to return an object containing the t function, which will further be used for translating the text. For more details see [nodoku-i18n](https://github.com/nodoku/nodoku-i18n)  
 
 
 
-where:
-- **_pageName_**: the name of the page to be rendered. This name is given to the visualYamlProvider funtion to fetch the required page layout yaml file
-
-- **_lng_**: the page language for localization. This parameter is given further to the contentYamlProvider to fetch the content on the given language
-
-- **_contentYamlProvider_**: function providing the textual content for the page. This function is expected to fetch the content yaml file and return its content as text for the further processing. the function signature is the following: ```(lng: string, ns: string) => Promise<string>```
-
-- **_visualYamlProvider_**: function providing the content of a yaml file that is used to render the page - the page structure yaml file. This function is expected to fetch the content yaml file and return its content as text for the further processing. the function signature is the following: ```(pageName: string) => Promise<string>```
-
-- **_i18nextProvider_**: the page localization provider. The signature is the following: ```(lng: string) => Promise<{t: (key: string, ns: string) => string}>```. For a given language the localization provider is supposed to return a function, that would provide the value for a given key and namespace
-
-- **_componentProvider_**: the function returning an actual implementation of the component, given its name, as specified in the page structure - visual yaml file. The signature is as follows: ```(componentName: string) => Promise<AsyncFunctionComponent>```, where AsyncFunctionComponent is the following function: ```(props: LbComponentProps) => Promise<JSX.Element>```
 
 # generation scripts
 to simplify the development, the nodoku-core provides the following scripts, that are used to generate component resolver, content schema and visual schema, by scanning the **node_modules** folder of the project
+
+
 - **nodoku-gen-component-resolver**: generates the component resolver by scanning node_modules and searching for nodoku component libraries - the libraries providing the nodoku.manifest.json file
+
+
 - **nodoku-gen-content-schema**: generates the json schema file that can be used to validate the **content** yaml file
+
+
 - **nodoku-gen-visual-schema**: generates the json schema file thate can be used to validate the **visual** page yaml file 
 

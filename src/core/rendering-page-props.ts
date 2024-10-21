@@ -22,20 +22,20 @@ export enum RenderingPriority {
 
 export class RenderingPageProps {
     lng: string;
-    renderingPriority: RenderingPriority;
     content: NdContentBlock[];
-    componentProvider: ComponentProvider | undefined;
-    skin: NdPageSkin | undefined;
+    skin: NdPageSkin | undefined = undefined;
+    renderingPriority: RenderingPriority = RenderingPriority.content_first;
+    componentProvider: ComponentProvider | undefined = undefined;
     imageUrlProvider: ImageUrlProvider | undefined = undefined;
     i18nextProvider: I18nextProvider | undefined = undefined;
 
     constructor(lng: string,
-                renderingPriority: RenderingPriority = RenderingPriority.content_first,
                 content: NdContentBlock[],
                 componentProvider: ComponentProvider | undefined,
-                skin: NdPageSkin | undefined,
-                imageUrlProvider: ImageUrlProvider | undefined,
-                i18nextProvider:I18nextProvider | undefined) {
+                skin: NdPageSkin | undefined = undefined,
+                renderingPriority: RenderingPriority = RenderingPriority.content_first,
+                imageUrlProvider: ImageUrlProvider | undefined = undefined,
+                i18nextProvider: I18nextProvider | undefined = undefined) {
 
         this.lng = lng;
         this.renderingPriority = renderingPriority;

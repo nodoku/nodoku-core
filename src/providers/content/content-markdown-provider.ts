@@ -44,7 +44,12 @@ class BlockHolder {
     lng: string;
     blockDefYaml?: string;
 
-    constructor(ns: string, lng: string, blockIndex: number, blockDefIndex: number, blockDefYaml: string | undefined = undefined) {
+    constructor(ns: string,
+                lng: string,
+                blockIndex: number,
+                blockDefIndex: number,
+                blockDefYaml: string | undefined = undefined) {
+        
         this.ns = ns;
         this.lng = lng;
         this.blockDefYaml = blockDefYaml;

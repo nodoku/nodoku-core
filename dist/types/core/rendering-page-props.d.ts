@@ -7,11 +7,11 @@ export declare enum RenderingPriority {
 }
 export declare class RenderingPageProps {
     lng: string;
-    renderingPriority: RenderingPriority;
     content: NdContentBlock[];
-    componentProvider: ComponentProvider | undefined;
     skin: NdPageSkin | undefined;
+    renderingPriority: RenderingPriority;
+    componentProvider: ComponentProvider | undefined;
     imageUrlProvider: ImageUrlProvider | undefined;
     i18nextProvider: I18nextProvider | undefined;
-    constructor(lng: string, renderingPriority: RenderingPriority | undefined, content: NdContentBlock[], componentProvider: ComponentProvider | undefined, skin: NdPageSkin | undefined, imageUrlProvider: ImageUrlProvider | undefined, i18nextProvider: I18nextProvider | undefined);
+    constructor(lng: string, content: NdContentBlock[], componentProvider: ComponentProvider | undefined, skin?: NdPageSkin | undefined, renderingPriority?: RenderingPriority, imageUrlProvider?: ImageUrlProvider | undefined, i18nextProvider?: I18nextProvider | undefined);
 }
