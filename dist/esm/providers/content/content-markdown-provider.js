@@ -372,3 +372,4 @@ export function parseMarkdownAsContent(fileContents, contentLng, ns) {
     }
     return res;
 }
+//# sourceMappingURL=content-markdown-provider.js.map

@@ -9,14 +9,16 @@
     * [Content parsing](#content-parsing)
     * [Loading of the skin Yaml file](#loading-of-the-skin-yaml-file)
     * [Rendering Nodoku](#rendering-nodoku)
+  * [Nodoku component resolver](#nodoku-component-resolver)
+* [Plugging in external component bundles](#plugging-in-external-component-bundles)
 * [generation scripts](#generation-scripts)
 <!-- TOC -->
 
 Nodoku is a static site generator, where the content is provided via MD (markdown) files, and the visual representation is controlled using Yaml files - called _skin_.
 
-Nodoku promotes the content-first approach, when the content creation process is not being distracted by the consideration related to the visual representation and design.
+Nodoku promotes the content-first approach, when the content creation process is not being distracted by the considerations related to the visual representation and design.
 
-Instead, the content is created first as a MD file, demarcated by the special markers into content blocks, and then each bloc is rendered using the configuration provided in a Yaml file called _skin_.
+Instead, the content is created first as an MD file, demarcated by the special markers into content blocks, and then each block is rendered using the configuration provided in a Yaml file called _skin_.
 
 Figure 1 shows a screenshot of a part of a landing page created with Nodoku.
 
@@ -36,6 +38,8 @@ It has 3 cards, organized in a row, where the content of each card is supplied b
 
 Nodoku is a set of libraries, the most important of which is nodoku-core, intended to be used with the **_NextJS_** framework for generation of static sites.
 
+Nodoku is intended to be used in server side rendering, it is not suitable for client side.
+
 nodoku-core doesn't contain the visual representation for content blocks. Instead, the visual representation is supplied via separated dependencies, such as **_nodoku-flowbite_** (components based on [Flowbite](https://flowbite.com/docs/getting-started/introduction/)) and **_nodoku-mambaui_** (components based on [MambaUI](https://mambaui.com/components/hero)).
 
 More set of components can be added, and included in the project as required.
@@ -46,6 +50,8 @@ The mapping between visual representation and the content block is performed usi
 
 The actual rendering is performed in two steps:
 - first, for a given visual component a set of matching content blocks is determined, using the selector and the meta-data of the content block
+
+
 - second, this flow of content blocks is provided to the rendering mechanism of the visual component for actual rendering.
 
 This decoupling allows for great level of flexibility and reuse between the content and the visual representation.
@@ -56,7 +62,7 @@ You can learn more about the rationale behind Nodoku and the main principles in 
 
 # Nodoku foundation
 
-Nodoku is organized around two flow of data: 
+Nodoku is organized around two flows of data: 
 - the content flow (supplied via a Markdown file)
 - the visual representation flow (supplied via Yaml file called _skin_)
 
@@ -64,11 +70,11 @@ The Nodoku engine will take care of parsing these files and supply them to the d
 
 ## Nodoku content flow
 
-As has been mentioned above, the Nodoku content flow is supplied via a MD file.
+As has been mentioned above, the Nodoku content flow is supplied via an MD file.
 
 The content flow in Nodoku is organized around an entity called _content block_, which is a single piece of content suitable for rendering by a Nodoku visual component. The set of such components constitute the Nodoku content flow. 
 
-The content block has a predefined structure, and designed to be a universal and visual representation agnostic. In particular this is important to implement the _content-first_ principle, where the content can (and should!) be created first, without any visual design considerations.
+The content block has a predefined structure. It is designed to be more or less generic, and _visual representation agnostic_. In particular this is important to implement the _content-first_ principle, where the content can (and should!) be created first, without any visual design considerations.
 
 Nodoku engine parses the MD file to extract the set of content blocks, that are contained in such file. The content blocks are delimited by a special markers - the content block delimiters.
 
@@ -117,22 +123,21 @@ nd-block:
     sectionName: nodoku-way
 ```
 
-This Yaml code snippet is a content block delimiter, and it contains the content block meta-data, such as id, attributes and tags.
+This Yaml code snippet is a content block delimiter, and it contains the content block meta-data, such as _id_, _attributes_ and _tags_.
 
 The schema for this Yaml code snippet can be found in the Json schema file : **_nodoku-core/docs/md-content-block-delimiter.json_**
 
 The content block has the following predefined, fixed structure:
 ```typescript
-class NdTranslatedText {
-    // this class represents a piece of text, that can be used for i18next translation (see below)
-    ...
-}
-
 class NdContentBlock {
+    // content block meta-data
+    id: string;
+    lng: string;
+    attributes: {key: string, value: string}[] = [];
+    tags: string[] = []
+    namespace: string;
     
-    // several fields containing the content block metadata
-    ...
-    
+    // the actual textual content
     title?: NdTranslatedText;       // a title
     subTitle?: NdTranslatedText;    // a subtitle
     h3?: NdTranslatedText;          // h3 header
@@ -145,6 +150,14 @@ class NdContentBlock {
     images: NdContentImage[] = [];  // set of images 
 }
 ```
+where _NdTranslatedText_ represents a piece of text, that can be used for i18next translation (see below)
+```typescript
+class NdTranslatedText {
+    key: string;    // the translation key
+    ns: string;     // the translation namespace
+    text: string;   // the fallback text, extracted from content
+}
+```
 
 As one can see, the content block _cannot_ contain more than instance of each type of headers: title (h1), subtitle (h2), h3, etc.
 
@@ -154,13 +167,15 @@ But it _can_ contain several headers of different types, for example, a title (h
 > - if the Yaml nd-block is encountered, a new content block is started, which would absord all the content elements that are discovered below, until a new content block is started
 > - if a header (of any kind) is encountered
 >   - if a header of the same kind or below exists in the current block
->     - start a new block, and copy the metadata from the current block to the new one
+>     - finalize the current block
+>     - start a new block
+>     - and copy the metadata from the current block to the new one
 >   - otherwise
 >     - add the corresponding header to the current block
 
 This approach allows for smooth content definition, where a common content block metadata is defined only once, and all the subsequent pieces of content are treated as new blocks with the same metadata.
 
-Thanks to this approach to parsing, the excerpt of the MD file, shown above, defines 3 content blocks - one per card shown on the screenshot of Figure 1 - instead of only one.  
+Thanks to this parsing approach, the excerpt of the MD file, shown above, defines 3 content blocks - one per card shown on the screenshot of Figure 1 - instead of only one.  
 
 
 ## Nodoku skin
@@ -187,14 +202,14 @@ In this example, we define a row containing components of type _mambaui/card_
 
 The selector defines the content blocks that should be rendered using this visual component. In our case, these are all the content blocks having an attribute `sectionName` equal to `nodoku-way`.
 
-Recall, that according to our MD file we are actually having 3 of those: 
+Recall, that according to our MD file we are actually having 3 content blocks matching this criteria: 
 - Step 1: _Think_
 - Step 2: _Skin_
 - Step 3: _Fine tune_
 
-And naturally one single card component cannot display more than one content block.
+Naturally, a single card component cannot display more than one content block.
 
-Consequently, according to the skin Yaml file, the Nodoku engine will apply the same visual component definition to all the 3 matching content blocks. 
+Consequently, according to the skin Yaml file, the Nodoku engine will apply the same visual component definition to all the three matching content blocks. 
 
 And this process will end up rendering the screenshot presented on Figure 1.
 
@@ -211,7 +226,7 @@ rows:
                 sectionName: nodoku-way
 ```
 
-it would have had the following representation:
+it would have had the following visual rendering:
 
 <figure>
   <img
@@ -233,14 +248,19 @@ it would have had the following representation:
 As has been mentioned above, Nodoku is a library intended to be used within the NextJS framework. The creation of a NextJS project is out of scope for the current documentation.
 
 We assume that the user is already familiar with the following concepts:
-- NextJS framework 
-- Typescript
-- Tailwind
-- React and Tsx files (JSX for Typescript)
-- certain familiarity with Webpack config
+- **_NextJS_**: 
+  - Nodoku is written to be used in server side rendering in NextJS 
+- **_Typescript_**: 
+  - Nodoku is written using Typescript (5.x), it uses the ECMAScript Modules (ESM) as module standard. It doesn't ship as CommonJS or UMD modules.
+- **_Tailwind CSS_**:
+  -  Nodoku heavily relies on Tailwind for visual appearance. All the Nodoku components are using Tailwind for their default visual configuration. And Tailwind can be used for skin customization.
+- **_React and JSX_**:
+  - you need a basic knowledge of React and JSX as all the Nodoku visual compnents are async functions returning JSX (see the declaration of _AsyncFunctionComponent_). 
+- **_Webpack config_**:
+  - when using Nodoku with flowbite (see [nodoku-flowbite](https://github.com/nodoku/nodoku-flowbite)) it might be required to modify the default Webpack configuration to make sure only one instance of flowbite is used 
 
 ## Installation
-In order to use nodoku one needs to install the nodoku-core library (this one) and at least one component library for Nodoku (for example, nodoku-flowbite)
+In order to use Nodoku one needs to install the **_nodoku-core_** library (this one) and at least one component library for Nodoku (for example, nodoku-flowbite)
 
 
 ```shell
@@ -270,7 +290,7 @@ const skin: NdPageSkin = await skinYamlProvider("<url location of the skin file>
         renderingPriority={RenderingPriority.skin_first}
         skin={skin}
         content={content}
-        componentProvider={defaultComponentProvider}
+        componentResolver={defaultComponentResolver}
 />
 ```
 
@@ -326,9 +346,9 @@ Let's have a closer look at its properties:
 class RenderingPageProps {
     lng: string;
     content: NdContentBlock[];
-    skin: NdPageSkin | undefined;
+    skin: NdPageSkin | undefined = undefined;
     renderingPriority: RenderingPriority = RenderingPriority.content_first;
-    componentProvider: ComponentProvider | undefined = undefined;
+    componentResolver: ComponentResolver | undefined = undefined;
     imageUrlProvider: ImageUrlProvider | undefined = undefined;
     i18nextProvider: I18nextProvider | undefined = undefined;
 }
@@ -353,14 +373,71 @@ class RenderingPageProps {
   > ```(componentName: string) => Promise<AsyncFunctionComponent>```
   > 
   where AsyncFunctionComponent is the following function: 
-  > ```(props: LbComponentProps) => Promise<JSX.Element>```
+  > ```(props: NdSkinComponentProps) => Promise<JSX.Element>```
+  
+  the actual implementations, respecting the _AsyncFunctionComponent_ signature, are usually supplied via the component bundles, such as **_[nodoku-flowbite](https://github.com/nodoku/nodoku-flowbite)_** and **_[nodoku-mambaui](https://github.com/nodoku/nodoku-mambaui)_**   
 
 
 - **_imageUrlProvider_**: the function allowing to customize the image URL conversion for rendering. It may so happen that the URL of images appearing in the MD file are different from those appearing on the page. For example, we often use the relative notation for images in the MD file, whereas this is not suitable for page rendering. The conversion between URL's in the MD file, and the URL's on the page can be provided using this parameter. The default implementation strips the leading dots, thus naively converting a relative url to an absolute one. Like this (more sophisticated patterns can be implemented, if required): 
-  > ../images/my-image.123 ==> /images/my-image.123  
+  > **_../images/my-image-123.png_** will be converted to **_/images/my-image-123.png_**  
 
 
-- **_i18nextProvider_**: this parameter can be used to provide the localization mechanism for Nodoku. This function is supposed to return an object containing the t function, which will further be used for translating the text. For more details see [nodoku-i18n](https://github.com/nodoku/nodoku-i18n)  
+- **_i18nextProvider_**: this parameter can be used to provide the localization mechanism for Nodoku. This function is supposed to return an object containing the **_t()_** function, which will further be used for translating the text. 
+  > type I18nextProvider = (lng: string) => Promise<{t: (text: NdTranslatedText) => string}>
+
+  Note, that the provided **_t()_** function takes as an argument the whole NdTranslatedText structure, which contains the translation namespace, the key and the default value, extracted from the content.
+
+  For more details see [nodoku-i18n](https://github.com/nodoku/nodoku-i18n)  
+
+## Nodoku component resolver
+
+The component resolver is expected to resolve each component name in a textual form, as extract from the skin file, to an actual component definition, among other things containing the actual Javascript function that should be called to render the component.
+
+> As the components are provided as external dependencies, Nodoku supplies a special script - **_nodoku-gen-component-resolver_** - that should be launched from command line to automatically generate the component resolver.  
+
+Here is the typical example of the generated component resolver, that is crucial for successful functioning of Nodoku:
+
+```ts
+
+import {AsyncFunctionComponent, DummyComp, NdComponentDefinition} from "nodoku-core";
+
+import { NodokuFlowbite } from "nodoku-flowbite";
+
+const components: Map<string, {compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> = 
+        new Map<string, {compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}>();
+
+components.set("flowbite/card", {
+    compo: NodokuFlowbite.Card, 
+    compoDef: new NdComponentDefinition(1, 
+            "./schemas/nodoku-flowbite/dist/schemas/components/card/default-theme.yml")
+});
+
+// other component definitions go here
+
+export function nodokuComponentResolver(componentName: string): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
+    const f: {compo: AsyncFunctionComponent, compoDef: NdComponentDefinition} | undefined = 
+            components.get(componentName);
+    return Promise.resolve(f ? f : {compo: DummyComp, compoDef: new NdComponentDefinition(1)});
+}
+
+```
+
+Recall that the _componentResolver_ is one of the properties of the _RenderingPage_ component.
+
+Thanks to this function Nodoku can find the correspondence between the component name specified in the skin Yaml file, and the actual component implementation.
+
+It is worth noting here that **_nodoku-core_** is the Nodoku engine, which contains the resolving and parsing functionality, but it contains no visual blocks.
+
+The visual components are supposed to be supplied as external library dependency, such as _nodoku-flowbite_ and _nodoku-mambaui_.  
+
+The static map, that is generated by the scirpt nodoku-gen-component-resolver associates with each component name two attributes: 
+- **_compo_**: the function that is to be called to render the component
+- **_compoDef_**: the definition of the component, in particular
+  - **_numBlocks_**: the maximum number of blocks this component supports
+  - **_defaultThemeYaml_**: the Yaml file defining the default component visual configuration (usually uses Tailwind class names)
+
+
+# Plugging in external component bundles
 
 
 

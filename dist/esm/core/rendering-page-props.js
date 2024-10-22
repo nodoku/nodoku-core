@@ -20,16 +20,17 @@ export class RenderingPageProps {
     content;
     skin = undefined;
     renderingPriority = RenderingPriority.content_first;
-    componentProvider = undefined;
+    componentResolver = undefined;
     imageUrlProvider = undefined;
     i18nextProvider = undefined;
-    constructor(lng, content, componentProvider, skin = undefined, renderingPriority = RenderingPriority.content_first, imageUrlProvider = undefined, i18nextProvider = undefined) {
+    constructor(lng, content, componentResolver, skin = undefined, renderingPriority = RenderingPriority.content_first, imageUrlProvider = undefined, i18nextProvider = undefined) {
         this.lng = lng;
         this.renderingPriority = renderingPriority;
         this.content = content;
-        this.componentProvider = componentProvider;
+        this.componentResolver = componentResolver;
         this.skin = skin;
         this.imageUrlProvider = imageUrlProvider;
         this.i18nextProvider = i18nextProvider;
     }
 }
+//# sourceMappingURL=rendering-page-props.js.map

@@ -5,7 +5,7 @@ import { DummyComp } from "./dummy-comp";
 import yaml from "js-yaml";
 import fs from "node:fs";
 import { mergeTheme } from "../theme-utils/theme-merger";
-async function defaultComponentProvider() {
+async function defaultComponentResolver() {
     const compoDef = new NdComponentDefinition("unlimited", undefined, {});
     return { compo: DummyComp, compoDef: compoDef };
 }
@@ -13,8 +13,8 @@ async function defaultImageUrlProvider(imageUrl) {
     return imageUrl;
 }
 async function RenderingPage(props) {
-    const { lng, renderingPriority, content, componentProvider, skin, imageUrlProvider, i18nextProvider } = props;
-    const actualComponentProvider = componentProvider ? componentProvider : defaultComponentProvider;
+    const { lng, renderingPriority, content, componentResolver, skin, imageUrlProvider, i18nextProvider } = props;
+    const actualComponentResolver = componentResolver ? componentResolver : defaultComponentResolver;
     let l;
     if (skin) {
         let blockSkin = skin;
@@ -23,10 +23,10 @@ async function RenderingPage(props) {
         }
         // console.log(" >>> this is my content <<< ", content)
         // console.log(" >>> this is my skin <<< ", JSON.stringify(blockSkin))
-        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createRow(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)));
+        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createRow(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentResolver)));
     }
     else {
-        l = [await createRow(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)];
+        l = [await createRow(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentResolver)];
     }
     return <div className={`${skin?.renderingPage?.base} ${skin?.renderingPage?.decoration}`}>{l}</div>;
 }
@@ -62,13 +62,13 @@ function generateSkinByContentBlocks(blocks, skin) {
     // console.log("generated skin", JSON.stringify(res))
     return res;
 }
-async function createRow(row, iRow, blocks, lng, imageUrlProvider, i18nProvider, componentProvider) {
+async function createRow(row, iRow, blocks, lng, imageUrlProvider, i18nProvider, componentResolver) {
     let l;
     if (row) {
-        l = await Promise.all(row.components.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentProvider)));
+        l = await Promise.all(row.components.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentResolver)));
     }
     else {
-        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentProvider)));
+        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentResolver)));
     }
     const rowComponents = l.flatMap((p) => p);
     const numComponents = rowComponents.length;
@@ -118,11 +118,11 @@ async function createRow(row, iRow, blocks, lng, imageUrlProvider, i18nProvider,
             {rowComponents}
         </div>);
 }
-async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageUrlProvide, i18nProvider, componentProvider) {
+async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageUrlProvide, i18nProvider, componentResolver) {
     // console.log("before component", skinComponent)
     const filteredBlocks = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
     // console.log("retrieving comp", rowIndex, blockIndex, filteredBlocks.map(fb => JSON.stringify(fb.attributes)).join(", "));
-    const { compo, compoDef } = await componentProvider(skinComponent ? skinComponent.componentName : "default");
+    const { compo, compoDef } = await componentResolver(skinComponent ? skinComponent.componentName : "default");
     // console.log("start rendering comp", rowIndex, blockIndex, skinComponent);
     if (!compoDef.defaultTheme && compoDef.defaultThemeYaml) {
         compoDef.defaultTheme = yaml.load(fs.readFileSync(compoDef.defaultThemeYaml).toString());
@@ -185,3 +185,4 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
     return res;
 }
 export { RenderingPage };
+//# sourceMappingURL=rendering-page.jsx.map

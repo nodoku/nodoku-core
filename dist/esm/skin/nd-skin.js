@@ -136,3 +136,4 @@ export class NdSkinComponentProps {
         this.i18nextProvider = i18nextProvider;
     }
 }
+//# sourceMappingURL=nd-skin.js.map

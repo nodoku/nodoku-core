@@ -61,3 +61,4 @@ export function generateComponentResolver() {
     });
 }
 generateComponentResolver();
+//# sourceMappingURL=generate-component-resolver.js.map

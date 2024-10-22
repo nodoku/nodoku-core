@@ -92,3 +92,4 @@ async function render(rowIndex, componentIndex, block, t) {
 
         </div>);
 }
+//# sourceMappingURL=dummy-comp.jsx.map

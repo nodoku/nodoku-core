@@ -186,3 +186,4 @@ export function generateSkinSchema() {
     });
 }
 generateSkinSchema();
+//# sourceMappingURL=generate-skin-schema.js.map

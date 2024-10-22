@@ -47,3 +47,4 @@ function loadComponentsByManifest(dir, moduleName) {
     }
     return undefined;
 }
+//# sourceMappingURL=manifest-loader.js.map

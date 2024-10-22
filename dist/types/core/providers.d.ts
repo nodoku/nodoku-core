@@ -2,7 +2,7 @@ import { JSX } from "react";
 import { NdComponentDefinition, NdSkinComponentProps } from "../skin/nd-skin";
 import { NdTranslatedText } from "../content/nd-content";
 export type AsyncFunctionComponent = (props: NdSkinComponentProps) => Promise<JSX.Element>;
-export type ComponentProvider = (componentName: string) => Promise<{
+export type ComponentResolver = (componentName: string) => Promise<{
     compo: AsyncFunctionComponent;
     compoDef: NdComponentDefinition;
 }>;

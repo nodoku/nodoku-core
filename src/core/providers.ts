@@ -4,7 +4,7 @@ import {NdTranslatedText} from "../content/nd-content";
 
 export type AsyncFunctionComponent = (props: NdSkinComponentProps) => Promise<JSX.Element>
 
-export type ComponentProvider = (componentName: string) => Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}>;
+export type ComponentResolver = (componentName: string) => Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}>;
 
 export type I18nextProvider = (lng: string) => Promise<{t: (text: NdTranslatedText) => string}>;
 

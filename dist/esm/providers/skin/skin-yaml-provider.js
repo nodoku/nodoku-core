@@ -50,3 +50,4 @@ export function parseYamlContentAsSkin(fileContents) {
         }))
     } : { renderingPage: renderingPage, rows: [] };
 }
+//# sourceMappingURL=skin-yaml-provider.js.map

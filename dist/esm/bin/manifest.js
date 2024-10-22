@@ -22,3 +22,4 @@ export class Manifest {
         this.moduleDir = moduleDir;
     }
 }
+//# sourceMappingURL=manifest.js.map

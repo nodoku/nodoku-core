@@ -9,14 +9,14 @@ import {
     NdSkinComponentProps, NdThemeHierarchy
 } from "../skin/nd-skin";
 import {RenderingPageProps, RenderingPriority} from "./rendering-page-props";
-import {AsyncFunctionComponent, ComponentProvider, I18nextProvider, ImageUrlProvider,} from "./providers";
+import {AsyncFunctionComponent, ComponentResolver, I18nextProvider, ImageUrlProvider,} from "./providers";
 import {DummyComp} from "./dummy-comp";
 import yaml from "js-yaml";
 import fs from "node:fs";
 import {mergeTheme} from "../theme-utils/theme-merger";
 import {ThemeStyle} from "../theme-utils/theme-style";
 
-async function defaultComponentProvider(): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
+async function defaultComponentResolver(): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const compoDef: NdComponentDefinition = new NdComponentDefinition("unlimited", undefined, {});
     return {compo: DummyComp, compoDef: compoDef};
 }
@@ -32,13 +32,13 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
         lng ,
         renderingPriority,
         content,
-        componentProvider,
+        componentResolver,
         skin,
         imageUrlProvider,
         i18nextProvider
     } = props;
 
-    const actualComponentProvider = componentProvider ? componentProvider : defaultComponentProvider;
+    const actualComponentResolver = componentResolver ? componentResolver : defaultComponentResolver;
 
     let l: JSX.Element[];
     if (skin) {
@@ -54,11 +54,11 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
 
 
         l = await Promise.all(blockSkin.rows.map(async (row: NdRow, iRow: number): Promise<JSX.Element> =>
-            await createRow(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)
+            await createRow(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentResolver)
         ));
 
     } else {
-        l = [await createRow(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentProvider)];
+        l = [await createRow(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentResolver)];
     }
 
     return <div className={`${skin?.renderingPage?.base} ${skin?.renderingPage?.decoration}`}>{l}</div>
@@ -111,19 +111,19 @@ async function createRow(row: NdRow | undefined,
                          lng: string,
                          imageUrlProvider: ImageUrlProvider | undefined,
                          i18nProvider: I18nextProvider | undefined,
-                         componentProvider: ComponentProvider): Promise<JSX.Element> {
+                         componentResolver: ComponentResolver): Promise<JSX.Element> {
 
     let l: JSX.Element[][];
     if (row) {
         l = await Promise.all(row.components.map(async (visualSection: NdSkinComponent, iComp: number): Promise<JSX.Element[]> =>
 
-            await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentProvider)
+            await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentResolver)
 
         ));
     } else {
         l = await Promise.all(blocks.map(async (block: NdContentBlock, iComp: number): Promise<JSX.Element[]> =>
 
-            await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentProvider)
+            await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentResolver)
 
         ));
     }
@@ -193,7 +193,7 @@ async function createRowComponents(rowIndex: number,
                                    lng: string,
                                    imageUrlProvide: ImageUrlProvider | undefined,
                                    i18nProvider: I18nextProvider | undefined,
-                                   componentProvider: ComponentProvider): Promise<JSX.Element[]> {
+                                   componentResolver: ComponentResolver): Promise<JSX.Element[]> {
 
 
     // console.log("before component", skinComponent)
@@ -203,7 +203,7 @@ async function createRowComponents(rowIndex: number,
 
     // console.log("retrieving comp", rowIndex, blockIndex, filteredBlocks.map(fb => JSON.stringify(fb.attributes)).join(", "));
 
-    const {compo, compoDef} = await componentProvider(skinComponent ? skinComponent.componentName : "default");
+    const {compo, compoDef} = await componentResolver(skinComponent ? skinComponent.componentName : "default");
 
     // console.log("start rendering comp", rowIndex, blockIndex, skinComponent);
 

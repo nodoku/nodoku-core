@@ -11,3 +11,4 @@ export { mergeTheme, ThemeStyle, ExtendedThemeStyle };
 export { DummyComp } from "./core/dummy-comp";
 export { contentMarkdownProvider, parseMarkdownAsContent } from "./providers/content/content-markdown-provider";
 export { skinYamlProvider, parseYamlContentAsSkin } from "./providers/skin/skin-yaml-provider";
+//# sourceMappingURL=index.js.map

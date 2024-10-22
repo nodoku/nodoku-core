@@ -28,3 +28,4 @@ export function generateContentSchema() {
     });
 }
 generateContentSchema();
+//# sourceMappingURL=generate-content-schema.js.map

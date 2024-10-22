@@ -21,3 +21,4 @@ async function generateComponentDefaultTheme() {
     }));
 }
 await generateComponentDefaultTheme();
+//# sourceMappingURL=generate-component-default-theme.js.map
