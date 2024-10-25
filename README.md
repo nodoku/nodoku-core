@@ -533,7 +533,7 @@ Let's have a closer look at this configuration:
 - **_theme_**: this is a standard Tailwind's theme definition. For example, in this example we are defining a new aspectRation value called ```carousel```, which later can be used for styling Nodoku components
 - **_plugins_**: this section includes plugins needed for Nodoku components to work properly
   - **_flowbite.plugin()_** - if components based on flowbite-react are used, this plugin should be included
-  - **_typo.default()_** - if the Nodoku Typography plugin is used, this plugin should be included
+  - **_typo.default()_** - if the [Nodoku Typography](https://github.com/nodoku/nodoku-components) plugin is used, this plugin should be included
  
 ### Webpack configuration
 
