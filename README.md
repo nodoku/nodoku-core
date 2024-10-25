@@ -12,10 +12,10 @@
   * [Nodoku component resolver](#nodoku-component-resolver)
 * [Nodoku component bundle](#nodoku-component-bundle)
   * [Nodoku manifest](#nodoku-manifest-)
-  * [Nodoku skin](#nodoku-skin-1)
-    * [Nodoku visual component theme](#nodoku-visual-component-theme)
-    * [The Nodoku skin Yaml file](#the-nodoku-skin-yaml-file)
-    * [Schema for Nodoku skin Yaml file](#schema-for-nodoku-skin-yaml-file)
+* [Nodoku skin](#nodoku-skin-1)
+  * [Nodoku visual component theme](#nodoku-visual-component-theme)
+* [The Nodoku skin Yaml file](#the-nodoku-skin-yaml-file)
+  * [Schema for Nodoku skin Yaml file](#schema-for-nodoku-skin-yaml-file)
   * [Customizing Nodoku page appearance](#customizing-nodoku-page-appearance)
 * [Nodoku generation scripts](#nodoku-generation-scripts)
 <!-- TOC -->
@@ -513,7 +513,7 @@ The _numBlocks_ parameter is used by the Nodoku engine to calculate the correct 
 
 The _defaultThemeYaml_ attribute is an important parameter designating the Yaml file where the default Tailwind configuration is located. Normally each Nodoku visual component comes as an empty JSX scaffolding, which delegates the styling - the actual Tailwind classes - to the external data structure, the component default theme.
 
-## Nodoku skin
+# Nodoku skin
 
 
 The Nodoku skin is a Yaml file which configures the Nodoku rendering. 
@@ -524,7 +524,7 @@ The content is provided via an MD file, whereas the mapping between the content 
 
 The skin also defines the necessary customizations and fine-tuning of the page visual representation, if required.
 
-### Nodoku visual component theme
+## Nodoku visual component theme
 
 Normally, each JSX block in a visual component is styled using the Tailwind class names. This styling is typically composed of two parts: _base_ and _decoration_.
 
@@ -571,7 +571,7 @@ For each component there is a default theme supplied in a Yaml file, and this fi
 In addition, the theme of each component can further be customized in the skin Yaml file.
 
 
-### The Nodoku skin Yaml file
+# The Nodoku skin Yaml file
 
 
 
@@ -616,7 +616,7 @@ The customization is applied progressively, from the least specific theme to the
 
 Since the Nodoku skin file is large, and can contain many customization options, it is desirable to have a schema file that would guide the user through the process of defining and editing of the skin.
 
-### Schema for Nodoku skin Yaml file
+## Schema for Nodoku skin Yaml file
 
 In order to make the Nodoku skin creation process more convenient and predictable, Nodoku provides a possibility to create a schema file for a project, with a given set of Nodoku component bundles, defined in NPM dependencies (in package.json).
 
