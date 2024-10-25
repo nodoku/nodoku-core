@@ -804,10 +804,10 @@ The process of customization starts from the component's default theme and works
 The nodoku-core provides the following scripts, that are used to generate component resolver and visual schema, by scanning the **node_modules** folder of the project
 
 
-- **nodoku-gen-component-resolver**: generates the component resolver by scanning node_modules and searching for nodoku component libraries - the libraries providing the nodoku.manifest.json file
+- **nodoku-gen-component-resolver**: generates the component resolver by scanning node_modules and searching for nodoku component libraries - the libraries providing the nodoku.manifest.json file. For more details see [Nodoku component resolver](#nodoku-component-resolver)
 
 
-- **nodoku-gen-visual-schema**: generates the json schema file thate can be used to validate the Nodoku skin schema file
+- **nodoku-gen-visual-schema**: generates the json schema file thate can be used to validate the Nodoku skin schema file. For more details see [Schema for Nodoku skin Yaml file](#schema-for-nodoku-skin-yaml-file)
 
 To simplify the use of these script it is recommended to add them in the project's package.json file as follows:
 
