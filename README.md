@@ -6,7 +6,9 @@
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
   * [Integrating Nodoku into a project](#integrating-nodoku-into-a-project)
-    * [Content parsing](#content-parsing)
+    * [Loding and parsing of the content MD file](#loding-and-parsing-of-the-content-md-file)
+      * [Explicitly providing content blockId](#explicitly-providing-content-blockid)
+      * [Automatic generation of content blockId](#automatic-generation-of-content-blockid)
     * [Loading of the skin Yaml file](#loading-of-the-skin-yaml-file)
     * [Rendering Nodoku](#rendering-nodoku)
     * [Nodoku component resolver](#nodoku-component-resolver)
@@ -134,7 +136,7 @@ nd-block:
 
 This Yaml code snippet is a content block delimiter, and it contains the content block meta-data, such as _id_, _attributes_ and _tags_.
 
-The schema for this Yaml code snippet can be found in the Json schema file : **_nodoku-core/docs/md-content-block-delimiter.json_**
+The schema for this Yaml code snippet can be found in the Json schema file : **_nodoku-core/schemas/md-content-block-delimiter.json_**
 
 The content block has the following predefined, fixed structure:
 ```typescript
@@ -303,11 +305,11 @@ const skin: NdPageSkin = await skinYamlProvider("<url location of the skin file>
 />
 ```
 
-### Content parsing
+### Loding and parsing of the content MD file
 
 First, we parse the content MD file, using the predefined function _contentMarkdownProvider_.
 
-The implementation of this function is intentionally kept simple, so that it can easily be replaced by a custom provider, if for some reason the standard one cannot be used
+The implementation of this function is intentionally kept simple, so that it can easily be replaced by a custom provider, if for some reason the standard one cannot be used.
 
 ```ts
 async function contentMarkdownProvider(
@@ -326,6 +328,75 @@ async function contentMarkdownProvider(
 The real parsing happens in the function _parseMarkdownAsContent_, which can also be used directly, if for some reason the URL of the MD file is not available.   
 
 The result of this phase is the set of content blocks, represented as an array of _NdContentBlock_ items.
+
+Each content block that is extracted from the content MD file has an id - called **_blcokId_**.
+
+The content block id is an important concept as it serves as a prefix for the translation keys, generated for that content block.
+
+The Nodoku content blocks are made available for translation and localization out of the box. 
+
+Hence, the unique translation keys given for each piece of textual information is important.
+
+The contenb blockId can
+- either be provided directly as metadata in the delimiting Yaml code snippet
+- or, if not explicitly provided, it is generated automatically, using the metadata available
+
+#### Explicitly providing content blockId
+
+The content blockId can be provided directly in the Yaml code snippet, delimiting the content blocks: 
+
+```yaml
+nd-block:
+  id: nodoku-way-think
+```
+
+As this:
+
+```markdown
+```yaml
+nd-block:
+  id: nodoku-way-think
+  attributes:
+    sectionName: nodoku-way
+``
+
+# Step 1: _Think_
+## Create content promoting your product or service as an **MD file**
+
+```
+
+This would generate the content block with blockId **_nodoku-way-think_**
+
+
+and consequently the following translation keys will be generated for this block:
+> - nodoku-way-think.title
+> - nodoku-way-think.subTitle
+
+#### Automatic generation of content blockId
+
+It might be tedious to require the end user to explicitly provide a metadata, including blockId, for each and every content.
+
+After all, Nodoku's philosophy is a _content first_ approach, where the textual content creation should be as seamless and straightforward, as possible.
+
+Hence, Nodoku parser will generate the blockId automatically, if not provided, using the sequential index of the content block.
+
+
+Consider this example:
+
+```markdown
+```yaml
+nd-block:
+  attributes:
+    sectionName: nodoku-way
+``
+
+# Step 1: _Think_
+## Create content promoting your product or service as an **MD file**
+```
+
+
+
+
 
 ### Loading of the skin Yaml file
 
@@ -395,6 +466,10 @@ class RenderingPageProps {
   > type I18nextProvider = (lng: string) => Promise<{t: (text: NdTranslatedText) => string}>
 
   Note, that the provided **_t()_** function takes as an argument the whole NdTranslatedText structure, which contains the translation namespace, the key and the default value, extracted from the content.
+
+  This parameter is optional. If not provided, the text from the content MD file is used. 
+
+
 
   For more details see [nodoku-i18n](https://github.com/nodoku/nodoku-i18n)  
 
@@ -534,6 +609,8 @@ Let's have a closer look at this configuration:
 - **_plugins_**: this section includes plugins needed for Nodoku components to work properly
   - **_flowbite.plugin()_** - if components based on flowbite-react are used, this plugin should be included
   - **_typo.default()_** - if the [Nodoku Typography](https://github.com/nodoku/nodoku-components) plugin is used, this plugin should be included
+
+For more details on Tailwind config see the section "[Configuring Tailwind](https://github.com/nodoku/nodoku-flowbite?tab=readme-ov-file#configuring-tailwind)" in one of the Nodoku component bundles - [nodoku-flowbite](https://github.com/nodoku/nodoku-flowbite).
  
 ### Webpack configuration
 
@@ -620,10 +697,10 @@ Let's have a closer look at the attributes of each Nodoku visual component:
 -  **_components_**: is a object associating a textual component name with the data structure that is used to extract the component definition. This data structure include:
 
 
-  - **_schemaFile_**: is a Json schema file representing the data structure of the visual theme of the component (see [Nodoku skin schema](#nodoku-skin-schema))  
+  - **_schemaFile_**: is a Json schema file representing the data structure of the visual theme of the component (see [Schema for Nodoku skin Yaml file](#schema-for-nodoku-skin-yaml-file))  
 
 
-  - **_optionsFile_**: is a Json schema file representing the data structure of the functional options of the component (see [Nodoku skin schema](#nodoku-skin-schema))
+  - **_optionsFile_**: is a Json schema file representing the data structure of the functional options of the component (see [Schema for Nodoku skin Yaml file](#schema-for-nodoku-skin-yaml-file))
 
 
   - **_defaultThemeFile_**: a Yaml file containing the default Tailwind configuration of the component

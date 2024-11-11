@@ -33,4 +33,3 @@ export class RenderingPageProps {
         this.i18nextProvider = i18nextProvider;
     }
 }
-//# sourceMappingURL=rendering-page-props.js.map

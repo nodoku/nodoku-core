@@ -1,5 +1,5 @@
 import React, {JSX} from "react";
-import {NdContentBlock, NdTranslatedText} from "../content/nd-content";
+import {NdContentBlock, NdTranslatableText} from "../content/nd-content";
 import {
     NdComponentDefinition,
     NdContentSelector, NdDefaultThemeName,
@@ -129,6 +129,9 @@ async function createRow(row: NdRow | undefined,
     }
 
     const rowComponents: JSX.Element[] = l.flatMap( (p: JSX.Element[]) => p);
+    if (rowComponents.length == 0) {
+        return <></>
+    }
 
     const numComponents = rowComponents.length;
 
@@ -200,6 +203,9 @@ async function createRowComponents(rowIndex: number,
 
     const filteredBlocks: NdContentBlock[] = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
 
+    if (filteredBlocks.length == 0) {
+        return []
+    }
 
     // console.log("retrieving comp", rowIndex, blockIndex, filteredBlocks.map(fb => JSON.stringify(fb.attributes)).join(", "));
 
@@ -265,9 +271,9 @@ async function renderSingleComponent(rowIndex: number,
     let actualI18nextProvider: I18nextProvider;
 
     if (lng == blocks[0].lng || !i18nextProvider) {
-        actualI18nextProvider = async (lng: string): Promise<{t: (text: NdTranslatedText) => string}> => {
+        actualI18nextProvider = async (lng: string): Promise<{t: (text: NdTranslatableText) => string}> => {
 
-            return {t: (text: NdTranslatedText): string => {
+            return {t: (text: NdTranslatableText): string => {
                 const b: string | undefined = blocks.map((b: NdContentBlock) => b.getByKey(text.key, text.ns)).find((s: string | undefined)  => s);
                 return b ? b : `key not found: ${text.ns}:${text.key}`;
             }};

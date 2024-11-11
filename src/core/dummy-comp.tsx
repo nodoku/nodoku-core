@@ -1,4 +1,4 @@
-import {NdCode, NdContentBlock, NdContentImage, NdList, NdTranslatedText} from "../content/nd-content";
+import {NdCode, NdContentBlock, NdContentImage, NdList, NdTranslatableText} from "../content/nd-content";
 import {JSX} from "react";
 import {NdSkinComponentProps} from "../skin/nd-skin";
 // import {CodeComp} from "./code-comp";
@@ -16,7 +16,7 @@ export async function DummyComp(props: NdSkinComponentProps): Promise<JSX.Elemen
 }
 
 
-async function render(rowIndex: number, componentIndex: number, block: NdContentBlock, t: (text: NdTranslatedText) => string): Promise<JSX.Element> {
+async function render(rowIndex: number, componentIndex: number, block: NdContentBlock, t: (text: NdTranslatableText) => string): Promise<JSX.Element> {
     var style = {};
     if (block.bgImageUrl) {
         style = {backgroundImage: `url(${t(block.bgImageUrl)})`}
@@ -46,8 +46,8 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
                 </h6>}
 
                 paragraphs:
-                {await Promise.all(block.paragraphs.map(async (p: (NdTranslatedText | NdList | NdCode), ip: number) => {
-                    if (p instanceof NdTranslatedText) {
+                {await Promise.all(block.paragraphs.map(async (p: (NdTranslatableText | NdList | NdCode), ip: number) => {
+                    if (p instanceof NdTranslatableText) {
                         return (
                             <div>
                                 {p && p.key}

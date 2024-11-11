@@ -1,5 +1,5 @@
 import yaml from "js-yaml";
-import { NdContentSelector, NdRow, NdSkinComponent, NdThemeHierarchy } from "../../skin/nd-skin";
+import { NdContentSelector, NdPageSkin, NdRow, NdSkinComponent, NdThemeHierarchy } from "../../skin/nd-skin";
 export async function skinYamlProvider(yamlFileUrl) {
     return await fetch(yamlFileUrl)
         .then(response => response.text())
@@ -7,6 +7,9 @@ export async function skinYamlProvider(yamlFileUrl) {
 }
 export function parseYamlContentAsSkin(fileContents) {
     const data = yaml.load(fileContents);
+    if (!data) {
+        return new NdPageSkin();
+    }
     let defaultThemeName = "light";
     let globalTheme = {};
     let globalThemes = [];
@@ -50,4 +53,3 @@ export function parseYamlContentAsSkin(fileContents) {
         }))
     } : { renderingPage: renderingPage, rows: [] };
 }
-//# sourceMappingURL=skin-yaml-provider.js.map

@@ -1,10 +1,10 @@
 import HTMLElement from "node-html-parser/dist/nodes/html";
 export declare class NdContentImage {
-    url: NdTranslatedText;
-    title?: NdTranslatedText;
-    alt?: NdTranslatedText;
+    url: NdTranslatableText;
+    title?: NdTranslatableText;
+    alt?: NdTranslatableText;
 }
-export declare class NdTranslatedText {
+export declare class NdTranslatableText {
     key: string;
     ns: string;
     text: string;
@@ -12,11 +12,11 @@ export declare class NdTranslatedText {
     constructor(ns: string, key?: string, text?: string, excludeFromTranslation?: boolean);
 }
 export declare class NdList {
-    items: NdTranslatedText[];
+    items: NdTranslatableText[];
     ordered: boolean;
     private constructor();
-    static createOrdered(items: NdTranslatedText[]): NdList;
-    static createUnOrdered(items: NdTranslatedText[]): NdList;
+    static createOrdered(items: NdTranslatableText[]): NdList;
+    static createUnOrdered(items: NdTranslatableText[]): NdList;
 }
 export declare class NdCode {
     lang: string;
@@ -32,19 +32,19 @@ export declare class NdContentBlock {
     }[];
     tags: string[];
     namespace: string;
-    title?: NdTranslatedText;
-    subTitle?: NdTranslatedText;
-    h3?: NdTranslatedText;
-    h4?: NdTranslatedText;
-    h5?: NdTranslatedText;
-    h6?: NdTranslatedText;
-    footer?: NdTranslatedText;
-    paragraphs: (NdTranslatedText | NdList | NdCode)[];
-    bgImageUrl?: NdTranslatedText;
+    title?: NdTranslatableText;
+    subTitle?: NdTranslatableText;
+    h3?: NdTranslatableText;
+    h4?: NdTranslatableText;
+    h5?: NdTranslatableText;
+    h6?: NdTranslatableText;
+    footer?: NdTranslatableText;
+    paragraphs: (NdTranslatableText | NdList | NdCode)[];
+    bgImageUrl?: NdTranslatableText;
     images: NdContentImage[];
     htmlElements: {
         htmlElem: HTMLElement;
-        translatedText: (NdTranslatedText | NdContentImage | NdList | NdCode);
+        translatedText: (NdTranslatableText | NdContentImage | NdList | NdCode);
     }[];
     constructor(id: string, ns: string, lng: string);
     getByKey(key: string, ns: string): string | undefined;

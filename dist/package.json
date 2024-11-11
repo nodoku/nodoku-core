@@ -4,22 +4,19 @@
   "description": "basic foundation for nodoku static site generator",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/esm/index.js"
+      "types": "./types/index.d.ts",
+      "import": "./esm/index.js"
     },
     "./package.json": "./package.json"
   },
-  "module": "dist/esm/index.js",
-  "types": "dist/types/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "module": "esm/index.js",
+  "types": "types/index.d.ts",
   "type": "module",
   "bin": {
-    "nodoku-gen-component-resolver": "./dist/esm/bin/generate-component-resolver.js",
-    "nodoku-gen-content-schema": "./dist/esm/bin/generate-content-schema.js",
-    "nodoku-gen-skin-schema": "./dist/esm/bin/generate-skin-schema.js",
-    "nodoku-gen-component-default-theme": "./dist/esm/bin/generate-component-default-theme.js"
+    "nodoku-gen-component-resolver": "./esm/bin/generate-component-resolver.js",
+    "nodoku-gen-content-schema": "./esm/bin/generate-content-schema.js",
+    "nodoku-gen-skin-schema": "./esm/bin/generate-skin-schema.js",
+    "nodoku-gen-component-default-theme": "./esm/bin/generate-component-default-theme.js"
   },
   "dependencies": {
   },
@@ -47,8 +44,5 @@
     "react-dom": "^18.3.1",
     "typescript": "^5.5.3",
     "shx": "^0.3.4"
-  },
-  "scripts": {
-    "dist": "shx rm -rf dist && tsc && shx cp -r src/bin/mustache dist/esm/bin/ && shx cp -r schemas dist && shx cp ./package-dist.json ./dist/package.json"
   }
 }

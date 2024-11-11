@@ -1,4 +1,4 @@
-import { NdTranslatedText, NdList, NdContentBlock, NdContentImage, NdCode } from "nodoku-core";
+import { NdTranslatableText, NdList, NdContentBlock, NdContentImage, NdCode } from "nodoku-core";
 import { Marked } from '@ts-stack/markdown';
 import { parse } from 'node-html-parser';
 import yaml from "js-yaml";
@@ -171,27 +171,27 @@ class BlockHolder {
         this.blockContent.htmlStream.forEach((htmlElem, i) => {
             let text = undefined;
             if (i === this.blockContent.titleIndex) {
-                newBlock.title = new NdTranslatedText(this.ns, `${blockId}.title`, htmlElem.innerHTML);
+                newBlock.title = new NdTranslatableText(this.ns, `${blockId}.title`, htmlElem.innerHTML);
                 text = newBlock.title;
             }
             else if (i === this.blockContent.subTitleIndex) {
-                newBlock.subTitle = new NdTranslatedText(this.ns, `${blockId}.subTitle`, htmlElem.innerHTML);
+                newBlock.subTitle = new NdTranslatableText(this.ns, `${blockId}.subTitle`, htmlElem.innerHTML);
                 text = newBlock.subTitle;
             }
             else if (i === this.blockContent.h3Index) {
-                newBlock.h3 = new NdTranslatedText(this.ns, `${blockId}.h3`, htmlElem.innerHTML);
+                newBlock.h3 = new NdTranslatableText(this.ns, `${blockId}.h3`, htmlElem.innerHTML);
                 text = newBlock.h3;
             }
             else if (i === this.blockContent.h4Index) {
-                newBlock.h4 = new NdTranslatedText(this.ns, `${blockId}.h4`, htmlElem.innerHTML);
+                newBlock.h4 = new NdTranslatableText(this.ns, `${blockId}.h4`, htmlElem.innerHTML);
                 text = newBlock.h4;
             }
             else if (i === this.blockContent.h5Index) {
-                newBlock.h5 = new NdTranslatedText(this.ns, `${blockId}.h5`, htmlElem.innerHTML);
+                newBlock.h5 = new NdTranslatableText(this.ns, `${blockId}.h5`, htmlElem.innerHTML);
                 text = newBlock.h5;
             }
             else if (i === this.blockContent.h6Index) {
-                newBlock.h6 = new NdTranslatedText(this.ns, `${blockId}.h6`, htmlElem.innerHTML);
+                newBlock.h6 = new NdTranslatableText(this.ns, `${blockId}.h6`, htmlElem.innerHTML);
                 text = newBlock.h6;
             }
             else if (this.blockContent.paragraphsIndex.indexOf(i) >= 0) {
@@ -213,16 +213,16 @@ class BlockHolder {
                         const imgHtmlElem = cn;
                         if (imgHtmlElem.rawTagName == "img") {
                             img = new NdContentImage();
-                            img.url = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.url`, imgHtmlElem.attributes["src"], true);
-                            img.alt = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.alt`, imgHtmlElem.attributes["alt"]);
-                            img.title = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.title`, imgHtmlElem.attributes["title"]);
+                            img.url = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.url`, imgHtmlElem.attributes["src"], true);
+                            img.alt = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.alt`, imgHtmlElem.attributes["alt"]);
+                            img.title = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.title`, imgHtmlElem.attributes["title"]);
                         }
                     });
                     if (img) {
                         htmlElem.childNodes
                             .forEach((cn) => {
                             if (cn.rawTagName == "figcaption") {
-                                img.title = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.title`, cn.innerHTML);
+                                img.title = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.title`, cn.innerHTML);
                             }
                         });
                     }
@@ -232,9 +232,9 @@ class BlockHolder {
                      * extract image from <img>
                      */
                     img = new NdContentImage();
-                    img.url = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.url`, htmlElem.attributes["src"], true);
-                    img.alt = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.alt`, htmlElem.attributes["alt"]);
-                    img.title = new NdTranslatedText(this.ns, `${blockId}.images.${imi}.title`, htmlElem.attributes["title"]);
+                    img.url = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.url`, htmlElem.attributes["src"], true);
+                    img.alt = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.alt`, htmlElem.attributes["alt"]);
+                    img.title = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.title`, htmlElem.attributes["title"]);
                 }
                 if (img) {
                     newBlock.images.push(img);
@@ -243,22 +243,22 @@ class BlockHolder {
                 }
             }
             else {
-                text = new NdTranslatedText(this.ns, `${blockId}.htmlElements.${newBlock.htmlElements.length}`, "");
+                text = new NdTranslatableText(this.ns, `${blockId}.htmlElements.${newBlock.htmlElements.length}`, "");
             }
             newBlock.htmlElements.push({ htmlElem: htmlElem, translatedText: text });
         });
         if (this.blockContent.footer && this.blockContent.footer.trim().length > 0) {
-            newBlock.footer = new NdTranslatedText(this.ns, `${blockId}.footer`, this.blockContent.footer);
+            newBlock.footer = new NdTranslatableText(this.ns, `${blockId}.footer`, this.blockContent.footer);
         }
         if (this.blockContent.bgImage && this.blockContent.bgImage.getAttribute("src")) {
-            newBlock.bgImageUrl = new NdTranslatedText(this.ns, `${blockId}.bgImageUrl`, this.blockContent.bgImage.getAttribute("src"), true);
+            newBlock.bgImageUrl = new NdTranslatableText(this.ns, `${blockId}.bgImageUrl`, this.blockContent.bgImage.getAttribute("src"), true);
         }
         // console.log("added block", newBlock)
         return newBlock;
     }
     parseParagraph(blockId, p, pi) {
         if (p.rawTagName === "p" || p.rawTagName === "blockquote") {
-            return new NdTranslatedText(this.ns, `${blockId}.paragraphs.${pi}`, p.innerHTML);
+            return new NdTranslatableText(this.ns, `${blockId}.paragraphs.${pi}`, p.innerHTML);
         }
         else if (p.rawTagName === "pre") {
             const codeHtml = p.childNodes[0];
@@ -276,7 +276,7 @@ class BlockHolder {
                 .filter(lin => lin.innerText && lin.innerText.trim().length > 0)
                 .map((lin, k) => {
                 const li = lin;
-                return new NdTranslatedText(this.ns, `${blockId}.paragraphs.${pi}.items.${k}`, li.innerHTML);
+                return new NdTranslatableText(this.ns, `${blockId}.paragraphs.${pi}.items.${k}`, li.innerHTML);
             }));
         }
         else if (p.rawTagName === "ul") {
@@ -284,7 +284,7 @@ class BlockHolder {
                 .filter(lin => lin.innerText && lin.innerText.trim().length > 0)
                 .map((lin, k) => {
                 const li = lin;
-                return new NdTranslatedText(this.ns, `${blockId}.paragraphs.${pi}.items.${k}`, li.innerHTML);
+                return new NdTranslatableText(this.ns, `${blockId}.paragraphs.${pi}.items.${k}`, li.innerHTML);
             }));
         }
         console.log("couldn't parse paragraph: ", p);
@@ -372,4 +372,3 @@ export function parseMarkdownAsContent(fileContents, contentLng, ns) {
     }
     return res;
 }
-//# sourceMappingURL=content-markdown-provider.js.map

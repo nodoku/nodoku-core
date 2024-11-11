@@ -15,11 +15,16 @@ interface LooseObject {
 export function parseYamlContentAsSkin(fileContents: string): NdPageSkin {
     const data: any = yaml.load(fileContents);
 
+    if (!data) {
+        return new NdPageSkin();
+    }
+
     let defaultThemeName: "light" | "dark" = "light"
     let globalTheme: LooseObject = {};
     let globalThemes: LooseObject[] = [];
     let componentTheme: {[key: string]: {theme: LooseObject, themes: LooseObject[], options: LooseObject}} = {};
     let renderingPage: ThemeStyle | undefined = undefined;
+
     if (data.global) {
         defaultThemeName = data.global.defaultTheme || defaultThemeName
         globalTheme = data.global.theme;

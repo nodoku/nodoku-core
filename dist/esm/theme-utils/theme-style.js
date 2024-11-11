@@ -6,4 +6,3 @@ export class ThemeStyle {
         this.decoration = decoration;
     }
 }
-//# sourceMappingURL=theme-style.js.map

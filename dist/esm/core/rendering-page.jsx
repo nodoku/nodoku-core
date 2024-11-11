@@ -71,6 +71,9 @@ async function createRow(row, iRow, blocks, lng, imageUrlProvider, i18nProvider,
         l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentResolver)));
     }
     const rowComponents = l.flatMap((p) => p);
+    if (rowComponents.length == 0) {
+        return <></>;
+    }
     const numComponents = rowComponents.length;
     const rowEffectiveTheme = mergeTheme(row?.theme, NdRow.defaultRowTheme);
     const maxCols = row?.maxCols ? row.maxCols : 3;
@@ -121,6 +124,9 @@ async function createRow(row, iRow, blocks, lng, imageUrlProvider, i18nProvider,
 async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageUrlProvide, i18nProvider, componentResolver) {
     // console.log("before component", skinComponent)
     const filteredBlocks = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
+    if (filteredBlocks.length == 0) {
+        return [];
+    }
     // console.log("retrieving comp", rowIndex, blockIndex, filteredBlocks.map(fb => JSON.stringify(fb.attributes)).join(", "));
     const { compo, compoDef } = await componentResolver(skinComponent ? skinComponent.componentName : "default");
     // console.log("start rendering comp", rowIndex, blockIndex, skinComponent);
@@ -185,4 +191,3 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
     return res;
 }
 export { RenderingPage };
-//# sourceMappingURL=rendering-page.jsx.map

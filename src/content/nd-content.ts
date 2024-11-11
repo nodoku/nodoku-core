@@ -1,14 +1,14 @@
 import HTMLElement from "node-html-parser/dist/nodes/html";
 
 export class NdContentImage {
-    url: NdTranslatedText = {} as NdTranslatedText;
-    title?: NdTranslatedText;
-    alt?: NdTranslatedText;
+    url: NdTranslatableText = {} as NdTranslatableText;
+    title?: NdTranslatableText;
+    alt?: NdTranslatableText;
 
 
 }
 
-export class NdTranslatedText {
+export class NdTranslatableText {
     key: string = "";
     ns: string = "";
     text: string = "";
@@ -23,19 +23,19 @@ export class NdTranslatedText {
 }
 
 export class NdList {
-    items: NdTranslatedText[];
+    items: NdTranslatableText[];
     ordered: boolean;
 
-    private constructor(ordered: boolean, items: NdTranslatedText[]) {
+    private constructor(ordered: boolean, items: NdTranslatableText[]) {
         this.ordered = ordered;
         this.items = items;
     }
 
-    public static createOrdered(items: NdTranslatedText[]): NdList {
+    public static createOrdered(items: NdTranslatableText[]): NdList {
         return new NdList(true, items)
     }
 
-    public static createUnOrdered(items: NdTranslatedText[]): NdList {
+    public static createUnOrdered(items: NdTranslatableText[]): NdList {
         return new NdList(false, items)
     }
 
@@ -58,17 +58,17 @@ export class NdContentBlock {
     attributes: {key: string, value: string}[] = [];
     tags: string[] = []
     namespace: string;
-    title?: NdTranslatedText;
-    subTitle?: NdTranslatedText;
-    h3?: NdTranslatedText;
-    h4?: NdTranslatedText;
-    h5?: NdTranslatedText;
-    h6?: NdTranslatedText;
-    footer?: NdTranslatedText;
-    paragraphs: (NdTranslatedText | NdList | NdCode)[] = [];
-    bgImageUrl?: NdTranslatedText;
+    title?: NdTranslatableText;
+    subTitle?: NdTranslatableText;
+    h3?: NdTranslatableText;
+    h4?: NdTranslatableText;
+    h5?: NdTranslatableText;
+    h6?: NdTranslatableText;
+    footer?: NdTranslatableText;
+    paragraphs: (NdTranslatableText | NdList | NdCode)[] = [];
+    bgImageUrl?: NdTranslatableText;
     images: NdContentImage[] = [];
-    htmlElements: {htmlElem: HTMLElement, translatedText: (NdTranslatedText | NdContentImage | NdList | NdCode)}[] = [];
+    htmlElements: {htmlElem: HTMLElement, translatedText: (NdTranslatableText | NdContentImage | NdList | NdCode)}[] = [];
 
     constructor(id: string, ns: string, lng: string) {
         this.id = id;
@@ -100,7 +100,7 @@ function getPropertyFromObjectRecursively(obj: any, path: string): any {
 
     // console.log(`getting path from obj >>${path}<<`, obj)
 
-    if (obj instanceof NdTranslatedText) {
+    if (obj instanceof NdTranslatableText) {
         return obj.text
     }
 

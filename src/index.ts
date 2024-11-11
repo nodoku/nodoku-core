@@ -1,4 +1,4 @@
-import {NdContentImage, NdTranslatedText, NdList, NdCode, NdContentBlock} from "./content/nd-content";
+import {NdContentImage, NdTranslatableText, NdList, NdCode, NdContentBlock} from "./content/nd-content";
 import {NdSkinComponent, NdRow, NdPageSkin, NdSkinComponentProps, NdContentSelector, NdComponentDefinition, NdThemeHierarchy, NdDefaultThemeName} from "./skin/nd-skin";
 import {RenderingPageProps, RenderingPriority} from "./core/rendering-page-props";
 import {RenderingPage} from "./core/rendering-page"
@@ -9,7 +9,7 @@ import {ExtendedThemeStyle} from "./theme-utils/extended-theme-style"
 
 export {
     NdContentImage,
-    NdTranslatedText,
+    NdTranslatableText,
     NdList,
     NdCode,
     NdContentBlock,

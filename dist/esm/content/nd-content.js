@@ -3,7 +3,7 @@ export class NdContentImage {
     title;
     alt;
 }
-export class NdTranslatedText {
+export class NdTranslatableText {
     key = "";
     ns = "";
     text = "";
@@ -75,7 +75,7 @@ export class NdContentBlock {
 }
 function getPropertyFromObjectRecursively(obj, path) {
     // console.log(`getting path from obj >>${path}<<`, obj)
-    if (obj instanceof NdTranslatedText) {
+    if (obj instanceof NdTranslatableText) {
         return obj.text;
     }
     if (path.length == 0) {
@@ -93,4 +93,3 @@ function getPropertyFromObjectRecursively(obj, path) {
     }
     return undefined;
 }
-//# sourceMappingURL=nd-content.js.map

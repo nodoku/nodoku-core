@@ -1,4 +1,4 @@
-import { NdCode, NdTranslatedText } from "../content/nd-content";
+import { NdCode, NdTranslatableText } from "../content/nd-content";
 // import {CodeComp} from "./code-comp";
 export async function DummyComp(props) {
     // console.log("content dummy comp", props.theme)
@@ -33,7 +33,7 @@ async function render(rowIndex, componentIndex, block, t) {
 
                 paragraphs:
                 {await Promise.all(block.paragraphs.map(async (p, ip) => {
-            if (p instanceof NdTranslatedText) {
+            if (p instanceof NdTranslatableText) {
                 return (<div>
                                 {p && p.key}
                                 <p key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
@@ -92,4 +92,3 @@ async function render(rowIndex, componentIndex, block, t) {
 
         </div>);
 }
-//# sourceMappingURL=dummy-comp.jsx.map
