@@ -10,7 +10,7 @@ const components: Map<string, {compo: AsyncFunctionComponent, compoDef: NdCompon
 components.set("{{{name}}}", {compo: {{impl}}, compoDef: new NdComponentDefinition({{{numBlocks}}}, "{{{defaultThemeFile}}}")});
 {{/comps}}
 
-export function nodokuComponentResolver(componentName: string): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
+export async function nodokuComponentResolver(componentName: string): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const f: {compo: AsyncFunctionComponent, compoDef: NdComponentDefinition} | undefined = components.get(componentName);
-    return Promise.resolve(f ? f : {compo: DummyComp, compoDef: new NdComponentDefinition(1)});
+    return f ? f : {compo: DummyComp, compoDef: new NdComponentDefinition(1)};
 }
