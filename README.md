@@ -25,6 +25,8 @@
 * [Nodoku generation scripts](#nodoku-generation-scripts)
 <!-- TOC -->
 
+GitHub link: https://github.com/nodoku/nodoku-core
+
 Nodoku is a static site generator, where the content is provided via MD (markdown) files, and the visual representation is controlled using Yaml files - called _skin_.
 
 Nodoku promotes the content-first approach, when the content creation process is not being distracted by the considerations related to the visual representation and design.

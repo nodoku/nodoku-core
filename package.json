@@ -1,6 +1,6 @@
 {
   "name": "nodoku-core",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "basic foundation for nodoku static site generator",
   "exports": {
     ".": {
@@ -49,6 +49,6 @@
     "shx": "^0.3.4"
   },
   "scripts": {
-    "dist": "shx rm -rf dist && tsc && shx cp -r src/bin/mustache dist/esm/bin/ && shx cp -r schemas dist && shx cp ./package-dist.json ./dist/package.json"
+    "dist": "shx rm -rf dist && tsc && shx cp -r src/bin/mustache dist/esm/bin/ && shx cp -r schemas dist && shx cp ./package-dist.json ./dist/package.json && shx cp ./README.md ./dist"
   }
 }
