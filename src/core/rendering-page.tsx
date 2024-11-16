@@ -310,7 +310,7 @@ async function renderSingleComponent(rowIndex: number,
     // console.log("start rendering page with props", props);
     const res: JSX.Element = await component(props);
     // console.log("end rendering page with props", props);
-    return res;
+    return <div className={"nd-component-holder"} style={{minWidth: 0}}>{res}</div>;
 }
 
 export {RenderingPage};

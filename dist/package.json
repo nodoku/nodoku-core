@@ -1,6 +1,6 @@
 {
   "name": "nodoku-core",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "basic foundation for nodoku static site generator",
   "exports": {
     ".": {
