@@ -9,11 +9,12 @@ async function defaultComponentResolver() {
     const compoDef = new NdComponentDefinition("unlimited", undefined, {});
     return { compo: DummyComp, compoDef: compoDef };
 }
-async function defaultImageUrlProvider(imageUrl) {
-    return imageUrl;
+async function defaultImageProvider(imageProps) {
+    const { imageStyle, url, alt } = imageProps;
+    return <img className={`${imageStyle?.base} ${imageStyle?.decoration}`} src={url} alt={alt}/>;
 }
 async function RenderingPage(props) {
-    const { lng, renderingPriority, content, componentResolver, skin, imageUrlProvider, i18nextProvider } = props;
+    const { lng, renderingPriority, content, componentResolver, skin, imageProvider, i18nextProvider } = props;
     const actualComponentResolver = componentResolver ? componentResolver : defaultComponentResolver;
     let l;
     if (skin) {
@@ -23,10 +24,10 @@ async function RenderingPage(props) {
         }
         // console.log(" >>> this is my content <<< ", content)
         // console.log(" >>> this is my skin <<< ", JSON.stringify(blockSkin))
-        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createRow(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentResolver)));
+        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createRow(row, iRow, content, lng, imageProvider, i18nextProvider, actualComponentResolver)));
     }
     else {
-        l = [await createRow(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentResolver)];
+        l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider, actualComponentResolver)];
     }
     return <div className={`${skin?.renderingPage?.base} ${skin?.renderingPage?.decoration}`}>{l}</div>;
 }
@@ -62,13 +63,13 @@ function generateSkinByContentBlocks(blocks, skin) {
     // console.log("generated skin", JSON.stringify(res))
     return res;
 }
-async function createRow(row, iRow, blocks, lng, imageUrlProvider, i18nProvider, componentResolver) {
+async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, componentResolver) {
     let l;
     if (row) {
-        l = await Promise.all(row.components.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentResolver)));
+        l = await Promise.all(row.components.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageProvider, i18nProvider, componentResolver)));
     }
     else {
-        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentResolver)));
+        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageProvider, i18nProvider, componentResolver)));
     }
     const rowComponents = l.flatMap((p) => p);
     if (rowComponents.length == 0) {
@@ -79,49 +80,66 @@ async function createRow(row, iRow, blocks, lng, imageUrlProvider, i18nProvider,
     const maxCols = row?.maxCols ? row.maxCols : 3;
     const numCols = numComponents <= maxCols ? numComponents : maxCols;
     let gridCols = "grid-cols-1";
+    let flexBasis = "basis-full";
     switch (numCols) {
         case 1:
             gridCols = "lg:grid-cols-1";
+            flexBasis = "lg:basis-full";
             break;
         case 2:
             gridCols = "lg:grid-cols-2";
+            flexBasis = "lg:basis-1/2";
             break;
         case 3:
             gridCols = "lg:grid-cols-3";
+            flexBasis = "lg:basis-1/3";
             break;
         case 4:
             gridCols = "lg:grid-cols-4";
+            flexBasis = "lg:basis-1/4";
             break;
         case 5:
             gridCols = "lg:grid-cols-5";
+            flexBasis = "lg:basis-1/5";
             break;
         case 6:
             gridCols = "lg:grid-cols-6";
+            flexBasis = "lg:basis-1/6";
             break;
         case 7:
             gridCols = "lg:grid-cols-7";
+            flexBasis = "lg:basis-1/7";
             break;
         case 8:
             gridCols = "lg:grid-cols-8";
+            flexBasis = "lg:basis-1/8";
             break;
         case 9:
             gridCols = "lg:grid-cols-9";
+            flexBasis = "lg:basis-1/9";
             break;
         case 10:
             gridCols = "lg:grid-cols-10";
+            flexBasis = "lg:basis-1/10";
             break;
         case 11:
             gridCols = "lg:grid-cols-11";
+            flexBasis = "lg:basis-1/11";
             break;
         case 12:
             gridCols = "lg:grid-cols-12";
+            flexBasis = "lg:basis-1/12";
             break;
     }
-    return (<div key={`row-${iRow}`} className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
-            {rowComponents}
+    let rowDisplay = `grid ${gridCols}`;
+    if (rowEffectiveTheme.rowDisplay == "flex") {
+        rowDisplay = "flex flex-row justify-center flex-wrap flex-1";
+    }
+    return (<div key={`row-${iRow}`} className={`${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
+            {rowComponents.map(c => <div className={`nd-component-holder basis-full ${flexBasis} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`} style={{ minWidth: 0, overflow: "hidden" }}>{c}</div>)}
         </div>);
 }
-async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageUrlProvide, i18nProvider, componentResolver) {
+async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageProvider, i18nProvider, componentResolver) {
     // console.log("before component", skinComponent)
     const filteredBlocks = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
     if (filteredBlocks.length == 0) {
@@ -147,14 +165,14 @@ async function createRowComponents(rowIndex, blockIndex, skinComponent, pageCont
             const blocks = filteredBlocks.slice(start, end);
             const compIndex = blockIndex * filteredBlocks.length + i;
             // console.log("calculated compo index ", compIndex, "filteredBlocks.length", filteredBlocks.length, "blockIndex", blockIndex)
-            res.push(await renderSingleComponent(rowIndex, compIndex, compo, blocks, skinComponent?.defaultThemeName || "light", compoDef.defaultTheme, skinComponent?.themeHierarchy, lng, imageUrlProvide, i18nProvider));
+            res.push(await renderSingleComponent(rowIndex, compIndex, compo, blocks, skinComponent?.defaultThemeName || "light", compoDef.defaultTheme, skinComponent?.themeHierarchy, lng, imageProvider, i18nProvider));
         }
         start = end;
         ++i;
     } while (end < filteredBlocks.length);
     return res;
 }
-async function renderSingleComponent(rowIndex, componentIndex, component, blocks, defaultThemeName, defaultTheme, themeHierarchy, lng, imageUrlProvider, i18nextProvider) {
+async function renderSingleComponent(rowIndex, componentIndex, component, blocks, defaultThemeName, defaultTheme, themeHierarchy, lng, imageProvider, i18nextProvider) {
     let actualI18nextProvider;
     if (lng == blocks[0].lng || !i18nextProvider) {
         actualI18nextProvider = async (lng) => {
@@ -167,7 +185,7 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
     else {
         actualI18nextProvider = i18nextProvider;
     }
-    const actualImageUrlProvider = imageUrlProvider ? imageUrlProvider : defaultImageUrlProvider;
+    const actualImageProvider = imageProvider ? imageProvider : defaultImageProvider;
     // if (themeHierarchy) {
     //     console.log("themeHierarchy", themeHierarchy)
     // }
@@ -182,12 +200,12 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
         themes: effectiveThemes,
         options: effectiveOptions,
         lng: lng,
-        imageUrlProvider: actualImageUrlProvider,
+        imageProvider: actualImageProvider,
         i18nextProvider: actualI18nextProvider
     };
     // console.log("start rendering page with props", props);
     const res = await component(props);
     // console.log("end rendering page with props", props);
-    return <div className={"nd-component-holder"} style={{ minWidth: 0 }}>{res}</div>;
+    return res;
 }
 export { RenderingPage };

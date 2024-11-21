@@ -1,5 +1,4 @@
 import { NdCode, NdTranslatableText } from "../content/nd-content";
-// import {CodeComp} from "./code-comp";
 export async function DummyComp(props) {
     // console.log("content dummy comp", props.theme)
     const { content, i18nextProvider, lng, rowIndex, componentIndex } = props;
@@ -7,13 +6,14 @@ export async function DummyComp(props) {
     return <div>{await render(rowIndex, componentIndex, content[0], t)}</div>;
 }
 async function render(rowIndex, componentIndex, block, t) {
-    var style = {};
-    if (block.bgImageUrl) {
-        style = { backgroundImage: `url(${t(block.bgImageUrl)})` };
-    }
+    // var style = {};
+    // if (block.bgImageUrl) {
+    //     style = {backgroundImage: `url(${t(block.bgImageUrl)})`}
+    // }
     return (<div className={"w-full w-full flex flex-col items-left justify-left  border border-4 border-red-200 relative pb-10"}>
-            <div className={"top-0 bottom-0 left-0 right-0 absolute bg-cover bg-no-repeat"} style={{ ...style, zIndex: -11 }}>
-            </div>
+            {/*<div className={"top-0 bottom-0 left-0 right-0 absolute bg-cover bg-no-repeat"}*/}
+            {/*     style={{...style, zIndex: -11}}>*/}
+            {/*</div>*/}
             <div className={"top-0 bottom-0 left-0 right-0 absolute bg-white "} style={{ zIndex: -5, opacity: 0.7 }}>
             </div>
             <div className={"p-5 w-full bg-red-400 text-center"}>dummy component<h3><b>{`ns-${block.namespace}-row-${rowIndex}-i-${componentIndex}`}</b></h3></div>

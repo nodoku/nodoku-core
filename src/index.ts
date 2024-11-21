@@ -2,10 +2,11 @@ import {NdContentImage, NdTranslatableText, NdList, NdCode, NdContentBlock} from
 import {NdSkinComponent, NdRow, NdPageSkin, NdSkinComponentProps, NdContentSelector, NdComponentDefinition, NdThemeHierarchy, NdDefaultThemeName} from "./skin/nd-skin";
 import {RenderingPageProps, RenderingPriority} from "./core/rendering-page-props";
 import {RenderingPage} from "./core/rendering-page"
-import {I18nextProvider, AsyncFunctionComponent, ImageUrlProvider} from "./core/providers"
+import {I18nextProvider, AsyncFunctionComponent, ImageProvider, NdImageProps} from "./core/providers"
 import {mergeTheme} from "./theme-utils/theme-merger";
 import {ThemeStyle} from "./theme-utils/theme-style"
 import {ExtendedThemeStyle} from "./theme-utils/extended-theme-style"
+import {ImageStyle} from "./theme-utils/image-style"
 
 export {
     NdContentImage,
@@ -20,14 +21,15 @@ export {
     NdContentSelector,
     NdComponentDefinition,
     NdThemeHierarchy,
-    type NdDefaultThemeName
+    type NdDefaultThemeName,
+    type NdImageProps
 };
 
 export {RenderingPageProps, RenderingPriority, RenderingPage}
 
-export {mergeTheme, ThemeStyle, ExtendedThemeStyle}
+export {mergeTheme, type ThemeStyle, type ExtendedThemeStyle, type ImageStyle}
 
-export type {I18nextProvider, AsyncFunctionComponent, ImageUrlProvider};
+export type {I18nextProvider, AsyncFunctionComponent, ImageProvider};
 
 export {DummyComp} from "./core/dummy-comp"
 

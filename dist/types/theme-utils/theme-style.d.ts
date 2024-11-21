@@ -1,5 +1,4 @@
-export declare class ThemeStyle {
+export type ThemeStyle = {
     base: string;
     decoration: string;
-    constructor(base: string, decoration: string);
-}
+};

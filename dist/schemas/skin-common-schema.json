@@ -48,6 +48,47 @@
       ]
     },
 
+    "ImageStyle": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ThemeStyle"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "imageWidth": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ],
+      "additionalProperties": false
+    },
+
+
+    "RowThemeStyle": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ThemeStyle"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "rowDisplay": {
+              "type": "string",
+              "enum": ["flex", "grid"]
+            },
+            "componentHolder": {
+              "$ref": "#/definitions/ThemeStyle"
+            }
+          },
+          "additionalProperties": false
+        }
+      ],
+      "additionalProperties": false
+    },
+
 
 
     "Selector": {

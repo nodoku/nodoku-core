@@ -1,7 +1,8 @@
-import {I18nextProvider, ImageUrlProvider} from "../core/providers";
+import {I18nextProvider, ImageProvider} from "../core/providers";
 import {NdContentBlock} from "../content/nd-content";
 import {mergeTheme} from "../theme-utils/theme-merger";
 import {ThemeStyle} from "../theme-utils/theme-style";
+import {RowStyle} from "../theme-utils/row-style";
 
 export type NdDefaultThemeName = "light" | "dark";
 
@@ -82,16 +83,21 @@ export class NdSkinComponent {
 export class NdRow {
     rowIndex: number;
     maxCols?: number;
-    theme: ThemeStyle | undefined;
+    theme: RowStyle | undefined;
     components: NdSkinComponent[] = [];
 
     constructor(rowIndex: number) {
         this.rowIndex = rowIndex;
     }
 
-    public static defaultRowTheme: ThemeStyle = {
+    public static defaultRowTheme: RowStyle = {
         base: "md:grid-cols-1",
-        decoration: "gap-4"
+        decoration: "gap-4",
+        rowDisplay: "grid",
+        componentHolder: {
+            base: "min-w-0 overflow-hidden",
+            decoration: ""
+        },
     }
 }
 
@@ -161,7 +167,7 @@ export class NdSkinComponentProps<TComponentTheme = any, TComponentOptions = any
     themes: TComponentTheme[];
     options: TComponentOptions | undefined;
     lng: string;
-    imageUrlProvider: ImageUrlProvider;
+    imageProvider: ImageProvider;
     i18nextProvider: I18nextProvider;
 
     constructor(rowIndex: number,
@@ -172,7 +178,7 @@ export class NdSkinComponentProps<TComponentTheme = any, TComponentOptions = any
                 themes: TComponentTheme[],
                 options: TComponentOptions,
                 lng: string,
-                imageUrlProvider: ImageUrlProvider,
+                imageProvider: ImageProvider,
                 i18nextProvider: I18nextProvider) {
 
         this.rowIndex = rowIndex;
@@ -183,7 +189,7 @@ export class NdSkinComponentProps<TComponentTheme = any, TComponentOptions = any
         this.themes = themes.slice();
         this.options = options;
         this.lng = lng;
-        this.imageUrlProvider = imageUrlProvider;
+        this.imageProvider = imageProvider;
         this.i18nextProvider = i18nextProvider;
     }
 }

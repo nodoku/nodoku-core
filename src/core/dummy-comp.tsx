@@ -1,7 +1,6 @@
 import {NdCode, NdContentBlock, NdContentImage, NdList, NdTranslatableText} from "../content/nd-content";
 import {JSX} from "react";
 import {NdSkinComponentProps} from "../skin/nd-skin";
-// import {CodeComp} from "./code-comp";
 
 
 export async function DummyComp(props: NdSkinComponentProps): Promise<JSX.Element> {
@@ -17,17 +16,17 @@ export async function DummyComp(props: NdSkinComponentProps): Promise<JSX.Elemen
 
 
 async function render(rowIndex: number, componentIndex: number, block: NdContentBlock, t: (text: NdTranslatableText) => string): Promise<JSX.Element> {
-    var style = {};
-    if (block.bgImageUrl) {
-        style = {backgroundImage: `url(${t(block.bgImageUrl)})`}
-    }
+    // var style = {};
+    // if (block.bgImageUrl) {
+    //     style = {backgroundImage: `url(${t(block.bgImageUrl)})`}
+    // }
 
     return (
         <div
             className={"w-full w-full flex flex-col items-left justify-left  border border-4 border-red-200 relative pb-10"}>
-            <div className={"top-0 bottom-0 left-0 right-0 absolute bg-cover bg-no-repeat"}
-                 style={{...style, zIndex: -11}}>
-            </div>
+            {/*<div className={"top-0 bottom-0 left-0 right-0 absolute bg-cover bg-no-repeat"}*/}
+            {/*     style={{...style, zIndex: -11}}>*/}
+            {/*</div>*/}
             <div className={"top-0 bottom-0 left-0 right-0 absolute bg-white "} style={{zIndex: -5, opacity: 0.7}}>
             </div>
             <div className={"p-5 w-full bg-red-400 text-center"}>dummy component<h3><b>{`ns-${block.namespace}-row-${rowIndex}-i-${componentIndex}`}</b></h3></div>

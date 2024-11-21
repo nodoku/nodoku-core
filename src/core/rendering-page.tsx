@@ -9,20 +9,22 @@ import {
     NdSkinComponentProps, NdThemeHierarchy
 } from "../skin/nd-skin";
 import {RenderingPageProps, RenderingPriority} from "./rendering-page-props";
-import {AsyncFunctionComponent, ComponentResolver, I18nextProvider, ImageUrlProvider,} from "./providers";
+import {AsyncFunctionComponent, ComponentResolver, I18nextProvider, ImageProvider,} from "./providers";
 import {DummyComp} from "./dummy-comp";
 import yaml from "js-yaml";
 import fs from "node:fs";
 import {mergeTheme} from "../theme-utils/theme-merger";
-import {ThemeStyle} from "../theme-utils/theme-style";
+import {NdImageProps} from "./providers";
+import {RowStyle} from "../theme-utils/row-style";
 
 async function defaultComponentResolver(): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const compoDef: NdComponentDefinition = new NdComponentDefinition("unlimited", undefined, {});
     return {compo: DummyComp, compoDef: compoDef};
 }
 
-async function defaultImageUrlProvider(imageUrl: string): Promise<string> {
-    return imageUrl;
+async function defaultImageProvider(imageProps: NdImageProps): Promise<JSX.Element> {
+    const {imageStyle, url, alt} = imageProps;
+    return <img className={`${imageStyle?.base} ${imageStyle?.decoration}`} src={url} alt={alt}/>;
 }
 
 async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
@@ -34,7 +36,7 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
         content,
         componentResolver,
         skin,
-        imageUrlProvider,
+        imageProvider,
         i18nextProvider
     } = props;
 
@@ -54,11 +56,11 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
 
 
         l = await Promise.all(blockSkin.rows.map(async (row: NdRow, iRow: number): Promise<JSX.Element> =>
-            await createRow(row, iRow, content, lng, imageUrlProvider, i18nextProvider, actualComponentResolver)
+            await createRow(row, iRow, content, lng, imageProvider, i18nextProvider, actualComponentResolver)
         ));
 
     } else {
-        l = [await createRow(undefined, 0, content, lng, imageUrlProvider, i18nextProvider, actualComponentResolver)];
+        l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider, actualComponentResolver)];
     }
 
     return <div className={`${skin?.renderingPage?.base} ${skin?.renderingPage?.decoration}`}>{l}</div>
@@ -109,7 +111,7 @@ async function createRow(row: NdRow | undefined,
                          iRow: number,
                          blocks: NdContentBlock[],
                          lng: string,
-                         imageUrlProvider: ImageUrlProvider | undefined,
+                         imageProvider: ImageProvider | undefined,
                          i18nProvider: I18nextProvider | undefined,
                          componentResolver: ComponentResolver): Promise<JSX.Element> {
 
@@ -117,13 +119,13 @@ async function createRow(row: NdRow | undefined,
     if (row) {
         l = await Promise.all(row.components.map(async (visualSection: NdSkinComponent, iComp: number): Promise<JSX.Element[]> =>
 
-            await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageUrlProvider, i18nProvider, componentResolver)
+            await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageProvider, i18nProvider, componentResolver)
 
         ));
     } else {
         l = await Promise.all(blocks.map(async (block: NdContentBlock, iComp: number): Promise<JSX.Element[]> =>
 
-            await createRowComponents(iRow, iComp, undefined, [block], lng, imageUrlProvider, i18nProvider, componentResolver)
+            await createRowComponents(iRow, iComp, undefined, [block], lng, imageProvider, i18nProvider, componentResolver)
 
         ));
     }
@@ -135,55 +137,77 @@ async function createRow(row: NdRow | undefined,
 
     const numComponents = rowComponents.length;
 
-    const rowEffectiveTheme: ThemeStyle = mergeTheme(row?.theme, NdRow.defaultRowTheme)
+    const rowEffectiveTheme: RowStyle = mergeTheme(row?.theme, NdRow.defaultRowTheme)
 
     const maxCols = row?.maxCols ? row.maxCols : 3;
     const numCols = numComponents <= maxCols  ? numComponents : maxCols;
 
     let gridCols: string = "grid-cols-1";
+    let flexBasis: string = "basis-full"
     switch (numCols) {
         case 1:
             gridCols = "lg:grid-cols-1";
+            flexBasis = "lg:basis-full"
             break;
         case 2:
             gridCols = "lg:grid-cols-2";
+            flexBasis = "lg:basis-1/2"
             break;
         case 3:
             gridCols = "lg:grid-cols-3";
+            flexBasis = "lg:basis-1/3"
             break;
         case 4:
             gridCols = "lg:grid-cols-4";
+            flexBasis = "lg:basis-1/4"
             break;
         case 5:
             gridCols = "lg:grid-cols-5";
+            flexBasis = "lg:basis-1/5"
             break;
         case 6:
             gridCols = "lg:grid-cols-6";
+            flexBasis = "lg:basis-1/6"
             break;
         case 7:
             gridCols = "lg:grid-cols-7";
+            flexBasis = "lg:basis-1/7"
             break;
         case 8:
             gridCols = "lg:grid-cols-8";
+            flexBasis = "lg:basis-1/8"
             break;
         case 9:
             gridCols = "lg:grid-cols-9";
+            flexBasis = "lg:basis-1/9"
             break;
         case 10:
             gridCols = "lg:grid-cols-10";
+            flexBasis = "lg:basis-1/10"
             break;
         case 11:
             gridCols = "lg:grid-cols-11";
+            flexBasis = "lg:basis-1/11"
             break;
         case 12:
             gridCols = "lg:grid-cols-12";
+            flexBasis = "lg:basis-1/12"
             break;
     }
 
+    let rowDisplay: string = `grid ${gridCols}`
+    if (rowEffectiveTheme.rowDisplay == "flex") {
+        rowDisplay = "flex flex-row justify-center flex-wrap flex-1"
+    }
+
+
     return (
-        <div key={`row-${iRow}`}
-             className={`grid ${gridCols} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
-            {rowComponents}
+        <div key={`row-${iRow}`} className={`${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
+            {
+                rowComponents.map(c =>
+                    <div className={`nd-component-holder basis-full ${flexBasis} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}
+                         style={{minWidth: 0, overflow: "hidden"}}>{c}</div>)
+            }
         </div>
     );
 
@@ -194,7 +218,7 @@ async function createRowComponents(rowIndex: number,
                                    skinComponent: NdSkinComponent | undefined,
                                    pageContent: NdContentBlock[],
                                    lng: string,
-                                   imageUrlProvide: ImageUrlProvider | undefined,
+                                   imageProvider: ImageProvider | undefined,
                                    i18nProvider: I18nextProvider | undefined,
                                    componentResolver: ComponentResolver): Promise<JSX.Element[]> {
 
@@ -245,7 +269,7 @@ async function createRowComponents(rowIndex: number,
                 compoDef.defaultTheme,
                 skinComponent?.themeHierarchy,
                 lng,
-                imageUrlProvide,
+                imageProvider,
                 i18nProvider));
 
         }
@@ -265,7 +289,7 @@ async function renderSingleComponent(rowIndex: number,
                                      defaultTheme: any | undefined,
                                      themeHierarchy: NdThemeHierarchy | undefined,
                                      lng: string,
-                                     imageUrlProvider: ImageUrlProvider | undefined,
+                                     imageProvider: ImageProvider | undefined,
                                      i18nextProvider: I18nextProvider | undefined): Promise<JSX.Element> {
 
     let actualI18nextProvider: I18nextProvider;
@@ -282,7 +306,7 @@ async function renderSingleComponent(rowIndex: number,
         actualI18nextProvider = i18nextProvider;
     }
 
-    const actualImageUrlProvider = imageUrlProvider ? imageUrlProvider : defaultImageUrlProvider;
+    const actualImageProvider = imageProvider ? imageProvider : defaultImageProvider;
 
 
     // if (themeHierarchy) {
@@ -303,14 +327,14 @@ async function renderSingleComponent(rowIndex: number,
             themes: effectiveThemes,
             options: effectiveOptions,
             lng: lng,
-            imageUrlProvider: actualImageUrlProvider,
+            imageProvider: actualImageProvider,
             i18nextProvider: actualI18nextProvider
     }
 
     // console.log("start rendering page with props", props);
     const res: JSX.Element = await component(props);
     // console.log("end rendering page with props", props);
-    return <div className={"nd-component-holder"} style={{minWidth: 0}}>{res}</div>;
+    return res;
 }
 
 export {RenderingPage};

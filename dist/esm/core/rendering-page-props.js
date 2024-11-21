@@ -21,15 +21,15 @@ export class RenderingPageProps {
     skin = undefined;
     renderingPriority = RenderingPriority.content_first;
     componentResolver = undefined;
-    imageUrlProvider = undefined;
+    imageProvider = undefined;
     i18nextProvider = undefined;
-    constructor(lng, content, componentResolver, skin = undefined, renderingPriority = RenderingPriority.content_first, imageUrlProvider = undefined, i18nextProvider = undefined) {
+    constructor(lng, content, componentResolver, skin = undefined, renderingPriority = RenderingPriority.content_first, imageProvider = undefined, i18nextProvider = undefined) {
         this.lng = lng;
         this.renderingPriority = renderingPriority;
         this.content = content;
         this.componentResolver = componentResolver;
         this.skin = skin;
-        this.imageUrlProvider = imageUrlProvider;
+        this.imageProvider = imageProvider;
         this.i18nextProvider = i18nextProvider;
     }
 }

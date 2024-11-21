@@ -40,7 +40,6 @@ export declare class NdContentBlock {
     h6?: NdTranslatableText;
     footer?: NdTranslatableText;
     paragraphs: (NdTranslatableText | NdList | NdCode)[];
-    bgImageUrl?: NdTranslatableText;
     images: NdContentImage[];
     htmlElements: {
         htmlElem: HTMLElement;

@@ -66,7 +66,7 @@ export class NdContentBlock {
     h6?: NdTranslatableText;
     footer?: NdTranslatableText;
     paragraphs: (NdTranslatableText | NdList | NdCode)[] = [];
-    bgImageUrl?: NdTranslatableText;
+    // bgImageUrl?: NdTranslatableText;
     images: NdContentImage[] = [];
     htmlElements: {htmlElem: HTMLElement, translatedText: (NdTranslatableText | NdContentImage | NdList | NdCode)}[] = [];
 

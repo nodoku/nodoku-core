@@ -51,7 +51,7 @@ export class NdContentBlock {
     h6;
     footer;
     paragraphs = [];
-    bgImageUrl;
+    // bgImageUrl?: NdTranslatableText;
     images = [];
     htmlElements = [];
     constructor(id, ns, lng) {

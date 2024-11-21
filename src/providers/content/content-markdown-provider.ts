@@ -65,7 +65,7 @@ class BlockHolder {
         h5Index?: number;
         h6Index?: number;
         footer?: string;
-        bgImage?: HTMLElement;
+        // bgImage?: HTMLElement;
         paragraphsIndex: number[];
         imagesIndex: number[];
         htmlStream: HTMLElement[];
@@ -309,10 +309,10 @@ class BlockHolder {
             newBlock.footer = new NdTranslatableText(this.ns, `${blockId}.footer`, this.blockContent.footer);
         }
 
-        if (this.blockContent.bgImage && this.blockContent.bgImage.getAttribute("src")) {
-            newBlock.bgImageUrl = new NdTranslatableText(this.ns,  `${blockId}.bgImageUrl`,
-                this.blockContent.bgImage.getAttribute("src") as string, true);
-        }
+        // if (this.blockContent.bgImage && this.blockContent.bgImage.getAttribute("src")) {
+        //     newBlock.bgImageUrl = new NdTranslatableText(this.ns,  `${blockId}.bgImageUrl`,
+        //         this.blockContent.bgImage.getAttribute("src") as string, true);
+        // }
 
         // console.log("added block", newBlock)
 
@@ -408,11 +408,11 @@ export function parseMarkdownAsContent(fileContents: string, contentLng: string,
                     .forEach((cn) => {
                         const l: HTMLElement = cn as HTMLElement
 
-                        if (l.getAttribute("alt") === "bg-image") {
-                            currentBlock.blockContent.bgImage = l;
-                        } else {
-                            currentBlock.addImage(cn as HTMLElement)
-                        }
+                        // if (l.getAttribute("alt") === "bg-image") {
+                        //     currentBlock.blockContent.bgImage = l;
+                        // } else {
+                        currentBlock.addImage(cn as HTMLElement)
+                        // }
                     });
             } else {
                 currentBlock.addParagraph(childNode)

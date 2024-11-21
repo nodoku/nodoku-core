@@ -250,9 +250,10 @@ class BlockHolder {
         if (this.blockContent.footer && this.blockContent.footer.trim().length > 0) {
             newBlock.footer = new NdTranslatableText(this.ns, `${blockId}.footer`, this.blockContent.footer);
         }
-        if (this.blockContent.bgImage && this.blockContent.bgImage.getAttribute("src")) {
-            newBlock.bgImageUrl = new NdTranslatableText(this.ns, `${blockId}.bgImageUrl`, this.blockContent.bgImage.getAttribute("src"), true);
-        }
+        // if (this.blockContent.bgImage && this.blockContent.bgImage.getAttribute("src")) {
+        //     newBlock.bgImageUrl = new NdTranslatableText(this.ns,  `${blockId}.bgImageUrl`,
+        //         this.blockContent.bgImage.getAttribute("src") as string, true);
+        // }
         // console.log("added block", newBlock)
         return newBlock;
     }
@@ -348,12 +349,11 @@ export function parseMarkdownAsContent(fileContents, contentLng, ns) {
                 childNode.childNodes.filter(cn => cn.rawTagName == "img")
                     .forEach((cn) => {
                     const l = cn;
-                    if (l.getAttribute("alt") === "bg-image") {
-                        currentBlock.blockContent.bgImage = l;
-                    }
-                    else {
-                        currentBlock.addImage(cn);
-                    }
+                    // if (l.getAttribute("alt") === "bg-image") {
+                    //     currentBlock.blockContent.bgImage = l;
+                    // } else {
+                    currentBlock.addImage(cn);
+                    // }
                 });
             }
             else {

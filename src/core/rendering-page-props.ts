@@ -1,4 +1,4 @@
-import {ComponentResolver, I18nextProvider, ImageUrlProvider} from "./providers";
+import {ComponentResolver, I18nextProvider, ImageProvider} from "./providers";
 import {NdContentBlock} from "../content/nd-content";
 import {NdPageSkin} from "../skin/nd-skin";
 
@@ -26,7 +26,7 @@ export class RenderingPageProps {
     skin: NdPageSkin | undefined = undefined;
     renderingPriority: RenderingPriority = RenderingPriority.content_first;
     componentResolver: ComponentResolver | undefined = undefined;
-    imageUrlProvider: ImageUrlProvider | undefined = undefined;
+    imageProvider: ImageProvider | undefined = undefined;
     i18nextProvider: I18nextProvider | undefined = undefined;
 
     constructor(lng: string,
@@ -34,7 +34,7 @@ export class RenderingPageProps {
                 componentResolver: ComponentResolver | undefined,
                 skin: NdPageSkin | undefined = undefined,
                 renderingPriority: RenderingPriority = RenderingPriority.content_first,
-                imageUrlProvider: ImageUrlProvider | undefined = undefined,
+                imageProvider: ImageProvider | undefined = undefined,
                 i18nextProvider: I18nextProvider | undefined = undefined) {
 
         this.lng = lng;
@@ -42,7 +42,7 @@ export class RenderingPageProps {
         this.content = content;
         this.componentResolver = componentResolver;
         this.skin = skin;
-        this.imageUrlProvider = imageUrlProvider;
+        this.imageProvider = imageProvider;
         this.i18nextProvider = i18nextProvider;
     }
 }
