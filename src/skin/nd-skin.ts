@@ -83,22 +83,13 @@ export class NdSkinComponent {
 export class NdRow {
     rowIndex: number;
     maxCols?: number;
-    theme: RowStyle | undefined;
+    theme?: RowStyle;
     components: NdSkinComponent[] = [];
 
     constructor(rowIndex: number) {
         this.rowIndex = rowIndex;
     }
 
-    public static defaultRowTheme: RowStyle = {
-        base: "md:grid-cols-1",
-        decoration: "gap-4",
-        rowDisplay: "grid",
-        componentHolder: {
-            base: "min-w-0 overflow-hidden",
-            decoration: ""
-        },
-    }
 }
 
 

@@ -72,15 +72,6 @@ export class NdRow {
     constructor(rowIndex) {
         this.rowIndex = rowIndex;
     }
-    static defaultRowTheme = {
-        base: "md:grid-cols-1",
-        decoration: "gap-4",
-        rowDisplay: "grid",
-        componentHolder: {
-            base: "min-w-0 overflow-hidden",
-            decoration: ""
-        },
-    };
 }
 export class NdPageSkin {
     renderingPage;

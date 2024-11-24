@@ -5,6 +5,7 @@ import { DummyComp } from "./dummy-comp";
 import yaml from "js-yaml";
 import fs from "node:fs";
 import { mergeTheme } from "../theme-utils/theme-merger";
+import { defaultRowThemeImpl } from "../theme-utils/row-style";
 async function defaultComponentResolver() {
     const compoDef = new NdComponentDefinition("unlimited", undefined, {});
     return { compo: DummyComp, compoDef: compoDef };
@@ -36,7 +37,7 @@ function generateSkinByContentBlocks(blocks, skin) {
     let currentRow = undefined;
     const res = new NdPageSkin();
     let rowIndex = 0;
-    blocks.map((b, i) => {
+    blocks.map((b) => {
         if (!rendered.has(b.id)) {
             const bRows = skin.rows.filter(r => r.components.filter(c => c.selector.match(b)).length > 0);
             if (bRows.length > 0) {
@@ -76,7 +77,7 @@ async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, co
         return <></>;
     }
     const numComponents = rowComponents.length;
-    const rowEffectiveTheme = mergeTheme(row?.theme, NdRow.defaultRowTheme);
+    const rowEffectiveTheme = mergeTheme(row?.theme, defaultRowThemeImpl);
     const maxCols = row?.maxCols ? row.maxCols : 3;
     const numCols = numComponents <= maxCols ? numComponents : maxCols;
     let gridCols = "grid-cols-1";
@@ -136,7 +137,9 @@ async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, co
         rowDisplay = "flex flex-row justify-center flex-wrap flex-1";
     }
     return (<div key={`row-${iRow}`} className={`${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
-            {rowComponents.map(c => <div className={`nd-component-holder basis-full ${flexBasis} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`} style={{ minWidth: 0, overflow: "hidden" }}>{c}</div>)}
+            {rowComponents.map((c) => <div className={`nd-component-holder ${flexBasis} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}>
+                        {c}
+                    </div>)}
         </div>);
 }
 async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageProvider, i18nProvider, componentResolver) {

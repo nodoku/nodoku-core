@@ -7,6 +7,8 @@ import {mergeTheme} from "./theme-utils/theme-merger";
 import {ThemeStyle} from "./theme-utils/theme-style"
 import {ExtendedThemeStyle} from "./theme-utils/extended-theme-style"
 import {ImageStyle} from "./theme-utils/image-style"
+import {RowStyle} from "./theme-utils/row-style";
+import {defaultRowThemeImpl} from "./theme-utils/row-style";
 
 export {
     NdContentImage,
@@ -35,3 +37,11 @@ export {DummyComp} from "./core/dummy-comp"
 
 export {contentMarkdownProvider, parseMarkdownAsContent} from "./providers/content/content-markdown-provider"
 export {skinYamlProvider, parseYamlContentAsSkin} from "./providers/skin/skin-yaml-provider"
+
+export const ts = function <T>(t: T, key: keyof T): string {
+    const themeStyle = t[key] as ThemeStyle;
+    const k = key as String;
+    return k + " " + themeStyle?.base + " " + themeStyle?.decoration;
+}
+
+export const defaultRowTheme: RowStyle = defaultRowThemeImpl;

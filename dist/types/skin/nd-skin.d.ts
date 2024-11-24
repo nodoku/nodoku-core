@@ -32,10 +32,9 @@ export declare class NdSkinComponent {
 export declare class NdRow {
     rowIndex: number;
     maxCols?: number;
-    theme: RowStyle | undefined;
+    theme?: RowStyle;
     components: NdSkinComponent[];
     constructor(rowIndex: number);
-    static defaultRowTheme: RowStyle;
 }
 export declare class NdPageSkin {
     renderingPage: ThemeStyle | undefined;

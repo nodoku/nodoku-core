@@ -16,6 +16,7 @@ import fs from "node:fs";
 import {mergeTheme} from "../theme-utils/theme-merger";
 import {NdImageProps} from "./providers";
 import {RowStyle} from "../theme-utils/row-style";
+import {defaultRowThemeImpl} from "../theme-utils/row-style";
 
 async function defaultComponentResolver(): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const compoDef: NdComponentDefinition = new NdComponentDefinition("unlimited", undefined, {});
@@ -74,7 +75,7 @@ function generateSkinByContentBlocks(blocks: NdContentBlock[], skin: NdPageSkin)
     const res: NdPageSkin = new NdPageSkin();
 
     let rowIndex = 0;
-    blocks.map((b: NdContentBlock, i: number) => {
+    blocks.map((b: NdContentBlock) => {
         if (!rendered.has(b.id)) {
             const bRows: NdRow[] = skin.rows.filter(r => r.components.filter(c => c.selector.match(b)).length > 0)
             if (bRows.length > 0) {
@@ -137,7 +138,7 @@ async function createRow(row: NdRow | undefined,
 
     const numComponents = rowComponents.length;
 
-    const rowEffectiveTheme: RowStyle = mergeTheme(row?.theme, NdRow.defaultRowTheme)
+    const rowEffectiveTheme: RowStyle = mergeTheme(row?.theme, defaultRowThemeImpl)
 
     const maxCols = row?.maxCols ? row.maxCols : 3;
     const numCols = numComponents <= maxCols  ? numComponents : maxCols;
@@ -204,9 +205,10 @@ async function createRow(row: NdRow | undefined,
     return (
         <div key={`row-${iRow}`} className={`${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
             {
-                rowComponents.map(c =>
-                    <div className={`nd-component-holder basis-full ${flexBasis} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}
-                         style={{minWidth: 0, overflow: "hidden"}}>{c}</div>)
+                rowComponents.map((c: JSX.Element) =>
+                    <div className={`nd-component-holder ${flexBasis} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}>
+                        {c}
+                    </div>)
             }
         </div>
     );
