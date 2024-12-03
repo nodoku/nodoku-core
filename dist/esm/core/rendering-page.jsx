@@ -6,6 +6,7 @@ import yaml from "js-yaml";
 import fs from "node:fs";
 import { mergeTheme } from "../theme-utils/theme-merger";
 import { defaultRowThemeImpl } from "../theme-utils/row-style";
+import { ts } from "../index";
 async function defaultComponentResolver() {
     const compoDef = new NdComponentDefinition("unlimited", undefined, {});
     return { compo: DummyComp, compoDef: compoDef };
@@ -137,7 +138,7 @@ async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, co
         rowDisplay = "flex flex-row justify-center flex-wrap flex-1";
     }
     return (<div key={`row-${iRow}`} className={`${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
-            {rowComponents.map((c) => <div className={`nd-component-holder ${flexBasis} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}>
+            {rowComponents.map((c) => <div className={`nd-component-holder ${flexBasis} ${ts(rowEffectiveTheme, "componentHolder")} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}>
                         {c}
                     </div>)}
         </div>);

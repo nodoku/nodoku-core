@@ -4,8 +4,11 @@ export class NdContentImage {
     url: NdTranslatableText = {} as NdTranslatableText;
     title?: NdTranslatableText;
     alt?: NdTranslatableText;
+}
 
-
+export class NdCallToAction {
+    ctaUrl: NdTranslatableText = {} as NdTranslatableText;
+    ctaTitle?: NdTranslatableText;
 }
 
 export class NdTranslatableText {
@@ -64,11 +67,10 @@ export class NdContentBlock {
     h4?: NdTranslatableText;
     h5?: NdTranslatableText;
     h6?: NdTranslatableText;
-    footer?: NdTranslatableText;
+    callToActions: NdCallToAction[] = [];
     paragraphs: (NdTranslatableText | NdList | NdCode)[] = [];
-    // bgImageUrl?: NdTranslatableText;
     images: NdContentImage[] = [];
-    htmlElements: {htmlElem: HTMLElement, translatedText: (NdTranslatableText | NdContentImage | NdList | NdCode)}[] = [];
+    htmlElements: {htmlElem: HTMLElement, translatedText: (NdTranslatableText | NdContentImage | NdList | NdCode | NdCallToAction)}[] = [];
 
     constructor(id: string, ns: string, lng: string) {
         this.id = id;

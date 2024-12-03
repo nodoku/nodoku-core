@@ -17,6 +17,7 @@ import {mergeTheme} from "../theme-utils/theme-merger";
 import {NdImageProps} from "./providers";
 import {RowStyle} from "../theme-utils/row-style";
 import {defaultRowThemeImpl} from "../theme-utils/row-style";
+import {ts} from "../index";
 
 async function defaultComponentResolver(): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const compoDef: NdComponentDefinition = new NdComponentDefinition("unlimited", undefined, {});
@@ -206,7 +207,7 @@ async function createRow(row: NdRow | undefined,
         <div key={`row-${iRow}`} className={`${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
             {
                 rowComponents.map((c: JSX.Element) =>
-                    <div className={`nd-component-holder ${flexBasis} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}>
+                    <div className={`nd-component-holder ${flexBasis} ${ts(rowEffectiveTheme, "componentHolder")} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}>
                         {c}
                     </div>)
             }

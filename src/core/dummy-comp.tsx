@@ -1,6 +1,7 @@
 import {NdCode, NdContentBlock, NdContentImage, NdList, NdTranslatableText} from "../content/nd-content";
 import {JSX} from "react";
 import {NdSkinComponentProps} from "../skin/nd-skin";
+import {NdCallToAction} from "../content/nd-content";
 
 
 export async function DummyComp(props: NdSkinComponentProps): Promise<JSX.Element> {
@@ -16,10 +17,9 @@ export async function DummyComp(props: NdSkinComponentProps): Promise<JSX.Elemen
 
 
 async function render(rowIndex: number, componentIndex: number, block: NdContentBlock, t: (text: NdTranslatableText) => string): Promise<JSX.Element> {
-    // var style = {};
-    // if (block.bgImageUrl) {
-    //     style = {backgroundImage: `url(${t(block.bgImageUrl)})`}
-    // }
+
+    console.log("this is my block", block.callToActions.map(cta => `${cta.ctaUrl.key}`));
+
 
     return (
         <div
@@ -106,8 +106,10 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
             </div>
 
             <div className={"absolute bottom-0 p-5"}>
-                {block.footer?.key}
-                <p>{block.footer && t(block.footer)}</p>
+                {block.callToActions.map((cta: NdCallToAction) => {
+                    return <p><b>{`${t(cta.ctaTitle || cta.ctaUrl)}: ${t(cta.ctaUrl)}`}</b>{`${cta.ctaUrl.key}: ${t(cta.ctaUrl)}`}</p>
+                })}
+
             </div>
 
         </div>

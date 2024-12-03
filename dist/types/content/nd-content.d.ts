@@ -4,6 +4,10 @@ export declare class NdContentImage {
     title?: NdTranslatableText;
     alt?: NdTranslatableText;
 }
+export declare class NdCallToAction {
+    ctaUrl: NdTranslatableText;
+    ctaTitle?: NdTranslatableText;
+}
 export declare class NdTranslatableText {
     key: string;
     ns: string;
@@ -38,12 +42,12 @@ export declare class NdContentBlock {
     h4?: NdTranslatableText;
     h5?: NdTranslatableText;
     h6?: NdTranslatableText;
-    footer?: NdTranslatableText;
+    callToActions: NdCallToAction[];
     paragraphs: (NdTranslatableText | NdList | NdCode)[];
     images: NdContentImage[];
     htmlElements: {
         htmlElem: HTMLElement;
-        translatedText: (NdTranslatableText | NdContentImage | NdList | NdCode);
+        translatedText: (NdTranslatableText | NdContentImage | NdList | NdCode | NdCallToAction);
     }[];
     constructor(id: string, ns: string, lng: string);
     getByKey(key: string, ns: string): string | undefined;

@@ -3,6 +3,10 @@ export class NdContentImage {
     title;
     alt;
 }
+export class NdCallToAction {
+    ctaUrl = {};
+    ctaTitle;
+}
 export class NdTranslatableText {
     key = "";
     ns = "";
@@ -49,9 +53,8 @@ export class NdContentBlock {
     h4;
     h5;
     h6;
-    footer;
+    callToActions = [];
     paragraphs = [];
-    // bgImageUrl?: NdTranslatableText;
     images = [];
     htmlElements = [];
     constructor(id, ns, lng) {

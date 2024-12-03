@@ -2,6 +2,7 @@ import {NdTranslatableText, NdList, NdContentBlock, NdContentImage, NdCode} from
 import { Marked } from '@ts-stack/markdown';
 import {parse, HTMLElement, TextNode} from 'node-html-parser';
 import yaml from "js-yaml";
+import {NdCallToAction} from "../../content/nd-content";
 
 
 const nsRegex = /.*\/(.*)\.md/
@@ -30,7 +31,7 @@ export async function contentMarkdownProvider(mdFileUrl: string,
 }
 
 
-const footerPattern = /^\|(.*)\|/
+const callToActionPattern = /^\|(.*)\|/
 
 const codePattern: RegExp = /<code class="lang-(\w+)">(.*)<\/code>/s
 
@@ -64,12 +65,11 @@ class BlockHolder {
         h4Index?: number;
         h5Index?: number;
         h6Index?: number;
-        footer?: string;
-        // bgImage?: HTMLElement;
         paragraphsIndex: number[];
         imagesIndex: number[];
+        callToActionIndex: number[];
         htmlStream: HTMLElement[];
-    } = {paragraphsIndex: [], imagesIndex: [], htmlStream: []};
+    } = {paragraphsIndex: [], imagesIndex: [], callToActionIndex: [], htmlStream: []};
 
     hasContentH1AndBelow(): boolean {
         return this.blockContent.titleIndex != undefined || this.hasContentH2AndBelow();
@@ -179,6 +179,13 @@ class BlockHolder {
         return this;
     }
 
+    addCallToAction(childNode: HTMLElement): BlockHolder {
+        this.blockContent.callToActionIndex.push(this.blockContent.htmlStream.length);
+        // console.log("adding html for cta", childNode.innerHTML)
+        this.blockContent.htmlStream.push(childNode);
+        return this;
+    }
+
     addHorizontalLine(childNode: HTMLElement) {
         this.blockContent.htmlStream.push(childNode);
         return this;
@@ -227,9 +234,10 @@ class BlockHolder {
 
         let pi = 0;
         let imi = 0
+        let ci = 0
         this.blockContent.htmlStream.forEach((htmlElem: HTMLElement, i: number) => {
 
-            let text: (NdTranslatableText | NdContentImage | NdList | NdCode | undefined) = undefined;
+            let text: (NdTranslatableText | NdContentImage | NdList | NdCode | NdCallToAction | undefined) = undefined;
 
             if (i === this.blockContent.titleIndex) {
                 newBlock.title = new NdTranslatableText(this.ns, `${blockId}.title`, htmlElem.innerHTML);
@@ -297,6 +305,15 @@ class BlockHolder {
                     text = img;
                     imi++;
                 }
+            } else if (this.blockContent.callToActionIndex.indexOf(i) >= 0) {
+
+                const cta: NdCallToAction | undefined = this.parseCallToAction(blockId, htmlElem, ci);
+                if (cta) {
+                    newBlock.callToActions.push(cta);
+                    text = cta
+                    ci++;
+                    // console.log("added call to action: ", cta)
+                }
             } else {
                 text = new NdTranslatableText(this.ns, `${blockId}.htmlElements.${newBlock.htmlElements.length}`, "")
             }
@@ -305,18 +322,34 @@ class BlockHolder {
 
         });
 
-        if (this.blockContent.footer && this.blockContent.footer.trim().length > 0) {
-            newBlock.footer = new NdTranslatableText(this.ns, `${blockId}.footer`, this.blockContent.footer);
-        }
-
-        // if (this.blockContent.bgImage && this.blockContent.bgImage.getAttribute("src")) {
-        //     newBlock.bgImageUrl = new NdTranslatableText(this.ns,  `${blockId}.bgImageUrl`,
-        //         this.blockContent.bgImage.getAttribute("src") as string, true);
+        // if (this.blockContent.footer && this.blockContent.footer.trim().length > 0) {
+        //     newBlock.footer = new NdTranslatableText(this.ns, `${blockId}.footer`, this.blockContent.footer);
         // }
 
-        // console.log("added block", newBlock)
 
         return newBlock;
+    }
+
+    parseCallToAction(blockId: string, ctaHtml: HTMLElement, ci: number): NdCallToAction | undefined {
+        const cta: NdCallToAction = new NdCallToAction();
+
+        // console.log("parsing callToAction", ctaHtml.innerHTML, ctaHtml.rawTagName, ctaHtml.attributes, ctaHtml.childNodes.map(cn => cn.rawTagName));
+        // const res = callToActionPattern.exec(ctaHtml.innerHTML)
+
+        const cnRef = ctaHtml.childNodes.find(cn => cn.rawTagName === "a")
+        let url = "n/a"
+        let title = ctaHtml.innerHTML;
+        if (cnRef) {
+            url = (cnRef as HTMLElement).getAttribute("href") || url;
+            title = cnRef.textContent;
+        }
+
+        cta.ctaUrl = new NdTranslatableText(this.ns, `${blockId}.callToActions.${ci}.ctaUrl`, url);
+        cta.ctaTitle = new NdTranslatableText(this.ns, `${blockId}.callToActions.${ci}.ctaTitle`, title);
+
+        // console.log("returnin created cta: ", cta)
+
+        return cta;
     }
 
     parseParagraph(blockId: string, p: HTMLElement, pi: number): NdTranslatableText | NdList | NdCode | undefined {
@@ -400,22 +433,22 @@ export function parseMarkdownAsContent(fileContents: string, contentLng: string,
             currentBlock.addParagraph(childNode)
         } else if (childNode.rawTagName === "p" || childNode.rawTagName === "blockquote") {
 
-            const rFooter = footerPattern.exec(childNode.innerHTML);
-            if (rFooter) {
-                currentBlock.blockContent.footer = rFooter[1];
-            } else if (childNode.childNodes && childNode.childNodes.filter(cn => cn.rawTagName == "img").length > 0) {
+            if (childNode.childNodes &&
+                childNode.childNodes.filter(cn => cn.rawTagName == "img").length > 0) {
                 childNode.childNodes.filter(cn => cn.rawTagName == "img")
                     .forEach((cn) => {
-                        const l: HTMLElement = cn as HTMLElement
-
-                        // if (l.getAttribute("alt") === "bg-image") {
-                        //     currentBlock.blockContent.bgImage = l;
-                        // } else {
                         currentBlock.addImage(cn as HTMLElement)
-                        // }
                     });
             } else {
-                currentBlock.addParagraph(childNode)
+                const rCta = callToActionPattern.exec(childNode.innerHTML);
+                if (rCta) {
+
+                    // console.log("cta childNode", childNode)
+
+                    currentBlock.addCallToAction(childNode);
+                } else {
+                    currentBlock.addParagraph(childNode)
+                }
             }
 
         } else if (childNode.rawTagName === "figure") {

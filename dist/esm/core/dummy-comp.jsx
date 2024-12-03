@@ -6,10 +6,7 @@ export async function DummyComp(props) {
     return <div>{await render(rowIndex, componentIndex, content[0], t)}</div>;
 }
 async function render(rowIndex, componentIndex, block, t) {
-    // var style = {};
-    // if (block.bgImageUrl) {
-    //     style = {backgroundImage: `url(${t(block.bgImageUrl)})`}
-    // }
+    console.log("this is my block", block.callToActions.map(cta => `${cta.ctaUrl.key}`));
     return (<div className={"w-full w-full flex flex-col items-left justify-left  border border-4 border-red-200 relative pb-10"}>
             {/*<div className={"top-0 bottom-0 left-0 right-0 absolute bg-cover bg-no-repeat"}*/}
             {/*     style={{...style, zIndex: -11}}>*/}
@@ -86,8 +83,10 @@ async function render(rowIndex, componentIndex, block, t) {
             </div>
 
             <div className={"absolute bottom-0 p-5"}>
-                {block.footer?.key}
-                <p>{block.footer && t(block.footer)}</p>
+                {block.callToActions.map((cta) => {
+            return <p><b>{`${t(cta.ctaTitle || cta.ctaUrl)}: ${t(cta.ctaUrl)}`}</b>{`${cta.ctaUrl.key}: ${t(cta.ctaUrl)}`}</p>;
+        })}
+
             </div>
 
         </div>);
