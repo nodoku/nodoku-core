@@ -8,12 +8,10 @@ export async function DummyComp(props) {
 async function render(rowIndex, componentIndex, block, t) {
     console.log("this is my block", block.callToActions.map(cta => `${cta.ctaUrl.key}`));
     return (<div className={"w-full w-full flex flex-col items-left justify-left  border border-4 border-red-200 relative pb-10"}>
-            {/*<div className={"top-0 bottom-0 left-0 right-0 absolute bg-cover bg-no-repeat"}*/}
-            {/*     style={{...style, zIndex: -11}}>*/}
-            {/*</div>*/}
-            <div className={"top-0 bottom-0 left-0 right-0 absolute bg-white "} style={{ zIndex: -5, opacity: 0.7 }}>
+            <div className={"top-0 bottom-0 left-0 right-0 absolute bg-white "} style={{ zIndex: -5, opacity: 0.7 }}></div>
+            <div className={"p-5 w-full bg-red-400 text-center"}>
+                dummy component<h3><b>{`ns-${block.namespace}-row-${rowIndex}-i-${componentIndex}`}</b></h3>
             </div>
-            <div className={"p-5 w-full bg-red-400 text-center"}>dummy component<h3><b>{`ns-${block.namespace}-row-${rowIndex}-i-${componentIndex}`}</b></h3></div>
 
 
             <div className="p-5">

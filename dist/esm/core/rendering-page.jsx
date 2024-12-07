@@ -31,7 +31,8 @@ async function RenderingPage(props) {
     else {
         l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider, actualComponentResolver)];
     }
-    return <div className={`${skin?.renderingPage?.base} ${skin?.renderingPage?.decoration}`}>{l}</div>;
+    const actualSkin = mergeTheme(skin, { renderingPage: { base: "", decoration: "" }, rows: [] });
+    return <div className={`rows-container ${ts(actualSkin, "renderingPage")}`}>{l}</div>;
 }
 function generateSkinByContentBlocks(blocks, skin) {
     const rendered = new Set();
@@ -75,7 +76,7 @@ async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, co
     }
     const rowComponents = l.flatMap((p) => p);
     if (rowComponents.length == 0) {
-        return <></>;
+        return <div key={`row-${iRow}`}></div>;
     }
     const numComponents = rowComponents.length;
     const rowEffectiveTheme = mergeTheme(row?.theme, defaultRowThemeImpl);
@@ -137,8 +138,8 @@ async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, co
     if (rowEffectiveTheme.rowDisplay == "flex") {
         rowDisplay = "flex flex-row justify-center flex-wrap flex-1";
     }
-    return (<div key={`row-${iRow}`} className={`${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
-            {rowComponents.map((c) => <div className={`nd-component-holder ${flexBasis} ${ts(rowEffectiveTheme, "componentHolder")} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}>
+    return (<div key={`row-${iRow}`} className={`row-${iRow} ${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
+            {rowComponents.map((c, i) => <div key={`row-${iRow}-component-${i}`} className={`row-${iRow}-component-${i} nd-component-holder ${flexBasis} ${ts(rowEffectiveTheme, "componentHolder")}`}>
                         {c}
                     </div>)}
         </div>);

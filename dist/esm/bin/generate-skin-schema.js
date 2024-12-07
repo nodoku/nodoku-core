@@ -12,15 +12,12 @@ register('./import-load-hooks.js', import.meta.url);
  */
 // @ts-ignore
 const template = (await import("./mustache/visual-schema.json.hbs")).default;
-class TemplateView {
-    components = new Map();
-}
 function calculateTemplateView(schemaDestinationDir, dirNodeModules = undefined) {
     if (!dirNodeModules) {
         dirNodeModules = path.resolve("./node_modules");
     }
     const components = loadManifestsFromFolder(dirNodeModules);
-    const tv = new TemplateView();
+    const tv = { components: new Map() };
     components.forEach((m) => {
         m.components.forEach((cd, cn) => {
             const moduleDir = `${dirNodeModules}/${m.moduleName}`;

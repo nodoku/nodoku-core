@@ -18,9 +18,9 @@ register('./import-load-hooks.js', import.meta.url);
 // @ts-ignore
 const template = (await import("./mustache/component-resolver.ts.hbs")).default;
 
-class TemplateView {
-    modules: {module: string, comps: string[]}[] = [];
-    comps: {name: string, impl: string, defaultThemeFile: string, numBlocks: string | number}[] = [];
+type TemplateView = {
+    modules: {module: string, comps: string[]}[];
+    comps: {name: string, impl: string, defaultThemeFile: string, numBlocks: string | number}[];
 }
 
 function calculateTemplateView(dirNodeModules: string | undefined = undefined): TemplateView {
@@ -31,7 +31,7 @@ function calculateTemplateView(dirNodeModules: string | undefined = undefined): 
 
     const manifests: Map<string, Manifest> = loadManifestsFromFolder(dirNodeModules);
 
-    const view: TemplateView = new TemplateView();
+    const view: TemplateView = {modules: [], comps: []};
 
     manifests.forEach((m: Manifest, k: string): void  => {
 

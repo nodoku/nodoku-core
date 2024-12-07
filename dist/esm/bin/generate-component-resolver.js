@@ -12,16 +12,12 @@ register('./import-load-hooks.js', import.meta.url);
  */
 // @ts-ignore
 const template = (await import("./mustache/component-resolver.ts.hbs")).default;
-class TemplateView {
-    modules = [];
-    comps = [];
-}
 function calculateTemplateView(dirNodeModules = undefined) {
     if (!dirNodeModules) {
         dirNodeModules = `${path.resolve()}/node_modules`;
     }
     const manifests = loadManifestsFromFolder(dirNodeModules);
-    const view = new TemplateView();
+    const view = { modules: [], comps: [] };
     manifests.forEach((m, k) => {
         let prefix = "";
         if (m.namespace) {

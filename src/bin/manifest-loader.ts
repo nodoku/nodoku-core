@@ -40,7 +40,12 @@ function loadComponentsByManifest(dir: string, moduleName: string): Manifest | u
 
             if (f == "nodoku.manifest.json") {
 
-                const manifest: Manifest = new Manifest(moduleName, moduleDir);
+                const manifest: Manifest = {
+                    moduleName: moduleName,
+                    moduleDir: moduleDir,
+                    components: new Map<string, ComponentDef>()
+                };
+
                 console.log("found manifest ", `${dir}/${f}`, "reading...");
 
                 let json: any;
@@ -62,7 +67,14 @@ function loadComponentsByManifest(dir: string, moduleName: string): Manifest | u
                     console.log("adding ", k, v);
 
                     // comps.set(k, Manifest.from(k, moduleName, v));
-                    manifest.components.set(k, new ComponentDef(v.implementation, v.schemaFile, v.optionsFile, v.defaultThemeFile, v.numBlocks))
+                    // manifest.components.set(k, new ComponentDef(v.implementation, v.schemaFile, v.optionsFile, v.defaultThemeFile, v.numBlocks))
+                    manifest.components.set(k, {
+                        implementation: v.implementation,
+                        themeSchema: v.schemaFile,
+                        optionsSchema: v.optionsFile,
+                        defaultThemeFile: v.defaultThemeFile,
+                        numBlocks: v.numBlocks
+                    })
                 })
 
                 return manifest;

@@ -65,7 +65,9 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
         l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider, actualComponentResolver)];
     }
 
-    return <div className={`${skin?.renderingPage?.base} ${skin?.renderingPage?.decoration}`}>{l}</div>
+    const actualSkin: NdPageSkin = mergeTheme(skin, {renderingPage: {base: "", decoration: ""}, rows: []})
+
+    return <div className={`rows-container ${ts(actualSkin, "renderingPage")}`}>{l}</div>
 
 }
 
@@ -134,7 +136,7 @@ async function createRow(row: NdRow | undefined,
 
     const rowComponents: JSX.Element[] = l.flatMap( (p: JSX.Element[]) => p);
     if (rowComponents.length == 0) {
-        return <></>
+        return <div key={`row-${iRow}`}></div>
     }
 
     const numComponents = rowComponents.length;
@@ -204,10 +206,10 @@ async function createRow(row: NdRow | undefined,
 
 
     return (
-        <div key={`row-${iRow}`} className={`${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
+        <div key={`row-${iRow}`} className={`row-${iRow} ${rowDisplay} ${rowEffectiveTheme?.base} ${rowEffectiveTheme?.decoration} class-row-${iRow}`}>
             {
-                rowComponents.map((c: JSX.Element) =>
-                    <div className={`nd-component-holder ${flexBasis} ${ts(rowEffectiveTheme, "componentHolder")} ${rowEffectiveTheme.componentHolder?.base} ${rowEffectiveTheme.componentHolder?.decoration}`}>
+                rowComponents.map((c: JSX.Element, i: number) =>
+                    <div key={`row-${iRow}-component-${i}`} className={`row-${iRow}-component-${i} nd-component-holder ${flexBasis} ${ts(rowEffectiveTheme, "componentHolder")}`}>
                         {c}
                     </div>)
             }

@@ -1,4 +1,3 @@
-import { ComponentDef, Manifest } from "./manifest.js";
 import fs from "node:fs";
 import path from "path";
 export function loadManifestsFromFolder(dir) {
@@ -23,7 +22,11 @@ function loadComponentsByManifest(dir, moduleName) {
         const stat = fs.statSync(moduleDir);
         if (stat.isFile()) {
             if (f == "nodoku.manifest.json") {
-                const manifest = new Manifest(moduleName, moduleDir);
+                const manifest = {
+                    moduleName: moduleName,
+                    moduleDir: moduleDir,
+                    components: new Map()
+                };
                 console.log("found manifest ", `${dir}/${f}`, "reading...");
                 let json;
                 if (stat.isSymbolicLink()) {
@@ -39,7 +42,14 @@ function loadComponentsByManifest(dir, moduleName) {
                     const v = json.components[k];
                     console.log("adding ", k, v);
                     // comps.set(k, Manifest.from(k, moduleName, v));
-                    manifest.components.set(k, new ComponentDef(v.implementation, v.schemaFile, v.optionsFile, v.defaultThemeFile, v.numBlocks));
+                    // manifest.components.set(k, new ComponentDef(v.implementation, v.schemaFile, v.optionsFile, v.defaultThemeFile, v.numBlocks))
+                    manifest.components.set(k, {
+                        implementation: v.implementation,
+                        themeSchema: v.schemaFile,
+                        optionsSchema: v.optionsFile,
+                        defaultThemeFile: v.defaultThemeFile,
+                        numBlocks: v.numBlocks
+                    });
                 });
                 return manifest;
             }

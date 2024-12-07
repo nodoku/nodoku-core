@@ -18,9 +18,8 @@ register('./import-load-hooks.js', import.meta.url);
 // @ts-ignore
 const template = (await import("./mustache/visual-schema.json.hbs")).default;
 
-class TemplateView {
-    components: Map<string, {themeSchema: string | undefined, optionsSchema: string | undefined}> =
-        new Map<string, {themeSchema: string | undefined, optionsSchema: string | undefined}>();
+type TemplateView = {
+    components: Map<string, {themeSchema: string | undefined, optionsSchema: string | undefined}>;
 }
 
 interface LooseObject {
@@ -35,7 +34,8 @@ function calculateTemplateView(schemaDestinationDir: string, dirNodeModules: str
 
     const components: Map<string, Manifest> = loadManifestsFromFolder(dirNodeModules);
 
-    const tv: TemplateView = new TemplateView();
+    const tv: TemplateView = {components: new Map<string, {themeSchema: string | undefined, optionsSchema: string | undefined}>()};
+
     components.forEach((m: Manifest): void  => {
 
         m.components.forEach((cd: ComponentDef, cn: string) => {
