@@ -2,21 +2,22 @@ import {NdCode, NdContentBlock, NdContentImage, NdList, NdTranslatableText} from
 import {JSX} from "react";
 import {NdSkinComponentProps} from "../skin/nd-skin";
 import {NdCallToAction} from "../content/nd-content";
+import {NdTrustedHtml} from "./providers";
 
 
 export async function DummyComp(props: NdSkinComponentProps): Promise<JSX.Element> {
 
     // console.log("content dummy comp", props.theme)
 
-    const {content, i18nextProvider, lng, rowIndex, componentIndex} = props;
+    const {content, i18nextTrustedHtmlProvider, lng, rowIndex, componentIndex} = props;
 
-    const {t} = await i18nextProvider(lng);
+    const {t} = await i18nextTrustedHtmlProvider(lng);
 
     return <div>{await render(rowIndex, componentIndex, content[0], t)}</div>;
 }
 
 
-async function render(rowIndex: number, componentIndex: number, block: NdContentBlock, t: (text: NdTranslatableText) => string): Promise<JSX.Element> {
+async function render(rowIndex: number, componentIndex: number, block: NdContentBlock, t: (text: NdTranslatableText) => NdTrustedHtml): Promise<JSX.Element> {
 
     console.log("this is my block", block.callToActions.map(cta => `${cta.ctaUrl.key}`));
 
@@ -33,12 +34,12 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
                 {block.title && <a href="#">
                     {block.title && block.title.key}
                     <h5 className={"mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"}>
-                        {block.title && t(block.title)}
+                        {block.title && t(block.title).__html as string}
                     </h5>
                 </a>}
                 {block.subTitle && block.subTitle.key}
                 {block.subTitle && <h6 className={"mb-2 text-xl tracking-tight text-gray-900 dark:text-white"}>
-                    {block.subTitle && t(block.subTitle)}
+                    {block.subTitle && t(block.subTitle).__html as string}
                 </h6>}
 
                 paragraphs:
@@ -48,7 +49,7 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
                             <div>
                                 {p && p.key}
                                 <p key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                    {p && t(p)}
+                                    {p && t(p).__html as string}
                                 </p>
                             </div>
                         )
@@ -66,13 +67,13 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
                         if (list.ordered) {
                             return (
                                 <ol className={"list-disc list-outside"}>
-                                    {list.items.map(i => <li className={"ml-4"}>{t(i)} <small>(<i>{i.key}</i>)</small></li>)}
+                                    {list.items.map(i => <li className={"ml-4"}>{t(i).__html as string} <small>(<i>{i.key}</i>)</small></li>)}
                                 </ol>
                             );
                         } else {
                             return (
                                 <ul className={"list-disc list-outside"}>
-                                    {list.items.map(i => <li className={"ml-4"}>{t(i)} <small>(<i>{i.key}</i>)</small></li>)}
+                                    {list.items.map(i => <li className={"ml-4"}>{t(i).__html as string} <small>(<i>{i.key}</i>)</small></li>)}
                                 </ul>
                             );
                         }
@@ -83,7 +84,7 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
                     return (
                         <div>
                             <p key={"url" + ii} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                url: {img && img.url && t(img.url)}
+                                url: {img && img.url && t(img.url).__html as string}
                                 {img.url && <span className={"bg-cover bg-no-repeat"} style={{
                                     display: "block",
                                     width: "200px",
@@ -92,10 +93,10 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
                                 }}></span>}
                             </p>
                             <p key={"alt" + ii} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                alt: {img && img.alt && t(img.alt)}
+                                alt: {img && img.alt && t(img.alt).__html as string}
                             </p>
                             <p key={"title" + ii} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                title: {img && img.title && t(img.title)}
+                                title: {img && img.title && t(img.title).__html as string}
                             </p>
                         </div>
                     )

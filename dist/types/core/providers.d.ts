@@ -8,12 +8,20 @@ export type NdImageProps = {
     title?: string;
     imageStyle?: ImageStyle;
 };
+export type NdTrustedHtml = {
+    __html: TrustedHTML;
+};
 export type AsyncFunctionComponent = (props: NdSkinComponentProps) => Promise<JSX.Element>;
 export type ComponentResolver = (componentName: string) => Promise<{
     compo: AsyncFunctionComponent;
     compoDef: NdComponentDefinition;
 }>;
-export type I18nextProvider = (lng: string) => Promise<{
+export type NdI18nextProvider = (lng: string) => Promise<{
     t: (text: NdTranslatableText) => string;
 }>;
-export type ImageProvider = (imageProps: NdImageProps) => Promise<JSX.Element>;
+export type NdI18nextTrustedHtmlProvider = (lng: string) => Promise<{
+    t: (text: NdTranslatableText) => NdTrustedHtml;
+}>;
+export type NdImageProvider = (imageProps: NdImageProps) => Promise<JSX.Element>;
+export type NdI18NextPostProcessor = (text: string) => string;
+export type NdHtmlSanitizer = (text: string) => NdTrustedHtml;

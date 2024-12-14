@@ -16,7 +16,7 @@ async function defaultImageProvider(imageProps) {
     return <img className={`${imageStyle?.base} ${imageStyle?.decoration}`} src={url} alt={alt}/>;
 }
 async function RenderingPage(props) {
-    const { lng, renderingPriority, content, componentResolver, skin, imageProvider, i18nextProvider } = props;
+    const { lng, renderingPriority, content, componentResolver, skin, imageProvider, i18nextProvider, i18nextPostProcessor, htmlSanitizer } = props;
     const actualComponentResolver = componentResolver ? componentResolver : defaultComponentResolver;
     let l;
     if (skin) {
@@ -26,10 +26,10 @@ async function RenderingPage(props) {
         }
         // console.log(" >>> this is my content <<< ", content)
         // console.log(" >>> this is my skin <<< ", JSON.stringify(blockSkin))
-        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createRow(row, iRow, content, lng, imageProvider, i18nextProvider, actualComponentResolver)));
+        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createRow(row, iRow, content, lng, imageProvider, i18nextProvider, i18nextPostProcessor, actualComponentResolver, htmlSanitizer)));
     }
     else {
-        l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider, actualComponentResolver)];
+        l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider, i18nextPostProcessor, actualComponentResolver, htmlSanitizer)];
     }
     const actualSkin = mergeTheme(skin, { renderingPage: { base: "", decoration: "" }, rows: [] });
     return <div className={`rows-container ${ts(actualSkin, "renderingPage")}`}>{l}</div>;
@@ -66,13 +66,13 @@ function generateSkinByContentBlocks(blocks, skin) {
     // console.log("generated skin", JSON.stringify(res))
     return res;
 }
-async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, componentResolver) {
+async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer) {
     let l;
     if (row) {
-        l = await Promise.all(row.components.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageProvider, i18nProvider, componentResolver)));
+        l = await Promise.all(row.components.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer)));
     }
     else {
-        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageProvider, i18nProvider, componentResolver)));
+        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer)));
     }
     const rowComponents = l.flatMap((p) => p);
     if (rowComponents.length == 0) {
@@ -144,7 +144,7 @@ async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, co
                     </div>)}
         </div>);
 }
-async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageProvider, i18nProvider, componentResolver) {
+async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer) {
     // console.log("before component", skinComponent)
     const filteredBlocks = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
     if (filteredBlocks.length == 0) {
@@ -170,17 +170,67 @@ async function createRowComponents(rowIndex, blockIndex, skinComponent, pageCont
             const blocks = filteredBlocks.slice(start, end);
             const compIndex = blockIndex * filteredBlocks.length + i;
             // console.log("calculated compo index ", compIndex, "filteredBlocks.length", filteredBlocks.length, "blockIndex", blockIndex)
-            res.push(await renderSingleComponent(rowIndex, compIndex, compo, blocks, skinComponent?.defaultThemeName || "light", compoDef.defaultTheme, skinComponent?.themeHierarchy, lng, imageProvider, i18nProvider));
+            res.push(await renderSingleComponent(rowIndex, compIndex, compo, blocks, skinComponent?.defaultThemeName || "light", compoDef.defaultTheme, skinComponent?.themeHierarchy, lng, imageProvider, i18nProvider, i18nextPostProcessor, htmlSanitizer));
         }
         start = end;
         ++i;
     } while (end < filteredBlocks.length);
     return res;
 }
-async function renderSingleComponent(rowIndex, componentIndex, component, blocks, defaultThemeName, defaultTheme, themeHierarchy, lng, imageProvider, i18nextProvider) {
-    let actualI18nextProvider;
+function wrapInPostProcessor(provider, postProcessor) {
+    // if (postProcessor) {
+    //
+    //     return async (lng: string): Promise<{t: (text: NdTranslatableText) => NdTrustedHtml}> => {
+    //
+    //         const {t} = await provider(lng)
+    //         const tt = (txt: NdTranslatableText): NdTrustedHtml => {
+    //             // const translated: NdTrustedHtml = t(txt);
+    //             // let res = translated;
+    //             // if (typeof translated === "string") {
+    //             //     res = postProcessor(translated)
+    //             // }
+    //             // return res;
+    //             return postProcessor(t(txt))
+    //         }
+    //
+    //         return {t: tt}
+    //     }
+    // } else {
+    //     return provider;
+    // }
+    return async (lng) => {
+        const { t } = await provider(lng);
+        const tt = (txt) => {
+            // const translated: NdTrustedHtml = t(txt);
+            // let res = translated;
+            // if (typeof translated === "string") {
+            //     res = postProcessor(translated)
+            // }
+            // return res;
+            return postProcessor ? postProcessor(t(txt)) : t(txt);
+        };
+        return { t: tt };
+    };
+}
+function makeTrusted(provider, sanitizer) {
+    return async (lng) => {
+        const { t } = await provider(lng);
+        const tt = (txt) => {
+            // const translated: NdTrustedHtml = t(txt);
+            // let res = translated;
+            // if (typeof translated === "string") {
+            //     res = postProcessor(translated)
+            // }
+            // return res;
+            return sanitizer(t(txt));
+        };
+        return { t: tt };
+    };
+}
+async function renderSingleComponent(rowIndex, componentIndex, component, blocks, defaultThemeName, defaultTheme, themeHierarchy, lng, imageProvider, i18nextProvider, i18nextPostProcessor, htmlSanitizer) {
+    let actualI18nextProvider_;
     if (lng == blocks[0].lng || !i18nextProvider) {
-        actualI18nextProvider = async (lng) => {
+        actualI18nextProvider_ = async (lng) => {
             return { t: (text) => {
                     const b = blocks.map((b) => b.getByKey(text.key, text.ns)).find((s) => s);
                     return b ? b : `key not found: ${text.ns}:${text.key}`;
@@ -188,8 +238,9 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
         };
     }
     else {
-        actualI18nextProvider = i18nextProvider;
+        actualI18nextProvider_ = i18nextProvider;
     }
+    const actualI18nextProvider = makeTrusted(wrapInPostProcessor(actualI18nextProvider_, i18nextPostProcessor), htmlSanitizer || ((text) => ({ __html: text })));
     const actualImageProvider = imageProvider ? imageProvider : defaultImageProvider;
     // if (themeHierarchy) {
     //     console.log("themeHierarchy", themeHierarchy)
@@ -206,7 +257,7 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
         options: effectiveOptions,
         lng: lng,
         imageProvider: actualImageProvider,
-        i18nextProvider: actualI18nextProvider
+        i18nextTrustedHtmlProvider: actualI18nextProvider
     };
     // console.log("start rendering page with props", props);
     const res = await component(props);

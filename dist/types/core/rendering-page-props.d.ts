@@ -1,6 +1,8 @@
-import { ComponentResolver, I18nextProvider, ImageProvider } from "./providers";
+import { ComponentResolver, NdI18nextProvider, NdImageProvider } from "./providers";
 import { NdContentBlock } from "../content/nd-content";
 import { NdPageSkin } from "../skin/nd-skin";
+import { NdI18NextPostProcessor } from "./providers";
+import { NdHtmlSanitizer } from "./providers";
 export declare enum RenderingPriority {
     content_first = 0,
     skin_first = 1
@@ -11,7 +13,9 @@ export declare class RenderingPageProps {
     skin: NdPageSkin | undefined;
     renderingPriority: RenderingPriority;
     componentResolver: ComponentResolver | undefined;
-    imageProvider: ImageProvider | undefined;
-    i18nextProvider: I18nextProvider | undefined;
-    constructor(lng: string, content: NdContentBlock[], componentResolver: ComponentResolver | undefined, skin?: NdPageSkin | undefined, renderingPriority?: RenderingPriority, imageProvider?: ImageProvider | undefined, i18nextProvider?: I18nextProvider | undefined);
+    imageProvider: NdImageProvider | undefined;
+    i18nextProvider: NdI18nextProvider | undefined;
+    i18nextPostProcessor: NdI18NextPostProcessor | undefined;
+    htmlSanitizer: NdHtmlSanitizer | undefined;
+    constructor(lng: string, content: NdContentBlock[], componentResolver: ComponentResolver | undefined, skin?: NdPageSkin | undefined, renderingPriority?: RenderingPriority, imageProvider?: NdImageProvider | undefined, i18nextProvider?: NdI18nextProvider | undefined, htmlSanitizer?: NdHtmlSanitizer | undefined);
 }

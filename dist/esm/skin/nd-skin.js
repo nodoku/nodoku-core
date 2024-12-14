@@ -118,8 +118,8 @@ export class NdSkinComponentProps {
     options;
     lng;
     imageProvider;
-    i18nextProvider;
-    constructor(rowIndex, componentIndex, content, defaultThemeName, theme, themes, options, lng, imageProvider, i18nextProvider) {
+    i18nextTrustedHtmlProvider;
+    constructor(rowIndex, componentIndex, content, defaultThemeName, theme, themes, options, lng, imageProvider, i18nextTrustedHtmlProvider) {
         this.rowIndex = rowIndex;
         this.componentIndex = componentIndex;
         this.content = content;
@@ -129,6 +129,6 @@ export class NdSkinComponentProps {
         this.options = options;
         this.lng = lng;
         this.imageProvider = imageProvider;
-        this.i18nextProvider = i18nextProvider;
+        this.i18nextTrustedHtmlProvider = i18nextTrustedHtmlProvider;
     }
 }
