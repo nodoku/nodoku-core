@@ -4,6 +4,7 @@ import {mergeTheme} from "../theme-utils/theme-merger";
 import {ThemeStyle} from "../theme-utils/theme-style";
 import {RowStyle} from "../theme-utils/row-style";
 import {NdI18nextTrustedHtmlProvider} from "../core/providers";
+import {NdClientSideComponentProvider} from "../core/providers";
 
 export type NdDefaultThemeName = "light" | "dark";
 
@@ -161,6 +162,7 @@ export class NdSkinComponentProps<TComponentTheme = any, TComponentOptions = any
     lng: string;
     imageProvider: NdImageProvider;
     i18nextTrustedHtmlProvider: NdI18nextTrustedHtmlProvider;
+    clientSideComponentProvider: NdClientSideComponentProvider;
 
     constructor(rowIndex: number,
                 componentIndex: number,
@@ -171,7 +173,8 @@ export class NdSkinComponentProps<TComponentTheme = any, TComponentOptions = any
                 options: TComponentOptions,
                 lng: string,
                 imageProvider: NdImageProvider,
-                i18nextTrustedHtmlProvider: NdI18nextTrustedHtmlProvider) {
+                i18nextTrustedHtmlProvider: NdI18nextTrustedHtmlProvider,
+                clientSideComponentProvider: NdClientSideComponentProvider) {
 
         this.rowIndex = rowIndex;
         this.componentIndex = componentIndex;
@@ -183,6 +186,7 @@ export class NdSkinComponentProps<TComponentTheme = any, TComponentOptions = any
         this.lng = lng;
         this.imageProvider = imageProvider;
         this.i18nextTrustedHtmlProvider = i18nextTrustedHtmlProvider;
+        this.clientSideComponentProvider = clientSideComponentProvider;
     }
 }
 

@@ -21,6 +21,7 @@ const template = (await import("./mustache/component-resolver.ts.hbs")).default;
 type TemplateView = {
     modules: {module: string, comps: string[]}[];
     comps: {name: string, impl: string, defaultThemeFile: string, numBlocks: string | number}[];
+    clSideComps: {n: string, isLast: boolean }[];
 }
 
 function calculateTemplateView(dirNodeModules: string | undefined = undefined): TemplateView {
@@ -31,7 +32,7 @@ function calculateTemplateView(dirNodeModules: string | undefined = undefined): 
 
     const manifests: Map<string, Manifest> = loadManifestsFromFolder(dirNodeModules);
 
-    const view: TemplateView = {modules: [], comps: []};
+    const view: TemplateView = {modules: [], comps: [], clSideComps: []};
 
     manifests.forEach((m: Manifest, k: string): void  => {
 
@@ -51,11 +52,25 @@ function calculateTemplateView(dirNodeModules: string | undefined = undefined): 
             } else {
                 nb = `${cd.numBlocks}`
             }
-            view.comps.push({name: cn, impl: `${prefix}${cd.implementation}`, defaultThemeFile: "./" + path.relative(path.resolve("."), path.resolve("./schemas", m.moduleName, cd.defaultThemeFile)).replaceAll("\\", "/"), numBlocks: nb});
+            view.comps.push({
+                name: cn,
+                impl: `${prefix}${cd.implementation}`,
+                defaultThemeFile: "./" + path.relative(path.resolve("."), path.resolve("./schemas", m.moduleName, cd.defaultThemeFile)).replaceAll("\\", "/"),
+                numBlocks: nb
+            });
+            if (cd.clientSideComps) {
+                cd.clientSideComps.forEach(cl => {
+                    view.clSideComps.push({n: `${cn}:${cl}`, isLast: false})
+                })
+            }
         })
 
     });
 
+
+    if (view.clSideComps && view.clSideComps.length > 0) {
+        view.clSideComps[view.clSideComps.length - 1].isLast = true;
+    }
 
     return view;
 }

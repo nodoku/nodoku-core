@@ -48,7 +48,8 @@ function loadComponentsByManifest(dir, moduleName) {
                         themeSchema: v.schemaFile,
                         optionsSchema: v.optionsFile,
                         defaultThemeFile: v.defaultThemeFile,
-                        numBlocks: v.numBlocks
+                        numBlocks: v.numBlocks,
+                        clientSideComps: v.clientSideComps
                     });
                 });
                 return manifest;

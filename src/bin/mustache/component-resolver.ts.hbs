@@ -10,6 +10,29 @@ const components: Map<string, {compo: AsyncFunctionComponent, compoDef: NdCompon
 components.set("{{{name}}}", {compo: {{impl}}, compoDef: new NdComponentDefinition({{{numBlocks}}}, "{{{defaultThemeFile}}}")});
 {{/comps}}
 
+{{^clSideComps.length}}
+export type ClientSideComponentNameEnum = void;
+{{/clSideComps.length}}
+
+{{#clSideComps.length}}
+export type ClientSideComponentNameEnum =
+{{#clSideComps.length}}
+    {{#clSideComps}}
+        "{{{n}}}"{{^isLast}} | {{/isLast}}{{#isLast}};{{/isLast}}
+    {{/clSideComps}}
+{{/clSideComps.length}}
+
+export const fromStringToClientSideComponentNameEnum = (c: string): ClientSideComponentNameEnum | undefined => {
+{{#clSideComps}}
+    if (c === "{{{n}}}") {
+        return "{{{n}}}";
+    }
+{{/clSideComps}}
+    return undefined;
+}
+
+{{/clSideComps.length}}
+
 export async function nodokuComponentResolver(componentName: string): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const f: {compo: AsyncFunctionComponent, compoDef: NdComponentDefinition} | undefined = components.get(componentName);
     return f ? f : {compo: DummyComp, compoDef: new NdComponentDefinition(1)};

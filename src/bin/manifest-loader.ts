@@ -73,7 +73,8 @@ function loadComponentsByManifest(dir: string, moduleName: string): Manifest | u
                         themeSchema: v.schemaFile,
                         optionsSchema: v.optionsFile,
                         defaultThemeFile: v.defaultThemeFile,
-                        numBlocks: v.numBlocks
+                        numBlocks: v.numBlocks,
+                        clientSideComps: v.clientSideComps
                     })
                 })
 

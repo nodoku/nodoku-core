@@ -15,18 +15,28 @@ export declare class NdTranslatableText {
     excludeFromTranslation: boolean;
     constructor(ns: string, key?: string, text?: string, excludeFromTranslation?: boolean);
 }
+export type NdListItem = {
+    text: NdTranslatableText | NdLink;
+    subList: NdParagraph | undefined;
+};
 export declare class NdList {
-    items: NdTranslatableText[];
+    items: NdListItem[];
     ordered: boolean;
     private constructor();
-    static createOrdered(items: NdTranslatableText[]): NdList;
-    static createUnOrdered(items: NdTranslatableText[]): NdList;
+    static createOrdered(items: NdListItem[]): NdList;
+    static createUnOrdered(items: NdListItem[]): NdList;
 }
 export declare class NdCode {
     lang: string;
     code: string;
     constructor(lang: string, code: string);
 }
+export declare class NdLink {
+    urlText: NdTranslatableText | undefined;
+    url: NdTranslatableText;
+    constructor(text: NdTranslatableText, url: NdTranslatableText);
+}
+export type NdParagraph = NdTranslatableText | NdList | NdCode | NdLink;
 export declare class NdContentBlock {
     id: string;
     lng: string;
@@ -43,7 +53,7 @@ export declare class NdContentBlock {
     h5?: NdTranslatableText;
     h6?: NdTranslatableText;
     callToActions: NdCallToAction[];
-    paragraphs: (NdTranslatableText | NdList | NdCode)[];
+    paragraphs: NdParagraph[];
     images: NdContentImage[];
     htmlElements: {
         htmlElem: HTMLElement;

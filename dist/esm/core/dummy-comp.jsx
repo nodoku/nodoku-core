@@ -1,4 +1,5 @@
 import { NdCode, NdTranslatableText } from "../content/nd-content";
+import { NdLink } from "../content/nd-content";
 export async function DummyComp(props) {
     // console.log("content dummy comp", props.theme)
     const { content, i18nextTrustedHtmlProvider, lng, rowIndex, componentIndex } = props;
@@ -27,37 +28,7 @@ async function render(rowIndex, componentIndex, block, t) {
                 </h6>}
 
                 paragraphs:
-                {await Promise.all(block.paragraphs.map(async (p, ip) => {
-            if (p instanceof NdTranslatableText) {
-                return (<div>
-                                {p && p.key}
-                                <p key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                    {p && t(p).__html}
-                                </p>
-                            </div>);
-            }
-            else if (p instanceof NdCode) {
-                const code = p;
-                return (<div className={"border border-gray-200 p-4"}>
-                                <pre className={"text-pretty"}>
-                                    <code lang={code.lang} className={"hljs"} dangerouslySetInnerHTML={{ __html: code.code }}/>
-                                </pre>
-                            </div>);
-            }
-            else {
-                const list = p;
-                if (list.ordered) {
-                    return (<ol className={"list-disc list-outside"}>
-                                    {list.items.map(i => <li className={"ml-4"}>{t(i).__html} <small>(<i>{i.key}</i>)</small></li>)}
-                                </ol>);
-                }
-                else {
-                    return (<ul className={"list-disc list-outside"}>
-                                    {list.items.map(i => <li className={"ml-4"}>{t(i).__html} <small>(<i>{i.key}</i>)</small></li>)}
-                                </ul>);
-                }
-            }
-        }))}
+                {await Promise.all(block.paragraphs.map(async (p, ip) => renderParagraph(p, ip)))}
                 images:
                 {block.images.map((img, ii) => {
             return (<div>
@@ -88,4 +59,60 @@ async function render(rowIndex, componentIndex, block, t) {
             </div>
 
         </div>);
+    function renderParagraph(p, ip) {
+        if (p instanceof NdTranslatableText) {
+            return (<div>
+                    {p && p.key}
+                    <p key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
+                        {p && t(p).__html}
+                    </p>
+                </div>);
+        }
+        else if (p instanceof NdCode) {
+            const code = p;
+            return (<div className={"border border-gray-200 p-4"}>
+                                <pre className={"text-pretty"}>
+                                    <code lang={code.lang} className={"hljs"} dangerouslySetInnerHTML={{ __html: code.code }}/>
+                                </pre>
+                </div>);
+        }
+        else if (p instanceof NdLink) {
+            const link = p;
+            return (<div>
+                    link
+                    <div key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
+                        urlText: {link.urlText && showTranslatableText(link.urlText)}
+                        url: {showTranslatableText(link.url)}
+                    </div>
+
+                </div>);
+        }
+        else {
+            const list = p;
+            if (list.ordered) {
+                return (<ol className={"list-disc list-outside"}>
+                        {list.items.map(i => <li className={"ml-4"}>
+                                {showListItem(i)}
+                                {i.subList && renderParagraph(i.subList, ip)}
+                            </li>)}
+                    </ol>);
+            }
+            else {
+                return (<ul className={"list-disc list-outside"}>
+                        {list.items.map(i => <li className={"ml-4"}>
+                                {showListItem(i)}
+                                {i.subList && renderParagraph(i.subList, ip)}
+                            </li>)}
+                    </ul>);
+            }
+        }
+    }
+}
+function showTranslatableText(text) {
+    return <span>{text.text} <small>(<i>{text.key}</i>)</small></span>;
+}
+function showListItem(i) {
+    return i.text instanceof NdTranslatableText ?
+        showTranslatableText(i.text) :
+        <span>link item {(i.text.urlText ? showTranslatableText(i.text.urlText) : "link text n/a")} : {showTranslatableText(i.text.url)}</span>;
 }

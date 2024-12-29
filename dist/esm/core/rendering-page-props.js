@@ -25,7 +25,8 @@ export class RenderingPageProps {
     i18nextProvider = undefined;
     i18nextPostProcessor;
     htmlSanitizer;
-    constructor(lng, content, componentResolver, skin = undefined, renderingPriority = RenderingPriority.content_first, imageProvider = undefined, i18nextProvider = undefined, htmlSanitizer = undefined) {
+    clientSideComponentProvider;
+    constructor(lng, content, componentResolver, skin = undefined, renderingPriority = RenderingPriority.content_first, imageProvider = undefined, i18nextProvider = undefined, htmlSanitizer = undefined, clientSideComponentProvider = undefined) {
         this.lng = lng;
         this.renderingPriority = renderingPriority;
         this.content = content;
@@ -34,5 +35,6 @@ export class RenderingPageProps {
         this.imageProvider = imageProvider;
         this.i18nextProvider = i18nextProvider;
         this.htmlSanitizer = htmlSanitizer;
+        this.clientSideComponentProvider = clientSideComponentProvider;
     }
 }

@@ -2,7 +2,6 @@ import {JSX} from "react";
 import {NdComponentDefinition, NdSkinComponentProps} from "../skin/nd-skin";
 import {NdTranslatableText} from "../content/nd-content";
 import {ImageStyle} from "../theme-utils/image-style";
-import exp from "node:constants";
 
 export type NdImageProps = {
 
@@ -28,3 +27,5 @@ export type NdImageProvider = (imageProps: NdImageProps) => Promise<JSX.Element>
 export type NdI18NextPostProcessor = (text: string) => string;
 
 export type NdHtmlSanitizer = (text: string) => NdTrustedHtml;
+
+export type NdClientSideComponentProvider = (componentName: string) => JSX.Element;

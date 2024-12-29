@@ -22,8 +22,7 @@ import {NdI18NextPostProcessor} from "./providers";
 import {NdTrustedHtml} from "./providers";
 import {NdI18nextTrustedHtmlProvider} from "./providers";
 import {NdHtmlSanitizer} from "./providers";
-import {start} from "node:repl";
-import {strict} from "node:assert";
+import {NdClientSideComponentProvider} from "./providers";
 
 async function defaultComponentResolver(): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const compoDef: NdComponentDefinition = new NdComponentDefinition("unlimited", undefined, {});
@@ -47,7 +46,8 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
         imageProvider,
         i18nextProvider,
         i18nextPostProcessor,
-        htmlSanitizer
+        htmlSanitizer,
+        clientSideComponentProvider
     } = props;
 
     const actualComponentResolver = componentResolver ? componentResolver : defaultComponentResolver;
@@ -66,11 +66,13 @@ async function RenderingPage(props: RenderingPageProps): Promise<JSX.Element> {
 
 
         l = await Promise.all(blockSkin.rows.map(async (row: NdRow, iRow: number): Promise<JSX.Element> =>
-            await createRow(row, iRow, content, lng, imageProvider, i18nextProvider, i18nextPostProcessor, actualComponentResolver, htmlSanitizer)
+            await createRow(row, iRow, content, lng, imageProvider, i18nextProvider,
+                i18nextPostProcessor, actualComponentResolver, htmlSanitizer, clientSideComponentProvider)
         ));
 
     } else {
-        l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider, i18nextPostProcessor, actualComponentResolver, htmlSanitizer)];
+        l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider,
+                i18nextPostProcessor, actualComponentResolver, htmlSanitizer, clientSideComponentProvider)];
     }
 
     const actualSkin: NdPageSkin = mergeTheme(skin, {renderingPage: {base: "", decoration: ""}, rows: []})
@@ -127,19 +129,27 @@ async function createRow(row: NdRow | undefined,
                          i18nProvider: NdI18nextProvider | undefined,
                          i18nextPostProcessor: NdI18NextPostProcessor | undefined,
                          componentResolver: ComponentResolver,
-                         htmlSanitizer: NdHtmlSanitizer | undefined): Promise<JSX.Element> {
+                         htmlSanitizer: NdHtmlSanitizer | undefined,
+                         clientSideComponentProvider: NdClientSideComponentProvider | undefined): Promise<JSX.Element> {
 
     let l: JSX.Element[][];
     if (row) {
         l = await Promise.all(row.components.map(async (visualSection: NdSkinComponent, iComp: number): Promise<JSX.Element[]> =>
 
-            await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer)
+            await createRowComponents(iRow, iComp,
+                visualSection, blocks,
+                lng, imageProvider,
+                i18nProvider, i18nextPostProcessor,
+                componentResolver, htmlSanitizer, clientSideComponentProvider)
 
         ));
     } else {
         l = await Promise.all(blocks.map(async (block: NdContentBlock, iComp: number): Promise<JSX.Element[]> =>
 
-            await createRowComponents(iRow, iComp, undefined, [block], lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer)
+            await createRowComponents(iRow, iComp, undefined, [block],
+                lng, imageProvider,
+                i18nProvider, i18nextPostProcessor,
+                componentResolver, htmlSanitizer, clientSideComponentProvider)
 
         ));
     }
@@ -237,7 +247,8 @@ async function createRowComponents(rowIndex: number,
                                    i18nProvider: NdI18nextProvider | undefined,
                                    i18nextPostProcessor: NdI18NextPostProcessor | undefined,
                                    componentResolver: ComponentResolver,
-                                   htmlSanitizer: NdHtmlSanitizer | undefined): Promise<JSX.Element[]> {
+                                   htmlSanitizer: NdHtmlSanitizer | undefined,
+                                   clientSideComponentProvider: NdClientSideComponentProvider | undefined): Promise<JSX.Element[]> {
 
 
     // console.log("before component", skinComponent)
@@ -289,7 +300,8 @@ async function createRowComponents(rowIndex: number,
                 imageProvider,
                 i18nProvider,
                 i18nextPostProcessor,
-                htmlSanitizer));
+                htmlSanitizer,
+                clientSideComponentProvider));
 
         }
         start = end;
@@ -369,7 +381,8 @@ async function renderSingleComponent(rowIndex: number,
                                      imageProvider: NdImageProvider | undefined,
                                      i18nextProvider: NdI18nextProvider | undefined,
                                      i18nextPostProcessor: NdI18NextPostProcessor | undefined,
-                                     htmlSanitizer: NdHtmlSanitizer | undefined): Promise<JSX.Element> {
+                                     htmlSanitizer: NdHtmlSanitizer | undefined,
+                                     clientSideComponentProvider: NdClientSideComponentProvider | undefined): Promise<JSX.Element> {
 
     let actualI18nextProvider_: NdI18nextProvider;
 
@@ -392,6 +405,7 @@ async function renderSingleComponent(rowIndex: number,
 
     const actualImageProvider = imageProvider ? imageProvider : defaultImageProvider;
 
+    const actualClientSideComponentProvider = clientSideComponentProvider ? clientSideComponentProvider : (c: string) => <span>[placeholder for: {c}]</span>
 
     // if (themeHierarchy) {
     //     console.log("themeHierarchy", themeHierarchy)
@@ -412,7 +426,8 @@ async function renderSingleComponent(rowIndex: number,
             options: effectiveOptions,
             lng: lng,
             imageProvider: actualImageProvider,
-            i18nextTrustedHtmlProvider: actualI18nextProvider
+            i18nextTrustedHtmlProvider: actualI18nextProvider,
+            clientSideComponentProvider: actualClientSideComponentProvider
     }
 
     // console.log("start rendering page with props", props);

@@ -4,6 +4,7 @@ export type ComponentDef = {
     optionsSchema: string;
     defaultThemeFile: string;
     numBlocks: string | number;
+    clientSideComps: string[];
 }
 
 export type Manifest = {

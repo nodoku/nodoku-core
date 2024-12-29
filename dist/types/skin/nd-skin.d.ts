@@ -3,6 +3,7 @@ import { NdContentBlock } from "../content/nd-content";
 import { ThemeStyle } from "../theme-utils/theme-style";
 import { RowStyle } from "../theme-utils/row-style";
 import { NdI18nextTrustedHtmlProvider } from "../core/providers";
+import { NdClientSideComponentProvider } from "../core/providers";
 export type NdDefaultThemeName = "light" | "dark";
 export declare class NdThemeHierarchy {
     defaultThemeName: NdDefaultThemeName;
@@ -72,5 +73,6 @@ export declare class NdSkinComponentProps<TComponentTheme = any, TComponentOptio
     lng: string;
     imageProvider: NdImageProvider;
     i18nextTrustedHtmlProvider: NdI18nextTrustedHtmlProvider;
-    constructor(rowIndex: number, componentIndex: number, content: NdContentBlock[], defaultThemeName: NdDefaultThemeName, theme: TComponentTheme, themes: TComponentTheme[], options: TComponentOptions, lng: string, imageProvider: NdImageProvider, i18nextTrustedHtmlProvider: NdI18nextTrustedHtmlProvider);
+    clientSideComponentProvider: NdClientSideComponentProvider;
+    constructor(rowIndex: number, componentIndex: number, content: NdContentBlock[], defaultThemeName: NdDefaultThemeName, theme: TComponentTheme, themes: TComponentTheme[], options: TComponentOptions, lng: string, imageProvider: NdImageProvider, i18nextTrustedHtmlProvider: NdI18nextTrustedHtmlProvider, clientSideComponentProvider: NdClientSideComponentProvider);
 }

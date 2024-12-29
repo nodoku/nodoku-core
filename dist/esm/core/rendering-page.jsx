@@ -16,7 +16,7 @@ async function defaultImageProvider(imageProps) {
     return <img className={`${imageStyle?.base} ${imageStyle?.decoration}`} src={url} alt={alt}/>;
 }
 async function RenderingPage(props) {
-    const { lng, renderingPriority, content, componentResolver, skin, imageProvider, i18nextProvider, i18nextPostProcessor, htmlSanitizer } = props;
+    const { lng, renderingPriority, content, componentResolver, skin, imageProvider, i18nextProvider, i18nextPostProcessor, htmlSanitizer, clientSideComponentProvider } = props;
     const actualComponentResolver = componentResolver ? componentResolver : defaultComponentResolver;
     let l;
     if (skin) {
@@ -26,10 +26,10 @@ async function RenderingPage(props) {
         }
         // console.log(" >>> this is my content <<< ", content)
         // console.log(" >>> this is my skin <<< ", JSON.stringify(blockSkin))
-        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createRow(row, iRow, content, lng, imageProvider, i18nextProvider, i18nextPostProcessor, actualComponentResolver, htmlSanitizer)));
+        l = await Promise.all(blockSkin.rows.map(async (row, iRow) => await createRow(row, iRow, content, lng, imageProvider, i18nextProvider, i18nextPostProcessor, actualComponentResolver, htmlSanitizer, clientSideComponentProvider)));
     }
     else {
-        l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider, i18nextPostProcessor, actualComponentResolver, htmlSanitizer)];
+        l = [await createRow(undefined, 0, content, lng, imageProvider, i18nextProvider, i18nextPostProcessor, actualComponentResolver, htmlSanitizer, clientSideComponentProvider)];
     }
     const actualSkin = mergeTheme(skin, { renderingPage: { base: "", decoration: "" }, rows: [] });
     return <div className={`rows-container ${ts(actualSkin, "renderingPage")}`}>{l}</div>;
@@ -66,13 +66,13 @@ function generateSkinByContentBlocks(blocks, skin) {
     // console.log("generated skin", JSON.stringify(res))
     return res;
 }
-async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer) {
+async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer, clientSideComponentProvider) {
     let l;
     if (row) {
-        l = await Promise.all(row.components.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer)));
+        l = await Promise.all(row.components.map(async (visualSection, iComp) => await createRowComponents(iRow, iComp, visualSection, blocks, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer, clientSideComponentProvider)));
     }
     else {
-        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer)));
+        l = await Promise.all(blocks.map(async (block, iComp) => await createRowComponents(iRow, iComp, undefined, [block], lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer, clientSideComponentProvider)));
     }
     const rowComponents = l.flatMap((p) => p);
     if (rowComponents.length == 0) {
@@ -144,7 +144,7 @@ async function createRow(row, iRow, blocks, lng, imageProvider, i18nProvider, i1
                     </div>)}
         </div>);
 }
-async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer) {
+async function createRowComponents(rowIndex, blockIndex, skinComponent, pageContent, lng, imageProvider, i18nProvider, i18nextPostProcessor, componentResolver, htmlSanitizer, clientSideComponentProvider) {
     // console.log("before component", skinComponent)
     const filteredBlocks = skinComponent ? skinComponent.selector.filterBlocks(pageContent) : pageContent;
     if (filteredBlocks.length == 0) {
@@ -170,7 +170,7 @@ async function createRowComponents(rowIndex, blockIndex, skinComponent, pageCont
             const blocks = filteredBlocks.slice(start, end);
             const compIndex = blockIndex * filteredBlocks.length + i;
             // console.log("calculated compo index ", compIndex, "filteredBlocks.length", filteredBlocks.length, "blockIndex", blockIndex)
-            res.push(await renderSingleComponent(rowIndex, compIndex, compo, blocks, skinComponent?.defaultThemeName || "light", compoDef.defaultTheme, skinComponent?.themeHierarchy, lng, imageProvider, i18nProvider, i18nextPostProcessor, htmlSanitizer));
+            res.push(await renderSingleComponent(rowIndex, compIndex, compo, blocks, skinComponent?.defaultThemeName || "light", compoDef.defaultTheme, skinComponent?.themeHierarchy, lng, imageProvider, i18nProvider, i18nextPostProcessor, htmlSanitizer, clientSideComponentProvider));
         }
         start = end;
         ++i;
@@ -227,7 +227,7 @@ function makeTrusted(provider, sanitizer) {
         return { t: tt };
     };
 }
-async function renderSingleComponent(rowIndex, componentIndex, component, blocks, defaultThemeName, defaultTheme, themeHierarchy, lng, imageProvider, i18nextProvider, i18nextPostProcessor, htmlSanitizer) {
+async function renderSingleComponent(rowIndex, componentIndex, component, blocks, defaultThemeName, defaultTheme, themeHierarchy, lng, imageProvider, i18nextProvider, i18nextPostProcessor, htmlSanitizer, clientSideComponentProvider) {
     let actualI18nextProvider_;
     if (lng == blocks[0].lng || !i18nextProvider) {
         actualI18nextProvider_ = async (lng) => {
@@ -242,6 +242,7 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
     }
     const actualI18nextProvider = makeTrusted(wrapInPostProcessor(actualI18nextProvider_, i18nextPostProcessor), htmlSanitizer || ((text) => ({ __html: text })));
     const actualImageProvider = imageProvider ? imageProvider : defaultImageProvider;
+    const actualClientSideComponentProvider = clientSideComponentProvider ? clientSideComponentProvider : (c) => <span>[placeholder for: {c}]</span>;
     // if (themeHierarchy) {
     //     console.log("themeHierarchy", themeHierarchy)
     // }
@@ -257,7 +258,8 @@ async function renderSingleComponent(rowIndex, componentIndex, component, blocks
         options: effectiveOptions,
         lng: lng,
         imageProvider: actualImageProvider,
-        i18nextTrustedHtmlProvider: actualI18nextProvider
+        i18nextTrustedHtmlProvider: actualI18nextProvider,
+        clientSideComponentProvider: actualClientSideComponentProvider
     };
     // console.log("start rendering page with props", props);
     const res = await component(props);

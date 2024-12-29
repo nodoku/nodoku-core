@@ -1,4 +1,4 @@
-import {NdContentImage, NdTranslatableText, NdList, NdCode, NdCallToAction, NdContentBlock} from "./content/nd-content";
+import {NdContentImage, NdTranslatableText, NdList, NdLink, NdListItem, NdCode, NdCallToAction, NdParagraph, NdContentBlock} from "./content/nd-content";
 import {NdSkinComponent, NdRow, NdPageSkin, NdSkinComponentProps, NdContentSelector, NdComponentDefinition, NdThemeHierarchy, NdDefaultThemeName} from "./skin/nd-skin";
 import {RenderingPageProps, RenderingPriority} from "./core/rendering-page-props";
 import {RenderingPage} from "./core/rendering-page"
@@ -14,6 +14,8 @@ export {
     NdContentImage,
     NdTranslatableText,
     NdList,
+    type NdListItem,
+    NdLink,
     NdCode,
     NdCallToAction,
     NdContentBlock,
@@ -24,6 +26,7 @@ export {
     NdContentSelector,
     NdComponentDefinition,
     NdThemeHierarchy,
+    type NdParagraph,
     type NdDefaultThemeName,
     type NdImageProps,
     type NdI18nextTrustedHtmlProvider,

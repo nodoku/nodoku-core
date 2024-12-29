@@ -25,3 +25,4 @@ export type NdI18nextTrustedHtmlProvider = (lng: string) => Promise<{
 export type NdImageProvider = (imageProps: NdImageProps) => Promise<JSX.Element>;
 export type NdI18NextPostProcessor = (text: string) => string;
 export type NdHtmlSanitizer = (text: string) => NdTrustedHtml;
+export type NdClientSideComponentProvider = (componentName: string) => JSX.Element;

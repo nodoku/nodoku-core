@@ -17,7 +17,7 @@ function calculateTemplateView(dirNodeModules = undefined) {
         dirNodeModules = `${path.resolve()}/node_modules`;
     }
     const manifests = loadManifestsFromFolder(dirNodeModules);
-    const view = { modules: [], comps: [] };
+    const view = { modules: [], comps: [], clSideComps: [] };
     manifests.forEach((m, k) => {
         let prefix = "";
         if (m.namespace) {
@@ -35,9 +35,22 @@ function calculateTemplateView(dirNodeModules = undefined) {
             else {
                 nb = `${cd.numBlocks}`;
             }
-            view.comps.push({ name: cn, impl: `${prefix}${cd.implementation}`, defaultThemeFile: "./" + path.relative(path.resolve("."), path.resolve("./schemas", m.moduleName, cd.defaultThemeFile)).replaceAll("\\", "/"), numBlocks: nb });
+            view.comps.push({
+                name: cn,
+                impl: `${prefix}${cd.implementation}`,
+                defaultThemeFile: "./" + path.relative(path.resolve("."), path.resolve("./schemas", m.moduleName, cd.defaultThemeFile)).replaceAll("\\", "/"),
+                numBlocks: nb
+            });
+            if (cd.clientSideComps) {
+                cd.clientSideComps.forEach(cl => {
+                    view.clSideComps.push({ n: `${cn}:${cl}`, isLast: false });
+                });
+            }
         });
     });
+    if (view.clSideComps && view.clSideComps.length > 0) {
+        view.clSideComps[view.clSideComps.length - 1].isLast = true;
+    }
     return view;
 }
 export function generateComponentResolver() {

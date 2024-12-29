@@ -1,10 +1,10 @@
-import { NdContentImage, NdTranslatableText, NdList, NdCode, NdCallToAction, NdContentBlock } from "./content/nd-content";
+import { NdContentImage, NdTranslatableText, NdList, NdLink, NdCode, NdCallToAction, NdContentBlock } from "./content/nd-content";
 import { NdSkinComponent, NdRow, NdPageSkin, NdSkinComponentProps, NdContentSelector, NdComponentDefinition, NdThemeHierarchy } from "./skin/nd-skin";
 import { RenderingPageProps, RenderingPriority } from "./core/rendering-page-props";
 import { RenderingPage } from "./core/rendering-page";
 import { mergeTheme } from "./theme-utils/theme-merger";
 import { defaultRowThemeImpl } from "./theme-utils/row-style";
-export { NdContentImage, NdTranslatableText, NdList, NdCode, NdCallToAction, NdContentBlock, NdSkinComponent, NdRow, NdPageSkin, NdSkinComponentProps, NdContentSelector, NdComponentDefinition, NdThemeHierarchy };
+export { NdContentImage, NdTranslatableText, NdList, NdLink, NdCode, NdCallToAction, NdContentBlock, NdSkinComponent, NdRow, NdPageSkin, NdSkinComponentProps, NdContentSelector, NdComponentDefinition, NdThemeHierarchy };
 export { RenderingPageProps, RenderingPriority, RenderingPage };
 export { mergeTheme };
 export { DummyComp } from "./core/dummy-comp";

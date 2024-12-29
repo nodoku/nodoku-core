@@ -25,20 +25,25 @@ export class NdTranslatableText {
     }
 }
 
+export type NdListItem = {
+    text: NdTranslatableText | NdLink;
+    subList: NdParagraph | undefined;
+}
+
 export class NdList {
-    items: NdTranslatableText[];
+    items: NdListItem[];
     ordered: boolean;
 
-    private constructor(ordered: boolean, items: NdTranslatableText[]) {
+    private constructor(ordered: boolean, items: NdListItem[]) {
         this.ordered = ordered;
         this.items = items;
     }
 
-    public static createOrdered(items: NdTranslatableText[]): NdList {
+    public static createOrdered(items: NdListItem[]): NdList {
         return new NdList(true, items)
     }
 
-    public static createUnOrdered(items: NdTranslatableText[]): NdList {
+    public static createUnOrdered(items: NdListItem[]): NdList {
         return new NdList(false, items)
     }
 
@@ -55,6 +60,18 @@ export class NdCode {
 
 }
 
+export class NdLink {
+    urlText: NdTranslatableText | undefined;
+    url: NdTranslatableText;
+
+    constructor(text: NdTranslatableText, url: NdTranslatableText) {
+        this.urlText = text;
+        this.url = url;
+    }
+}
+
+export type NdParagraph = NdTranslatableText | NdList | NdCode | NdLink;
+
 export class NdContentBlock {
     id: string;
     lng: string;
@@ -68,7 +85,7 @@ export class NdContentBlock {
     h5?: NdTranslatableText;
     h6?: NdTranslatableText;
     callToActions: NdCallToAction[] = [];
-    paragraphs: (NdTranslatableText | NdList | NdCode)[] = [];
+    paragraphs: NdParagraph[] = [];
     images: NdContentImage[] = [];
     htmlElements: {htmlElem: HTMLElement, translatedText: (NdTranslatableText | NdContentImage | NdList | NdCode | NdCallToAction)}[] = [];
 

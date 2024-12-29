@@ -3,6 +3,9 @@ import {JSX} from "react";
 import {NdSkinComponentProps} from "../skin/nd-skin";
 import {NdCallToAction} from "../content/nd-content";
 import {NdTrustedHtml} from "./providers";
+import {NdParagraph} from "../content/nd-content";
+import {NdLink} from "../content/nd-content";
+import {NdListItem} from "../content/nd-content";
 
 
 export async function DummyComp(props: NdSkinComponentProps): Promise<JSX.Element> {
@@ -43,42 +46,7 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
                 </h6>}
 
                 paragraphs:
-                {await Promise.all(block.paragraphs.map(async (p: (NdTranslatableText | NdList | NdCode), ip: number) => {
-                    if (p instanceof NdTranslatableText) {
-                        return (
-                            <div>
-                                {p && p.key}
-                                <p key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
-                                    {p && t(p).__html as string}
-                                </p>
-                            </div>
-                        )
-                    } else if (p instanceof NdCode) {
-                        const code: NdCode = p as NdCode
-                        return (
-                            <div className={"border border-gray-200 p-4"}>
-                                <pre className={"text-pretty"}>
-                                    <code lang={code.lang} className={"hljs"} dangerouslySetInnerHTML={{__html: code.code}}/>
-                                </pre>
-                            </div>
-                        )
-                    } else {
-                        const list: NdList = p as NdList;
-                        if (list.ordered) {
-                            return (
-                                <ol className={"list-disc list-outside"}>
-                                    {list.items.map(i => <li className={"ml-4"}>{t(i).__html as string} <small>(<i>{i.key}</i>)</small></li>)}
-                                </ol>
-                            );
-                        } else {
-                            return (
-                                <ul className={"list-disc list-outside"}>
-                                    {list.items.map(i => <li className={"ml-4"}>{t(i).__html as string} <small>(<i>{i.key}</i>)</small></li>)}
-                                </ul>
-                            );
-                        }
-                    }
-                }))}
+                {await Promise.all(block.paragraphs.map(async (p: NdParagraph, ip: number) => renderParagraph(p, ip)))}
                 images:
                 {block.images.map((img: NdContentImage, ii: number) => {
                     return (
@@ -113,4 +81,75 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
         </div>
 
     );
+
+    function renderParagraph(p: NdParagraph, ip: number): JSX.Element {
+        if (p instanceof NdTranslatableText) {
+            return (
+                <div>
+                    {p && p.key}
+                    <p key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
+                        {p && t(p).__html as string}
+                    </p>
+                </div>
+            )
+        } else if (p instanceof NdCode) {
+            const code: NdCode = p as NdCode
+            return (
+                <div className={"border border-gray-200 p-4"}>
+                                <pre className={"text-pretty"}>
+                                    <code lang={code.lang} className={"hljs"} dangerouslySetInnerHTML={{__html: code.code}}/>
+                                </pre>
+                </div>
+            )
+        } else if (p instanceof NdLink) {
+            const link: NdLink = p as NdLink
+            return (
+                <div>
+                    link
+                    <div key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
+                        urlText: {link.urlText && showTranslatableText(link.urlText)}
+                        url: {showTranslatableText(link.url)}
+                    </div>
+
+                </div>
+
+            )
+        } else {
+            const list: NdList = p as NdList;
+            if (list.ordered) {
+                return (
+                    <ol className={"list-disc list-outside"}>
+                        {list.items.map(i =>
+                            <li className={"ml-4"}>
+                                {showListItem(i)}
+                                {i.subList && renderParagraph(i.subList, ip)}
+                            </li>
+                        )}
+                    </ol>
+                );
+            } else {
+                return (
+                    <ul className={"list-disc list-outside"}>
+                        {list.items.map(i =>
+                            <li className={"ml-4"}>
+                                {showListItem(i)}
+                                {i.subList && renderParagraph(i.subList, ip)}
+                            </li>
+                        )}
+                    </ul>
+                );
+            }
+        }
+    }
+}
+
+function showTranslatableText(text: NdTranslatableText): JSX.Element {
+    return <span>{text.text} <small>(<i>{text.key}</i>)</small></span>
+}
+
+function showListItem(i: NdListItem): JSX.Element {
+    return i.text instanceof NdTranslatableText ?
+        showTranslatableText(i.text) :
+        <span>link item {(i.text.urlText ? showTranslatableText(i.text.urlText) : "link text n/a")} : {showTranslatableText(i.text.url)}</span>;
+
 }
