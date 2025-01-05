@@ -297,7 +297,7 @@ class BlockHolder {
         if (!p.rawTagName) {
             return undefined;
         }
-        console.log("parsing paragraph", p.innerHTML);
+        // console.log("parsing paragraph", p.innerHTML);
         if (p.rawTagName === "p" || p.rawTagName === "blockquote") {
             return new NdTranslatableText(this.ns, `${idPrefix}`, p.innerHTML);
         }
@@ -334,9 +334,10 @@ class BlockHolder {
             let innerList = undefined;
             let liText; //TextNode | undefined;
             if (li.childNodes.length > 0) {
-                console.log("found inner item", li.childNodes.length, (li.childNodes.map(i => i)
-                    .map((i1) => i1.rawTagName ? i1.rawTagName : "N.A")), "<<<");
-                console.log("found inner list", li.childNodes[0].innerText);
+                // console.log("found inner item", li.childNodes.length, (li.childNodes.map(i => i as HTMLElement)
+                //     .map((i1: HTMLElement) => i1.rawTagName ? i1.rawTagName : "N.A")), "<<<");
+                //
+                // console.log("found inner list", li.childNodes[0].innerText)
                 innerList = li.childNodes
                     .map(cn => this.parseParagraph(`${idPrefix}.items.${k}.subList`, cn))
                     .find((p) => p != undefined && p instanceof NdList);
@@ -353,7 +354,7 @@ class BlockHolder {
             // console.log("found list", li.childNodes.filter(cn => Object.keys(cn).map(k => k == "parentNode" ? "parent" : (cn as HTMLElement)[k as l])), "<<", lin.innerText, "<<")
             // const foundList = {text: new NdTranslatableText(this.ns, `${idPrefix}.items.${k}`, liText)/*liText*/, subList: innerList};
             const foundList = { text: liText ? liText : new NdTranslatableText(this.ns, `${idPrefix}.items.${k}`, "n/a"), subList: innerList };
-            console.log("found list", ">>", foundList, "<<");
+            // console.log("found list", ">>", foundList, "<<")
             return foundList;
             // const listItem = this.parseParagraph(`${idPrefix}.items.${k}`, li)
             // return listItem ? listItem : new NdTranslatableText(this.ns, `${idPrefix}.items.${k}`, "undefined list item" + li.innerHTML);

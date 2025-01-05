@@ -40,6 +40,7 @@ export function parseYamlContentAsSkin(fileContents) {
                 lbVisualComponent.themeHierarchy.componentThemes = componentTheme ? componentTheme[vcName]?.themes?.slice() : undefined;
                 lbVisualComponent.themeHierarchy.theme = vb.theme;
                 lbVisualComponent.themeHierarchy.themes = vb.themes?.slice();
+                lbVisualComponent.themeHierarchy.options = vb.options;
                 lbVisualComponent.componentName = vcName;
                 const attributes = vb.selector.attributes ?
                     Object.keys(vb.selector.attributes).map(a => { return { key: a, value: vb.selector.attributes[a] }; }) :

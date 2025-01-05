@@ -23,14 +23,14 @@ export const tsi = function (t, key, i) {
         const obj = t[key];
         const themeStyle = obj[i % len];
         const k = key;
-        return k + `[${i}]` + themeStyle?.base + " " + themeStyle?.decoration;
+        return k + `[${i}] ` + themeStyle?.base + " " + themeStyle?.decoration;
     }
     else if (Array.isArray(t[key])) {
         // console.log("this is tsi array", key)
         const len = t[key].length;
         const themeStyle = t[key][i % len];
         const k = key;
-        return k + `[${i}]` + themeStyle?.base + " " + themeStyle?.decoration;
+        return k + `[${i}] ` + themeStyle?.base + " " + themeStyle?.decoration;
     }
     else {
         return ts(t, key);

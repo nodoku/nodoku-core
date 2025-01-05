@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "module": "CommonJS",
+//    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+//    "sourceMap": true,
+    "inlineSourceMap": true,
+    "jsx": "preserve",
+    "incremental": false,
+    "declaration": true,
+    "declarationDir": "./dist/tailwind/types",
+    "outDir": "./dist/tailwind/cjs",
+    "rootDir": "./src/tailwind"
+  },
+  "include": [
+    "src/tailwind/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

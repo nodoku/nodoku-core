@@ -53,6 +53,7 @@ export function parseYamlContentAsSkin(fileContents: string): NdPageSkin {
                 lbVisualComponent.themeHierarchy.componentThemes = componentTheme ? componentTheme[vcName]?.themes?.slice() : undefined;
                 lbVisualComponent.themeHierarchy.theme = vb.theme
                 lbVisualComponent.themeHierarchy.themes = vb.themes?.slice();
+                lbVisualComponent.themeHierarchy.options = vb.options;
 
                 lbVisualComponent.componentName = vcName;
 

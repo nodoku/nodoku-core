@@ -62,13 +62,13 @@ export const tsi = function <T>(t: T, key: keyof T, i: number): string {
         const obj = t[key] as {[key: number]: any}
         const themeStyle = obj[i % len];
         const k = key as String;
-        return k + `[${i}]` + themeStyle?.base + " " + themeStyle?.decoration;
+        return k + `[${i}] ` + themeStyle?.base + " " + themeStyle?.decoration;
     } else if (Array.isArray(t[key])) {
         // console.log("this is tsi array", key)
         const len = t[key].length;
         const themeStyle = t[key][i % len] as ThemeStyle;
         const k = key as String;
-        return k + `[${i}]` + themeStyle?.base + " " + themeStyle?.decoration;
+        return k + `[${i}] ` + themeStyle?.base + " " + themeStyle?.decoration;
     } else {
         return ts(t, key)
     }

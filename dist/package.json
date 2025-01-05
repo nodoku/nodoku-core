@@ -1,11 +1,15 @@
 {
   "name": "nodoku-core",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "basic foundation for nodoku static site generator",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
       "import": "./esm/index.js"
+    },
+    "./tailwind": {
+      "types": "./types/tailwind/index.d.ts",
+      "require": "./esm/tailwind/index.js"
     },
     "./package.json": "./package.json"
   },
