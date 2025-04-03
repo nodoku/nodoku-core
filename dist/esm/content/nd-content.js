@@ -41,14 +41,6 @@ export class NdCode {
         this.code = code;
     }
 }
-export class NdLink {
-    urlText;
-    url;
-    constructor(text, url) {
-        this.urlText = text;
-        this.url = url;
-    }
-}
 export class NdContentBlock {
     id;
     lng;

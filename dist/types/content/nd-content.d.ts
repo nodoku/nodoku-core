@@ -16,7 +16,7 @@ export declare class NdTranslatableText {
     constructor(ns: string, key?: string, text?: string, excludeFromTranslation?: boolean);
 }
 export type NdListItem = {
-    text: NdTranslatableText | NdLink;
+    text: NdTranslatableText;
     subList: NdParagraph | undefined;
 };
 export declare class NdList {
@@ -31,12 +31,7 @@ export declare class NdCode {
     code: string;
     constructor(lang: string, code: string);
 }
-export declare class NdLink {
-    urlText: NdTranslatableText | undefined;
-    url: NdTranslatableText;
-    constructor(text: NdTranslatableText, url: NdTranslatableText);
-}
-export type NdParagraph = NdTranslatableText | NdList | NdCode | NdLink;
+export type NdParagraph = NdTranslatableText | NdList | NdCode;
 export declare class NdContentBlock {
     id: string;
     lng: string;

@@ -4,7 +4,7 @@ import {NdSkinComponentProps} from "../skin/nd-skin";
 import {NdCallToAction} from "../content/nd-content";
 import {NdTrustedHtml} from "./providers";
 import {NdParagraph} from "../content/nd-content";
-import {NdLink} from "../content/nd-content";
+// import {NdLink} from "../content/nd-content";
 import {NdListItem} from "../content/nd-content";
 
 
@@ -101,7 +101,7 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
                                 </pre>
                 </div>
             )
-        } else if (p instanceof NdLink) {
+        } /*else if (p instanceof NdLink) {
             const link: NdLink = p as NdLink
             return (
                 <div>
@@ -114,7 +114,7 @@ async function render(rowIndex: number, componentIndex: number, block: NdContent
                 </div>
 
             )
-        } else {
+        } */else {
             const list: NdList = p as NdList;
             if (list.ordered) {
                 return (
@@ -148,8 +148,9 @@ function showTranslatableText(text: NdTranslatableText): JSX.Element {
 }
 
 function showListItem(i: NdListItem): JSX.Element {
-    return i.text instanceof NdTranslatableText ?
-        showTranslatableText(i.text) :
-        <span>link item {(i.text.urlText ? showTranslatableText(i.text.urlText) : "link text n/a")} : {showTranslatableText(i.text.url)}</span>;
+    // return i.text instanceof NdTranslatableText ?
+    //     showTranslatableText(i.text) :
+    //     <span>link item {(i.text.urlText ? showTranslatableText(i.text.urlText) : "link text n/a")} : {showTranslatableText(i.text.url)}</span>;
 
+    return showTranslatableText(i.text)
 }

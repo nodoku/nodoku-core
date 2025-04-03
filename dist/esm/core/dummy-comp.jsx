@@ -1,5 +1,4 @@
 import { NdCode, NdTranslatableText } from "../content/nd-content";
-import { NdLink } from "../content/nd-content";
 export async function DummyComp(props) {
     // console.log("content dummy comp", props.theme)
     const { content, i18nextTrustedHtmlProvider, lng, rowIndex, componentIndex } = props;
@@ -75,18 +74,20 @@ async function render(rowIndex, componentIndex, block, t) {
                                     <code lang={code.lang} className={"hljs"} dangerouslySetInnerHTML={{ __html: code.code }}/>
                                 </pre>
                 </div>);
-        }
-        else if (p instanceof NdLink) {
-            const link = p;
-            return (<div>
+        } /*else if (p instanceof NdLink) {
+            const link: NdLink = p as NdLink
+            return (
+                <div>
                     link
                     <div key={ip} className={"mb-3 font-normal text-gray-700 dark:text-gray-400"}>
                         urlText: {link.urlText && showTranslatableText(link.urlText)}
                         url: {showTranslatableText(link.url)}
                     </div>
 
-                </div>);
-        }
+                </div>
+
+            )
+        } */
         else {
             const list = p;
             if (list.ordered) {
@@ -112,7 +113,8 @@ function showTranslatableText(text) {
     return <span>{text.text} <small>(<i>{text.key}</i>)</small></span>;
 }
 function showListItem(i) {
-    return i.text instanceof NdTranslatableText ?
-        showTranslatableText(i.text) :
-        <span>link item {(i.text.urlText ? showTranslatableText(i.text.urlText) : "link text n/a")} : {showTranslatableText(i.text.url)}</span>;
+    // return i.text instanceof NdTranslatableText ?
+    //     showTranslatableText(i.text) :
+    //     <span>link item {(i.text.urlText ? showTranslatableText(i.text.urlText) : "link text n/a")} : {showTranslatableText(i.text.url)}</span>;
+    return showTranslatableText(i.text);
 }

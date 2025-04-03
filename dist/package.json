@@ -1,7 +1,8 @@
 {
   "name": "nodoku-core",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "description": "basic foundation for nodoku static site generator",
+  "license": "MIT for the use not related to website builders, commercial otherwise, contact for details",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",

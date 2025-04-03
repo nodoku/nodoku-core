@@ -26,7 +26,7 @@ export class NdTranslatableText {
 }
 
 export type NdListItem = {
-    text: NdTranslatableText | NdLink;
+    text: NdTranslatableText /*| NdLink*/;
     subList: NdParagraph | undefined;
 }
 
@@ -60,17 +60,17 @@ export class NdCode {
 
 }
 
-export class NdLink {
-    urlText: NdTranslatableText | undefined;
-    url: NdTranslatableText;
+// export class NdLink {
+//     urlText: NdTranslatableText | undefined;
+//     url: NdTranslatableText;
+//
+//     constructor(text: NdTranslatableText, url: NdTranslatableText) {
+//         this.urlText = text;
+//         this.url = url;
+//     }
+// }
 
-    constructor(text: NdTranslatableText, url: NdTranslatableText) {
-        this.urlText = text;
-        this.url = url;
-    }
-}
-
-export type NdParagraph = NdTranslatableText | NdList | NdCode | NdLink;
+export type NdParagraph = NdTranslatableText | NdList | NdCode/* | NdLink*/;
 
 export class NdContentBlock {
     id: string;

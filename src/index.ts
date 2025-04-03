@@ -1,4 +1,4 @@
-import {NdContentImage, NdTranslatableText, NdList, NdLink, NdListItem, NdCode, NdCallToAction, NdParagraph, NdContentBlock} from "./content/nd-content";
+import {NdContentImage, NdTranslatableText, NdList, /*NdLink, */NdListItem, NdCode, NdCallToAction, NdParagraph, NdContentBlock} from "./content/nd-content";
 import {NdSkinComponent, NdRow, NdPageSkin, NdSkinComponentProps, NdContentSelector, NdComponentDefinition, NdThemeHierarchy, NdDefaultThemeName} from "./skin/nd-skin";
 import {RenderingPageProps, RenderingPriority} from "./core/rendering-page-props";
 import {RenderingPage} from "./core/rendering-page"
@@ -15,7 +15,7 @@ export {
     NdTranslatableText,
     NdList,
     type NdListItem,
-    NdLink,
+    // NdLink,
     NdCode,
     NdCallToAction,
     NdContentBlock,
@@ -47,8 +47,8 @@ export {contentMarkdownProvider, parseMarkdownAsContent} from "./providers/conte
 export {skinYamlProvider, parseYamlContentAsSkin} from "./providers/skin/skin-yaml-provider"
 
 export const ts = function <T>(t: T, key: keyof T): string {
-    const themeStyle = t[key] as ThemeStyle;
-    const k = key as String;
+    const themeStyle: ThemeStyle = t[key] as ThemeStyle;
+    const k: string = key as string;
     return k + " " + themeStyle?.base + " " + themeStyle?.decoration;
 }
 

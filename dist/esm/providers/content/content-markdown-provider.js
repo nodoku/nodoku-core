@@ -3,7 +3,6 @@ import { Marked } from '@ts-stack/markdown';
 import { parse, TextNode } from 'node-html-parser';
 import yaml from "js-yaml";
 import { NdCallToAction } from "../../content/nd-content";
-import { NdLink } from "../../content/nd-content";
 const nsRegex = /.*\/(.*)\.md/;
 export async function contentMarkdownProvider(mdFileUrl, contentLng, ns = undefined) {
     return await fetch(mdFileUrl)
@@ -224,7 +223,12 @@ class BlockHolder {
                             img = new NdContentImage();
                             img.url = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.url`, imgHtmlElem.attributes["src"], true);
                             img.alt = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.alt`, imgHtmlElem.attributes["alt"]);
-                            img.title = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.title`, imgHtmlElem.attributes["title"]);
+                            if (imgHtmlElem.attributes["title"] && imgHtmlElem.attributes["title"].length > 0) {
+                                img.title = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.title`, imgHtmlElem.attributes["title"]);
+                            }
+                            else {
+                                img.title = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.title`, imgHtmlElem.attributes["alt"]);
+                            }
                         }
                     });
                     if (img) {
@@ -243,7 +247,12 @@ class BlockHolder {
                     img = new NdContentImage();
                     img.url = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.url`, htmlElem.attributes["src"], true);
                     img.alt = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.alt`, htmlElem.attributes["alt"]);
-                    img.title = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.title`, htmlElem.attributes["title"]);
+                    if (htmlElem.attributes["title"] && htmlElem.attributes["title"].length > 0) {
+                        img.title = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.title`, htmlElem.attributes["title"]);
+                    }
+                    else {
+                        img.title = new NdTranslatableText(this.ns, `${blockId}.images.${imi}.title`, htmlElem.attributes["alt"]);
+                    }
                 }
                 if (img) {
                     newBlock.images.push(img);
@@ -290,20 +299,22 @@ class BlockHolder {
         if (!cn) {
             return undefined;
         }
-        if (cn instanceof TextNode) {
+        if (cn instanceof TextNode && cn.text.length > 0) {
             return new NdTranslatableText(this.ns, `${idPrefix}`, cn.text);
         }
         const p = cn;
         if (!p.rawTagName) {
             return undefined;
         }
-        // console.log("parsing paragraph", p.innerHTML);
+        // console.log("parsing paragraph", p.rawTagName, p.innerHTML);
         if (p.rawTagName === "p" || p.rawTagName === "blockquote") {
             return new NdTranslatableText(this.ns, `${idPrefix}`, p.innerHTML);
-        }
-        else if (p.rawTagName === "a") {
-            return new NdLink(new NdTranslatableText(this.ns, `${idPrefix}.urlText`, p.innerHTML), new NdTranslatableText(this.ns, `${idPrefix}.url`, p.attributes["href"], true));
-        }
+        } /*else if (p.rawTagName === "a") {
+            return new NdLink(
+                new NdTranslatableText(this.ns, `${idPrefix}.urlText`, p.innerHTML),
+                new NdTranslatableText(this.ns, `${idPrefix}.url`, p.attributes["href"], true)
+            );
+        } */
         else if (p.rawTagName === "pre") {
             const codeHtml = p.childNodes[0];
             const rawText = codeHtml.text;
@@ -320,19 +331,32 @@ class BlockHolder {
         }
         else if (p.rawTagName === "ul") {
             return NdList.createUnOrdered(this.parseListItems(idPrefix, p));
-        } /*else {
-            return new NdTranslatableText(this.ns, `${idPrefix}`, p.innerHTML);
-        }*/
-        console.log("couldn't parse paragraph: ", p.innerHTML);
-        return undefined;
+        }
+        else {
+            // const pItems: NdTranslatableText[] = []
+            // pItems.push(new NdTranslatableText(this.ns, idPrefix, p.innerHTML))
+            // p.childNodes
+            //     .filter(cn => cn.textContent.length > 0)
+            //     .forEach(cn => pItems.push(new NdTranslatableText(this.ns, idPrefix, cn.rawText)))
+            // console.log("reducing inner nodes of paragraph", pItems)
+            // return  pItems.reduce((prev, current) => new NdTranslatableText(this.ns, prev.key, prev.text + "\n" + current.text) )
+            return new NdTranslatableText(this.ns, idPrefix, p.toString());
+        }
+        // console.log("couldn't parse paragraph: ", p.innerHTML)
+        //
+        // return undefined;
     }
     parseListItems(idPrefix, p) {
+        // console.log("parsing list items ", p)
         return p.childNodes
             .filter(lin => lin.innerText && lin.innerText.trim().length > 0)
             .map((lin, k) => {
             const li = lin;
             let innerList = undefined;
-            let liText; //TextNode | undefined;
+            let liText = []; // /*| NdLink*/ | undefined;//TextNode | undefined;
+            if (li.innerHTML && li.innerHTML.length > 0) {
+                liText?.push(new NdTranslatableText(this.ns, `${idPrefix}.items.${k}`, li.innerHTML));
+            }
             if (li.childNodes.length > 0) {
                 // console.log("found inner item", li.childNodes.length, (li.childNodes.map(i => i as HTMLElement)
                 //     .map((i1: HTMLElement) => i1.rawTagName ? i1.rawTagName : "N.A")), "<<<");
@@ -343,17 +367,22 @@ class BlockHolder {
                     .find((p) => p != undefined && p instanceof NdList);
                 liText = li.childNodes
                     .map(cn => this.parseParagraph(`${idPrefix}.items.${k}.text`, cn))
-                    .find((p) => p != undefined && (p instanceof NdLink || p instanceof NdTranslatableText));
+                    .filter((p) => p != undefined && ( /*p instanceof NdLink || */p instanceof NdTranslatableText));
                 // innerList = innerNodes.find((p: NdParagraph | undefined) => p != undefined && p instanceof NdList)
                 // if (li.childNodes[0].rawTagName in ["ol", "ul"]) {
                 // }
                 // liText = li.childNodes.filter(cn => cn instanceof TextNode).find(t => t && t.text.length > 0);
                 // liText = innerNodes.find((p: NdParagraph | undefined) => p != undefined && (p instanceof NdLink || p instanceof NdTranslatableText))
             }
+            let itemText = new NdTranslatableText(this.ns, `${idPrefix}.items.${k}`, "n/a");
+            if (liText.length > 0) {
+                // console.log("reducing inner item", liText)
+                itemText = liText.reduce((prev, current) => new NdTranslatableText(this.ns, prev.key, prev.text + "\n" + current.text));
+            }
             // type l = keyof HTMLElement
             // console.log("found list", li.childNodes.filter(cn => Object.keys(cn).map(k => k == "parentNode" ? "parent" : (cn as HTMLElement)[k as l])), "<<", lin.innerText, "<<")
             // const foundList = {text: new NdTranslatableText(this.ns, `${idPrefix}.items.${k}`, liText)/*liText*/, subList: innerList};
-            const foundList = { text: liText ? liText : new NdTranslatableText(this.ns, `${idPrefix}.items.${k}`, "n/a"), subList: innerList };
+            const foundList = { text: itemText, subList: innerList };
             // console.log("found list", ">>", foundList, "<<")
             return foundList;
             // const listItem = this.parseParagraph(`${idPrefix}.items.${k}`, li)
