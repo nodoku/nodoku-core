@@ -27,6 +27,13 @@ jobs:
       - name: Build project
         run: npm run dist
 
+      - name: Update version from release tag
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          VERSION=${VERSION#v}
+          cd dist
+          npm version $VERSION --no-git-tag-version --allow-same-version
+
       - name: Publish to NPM
         run: |
           cd dist
