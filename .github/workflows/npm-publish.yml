@@ -7,10 +7,6 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: github-npm-release
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Checkout code
@@ -39,6 +35,6 @@ jobs:
       - name: Publish to NPM
         run: |
           cd dist
-          ls -ltra
-          cat package.json
-          npm publish --provenance --access public --registry=https://registry.npmjs.org/
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
