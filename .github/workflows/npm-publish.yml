@@ -39,5 +39,6 @@ jobs:
       - name: Publish to NPM
         run: |
           cd dist
+          ls -ltra
           cat package.json
-          npm publish --provenance --access public
+          npm publish --provenance --access public --registry=https://registry.npmjs.org/
