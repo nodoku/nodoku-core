@@ -35,7 +35,9 @@ jobs:
           cd dist
           npm version $VERSION --no-git-tag-version --allow-same-version
 
+
       - name: Publish to NPM
         run: |
           cd dist
+          cat dist/package.json
           npm publish --provenance --access public
