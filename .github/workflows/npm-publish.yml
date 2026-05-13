@@ -39,5 +39,5 @@ jobs:
       - name: Publish to NPM
         run: |
           cd dist
-          cat dist/package.json
+          cat package.json
           npm publish --provenance --access public
