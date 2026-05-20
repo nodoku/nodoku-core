@@ -10,7 +10,7 @@
     },
     "./tailwind": {
       "types": "./types/tailwind/index.d.ts",
-      "require": "./esm/tailwind/index.js"
+      "import": "./esm/tailwind/index.js"
     },
     "./package.json": "./package.json"
   },
