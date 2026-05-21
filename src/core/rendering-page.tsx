@@ -23,6 +23,7 @@ import {NdTrustedHtml} from "./providers";
 import {NdI18nextTrustedHtmlProvider} from "./providers";
 import {NdHtmlSanitizer} from "./providers";
 import {NdClientSideComponentProvider} from "./providers";
+import path from "path";
 
 async function defaultComponentResolver(): Promise<{compo: AsyncFunctionComponent, compoDef: NdComponentDefinition}> {
     const compoDef: NdComponentDefinition = new NdComponentDefinition("unlimited", undefined, {});
@@ -266,6 +267,7 @@ async function createRowComponents(rowIndex: number,
     // console.log("start rendering comp", rowIndex, blockIndex, skinComponent);
 
     if (!compoDef.defaultTheme && compoDef.defaultThemeYaml) {
+        console.log("[createRowComponents] loading defaultThemeYaml", compoDef.defaultThemeYaml, path.resolve(process.cwd(), compoDef.defaultThemeYaml))
         compoDef.defaultTheme = yaml.load(fs.readFileSync(compoDef.defaultThemeYaml).toString());
     }
 
